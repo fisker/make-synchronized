@@ -48,6 +48,8 @@ Return value dependents on `moduleOrFunction`,
   // -> "resolved"
   ```
 
+  [Example](./examples/example-make-function-synchronize.js)
+
 - If `moduleOrFunction` is a module default export a function, returns a `Proxy` function, with other specifiers attached.
 
   ```js
@@ -70,6 +72,8 @@ Return value dependents on `moduleOrFunction`,
   synchronized.bar()
   // -> "bar called"
   ```
+
+  [Example](./examples/example-default-export-is-a-function.js)
 
 - If `moduleOrFunction` is a module without default export or default export is not a function, a `Module` object will be returned with all specifiers.
 
@@ -94,6 +98,8 @@ Return value dependents on `moduleOrFunction`,
   module.bar()
   // -> "bar called"
   ```
+
+  [Example](./examples/example-named-exports.js)
 
 ### `makeSynchronizedDefaultExport(module)`
 
