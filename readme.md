@@ -38,7 +38,7 @@ import {
   makeSynchronizedDefaultExport,
   makeSynchronizedFunction,
   makeSynchronizedModule,
-} from '../index.js'
+} from 'make-synchronized'
 ```
 
 ## API
