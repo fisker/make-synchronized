@@ -1,11 +1,22 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import url from 'node:url'
 import makeSynchronized from './index.js'
 
 test('Main', () => {
-  const identity = makeSynchronized(new URL('./fixtures/async-identity.js', import.meta.url))
-  assert.equal(identity(1), 1)
-});
+  const moduleUrl = new URL('./fixtures/async-identity.js', import.meta.url)
+
+  {
+    const identity = makeSynchronized(moduleUrl)
+    assert.equal(identity(1), 1)
+  }
+
+  // Support path
+  {
+    const identity = makeSynchronized(url.fileURLToPath(moduleUrl))
+    assert.equal(identity(2), 2)
+  }
+})
 
 test('Named exports', () => {
   const proxy = makeSynchronized(new URL('./fixtures/named-exports.js', import.meta.url))
@@ -19,7 +30,7 @@ test('Named exports', () => {
   assert.equal(proxy.default(), 'default export')
   assert.equal(proxy.foo(), 'foo export')
   assert.equal(proxy.bar(), 'bar export')
-});
+})
 
 test('Functions', () => {
   const identity = makeSynchronized(async (x) => x);

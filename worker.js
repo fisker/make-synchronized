@@ -1,4 +1,5 @@
-import { parentPort } from "worker_threads";
+import * as url from 'node:url'
+import { parentPort } from "worker_threads"
 
 parentPort.addListener(
   "message",
@@ -9,6 +10,10 @@ parentPort.addListener(
     entryPoint = 'default',
     argumentsList,
    }) => {
+    if (!module.startsWith('file://') && !module.startsWith('data:')) {
+      module = url.pathToFileURL(module)
+    }
+
     const response = {};
 
     try {
