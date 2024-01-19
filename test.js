@@ -73,8 +73,8 @@ test('Functions', () => {
 test('Errors', () => {
   assert.throws(() => {
     makeSynchronized(/* Invalid module */ true)
-  },{name: 'TypeError'})
+  },{name: 'Error'})
   assert.throws(() => {
-    makeSynchronized(/* Invalid module */ true)
-  },{name: 'TypeError'})
+    makeSynchronized('/non-exits-module.js')
+  },{name: 'Error'})
 })

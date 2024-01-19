@@ -6,19 +6,7 @@ import {
 import {CALL, GET, GET_MODULE_SPECIFIERS} from './constants.js'
 import createWorker from './utilities/create-worker.js'
 import functionToModule from './utilities/function-to-module.js'
-import callWorker from './utilities/call-worker.js'
-
-function createSynchronizedFunction(worker, url, specifier) {
-  return function (...argumentsList) {
-    return callWorker(worker, CALL, {url, specifier, argumentsList})
-  }
-}
-
-function createGetter(worker, url, property) {
-  return function () {
-    return callWorker(worker, GET, {url, property})
-  }
-}
+import Synchronizer from "./utilities/synchronizer.js"
 
 function makeSynchronized(module) {
   const isFunction = typeof module === 'function'
@@ -26,16 +14,13 @@ function makeSynchronized(module) {
     module = functionToModule(module);
   }
 
-  const url = module instanceof URL ? module.href : module
-  let worker = createWorker()
+  const synchronizer = new Synchronizer({module})
 
   if (isFunction) {
-    return createSynchronizedFunction(worker, url)
+    return synchronizer.createSynchronizedFunction()
   }
 
-  const specifiers = callWorker(worker, GET_MODULE_SPECIFIERS, {url});
-
-  const functions = new Map()
+  const specifiers = synchronizer.getModuleSpecifiers();
 
   return Object.defineProperties(
     Object.create(null),
@@ -44,9 +29,9 @@ function makeSynchronized(module) {
         .map(({specifier, type}) => {
           let descriptor = {enumerable: true};
           if (type === 'function') {
-            descriptor.value = createSynchronizedFunction(worker, url, specifier)
+            descriptor.value = synchronizer.createSynchronizedFunction(specifier)
           } else {
-            descriptor.get = createGetter(worker, url, specifier)
+            descriptor.get = synchronizer.createGetter(specifier)
           }
 
           return [specifier, descriptor];
