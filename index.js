@@ -20,21 +20,13 @@ function createGetter(worker, url, property) {
   }
 }
 
-function createDescriptor(getter) {
-  let value;
-  return {
-    value,
-    enumerable: true,
-  };
-}
-
 function makeSynchronized(module) {
   const isFunction = typeof module === 'function'
   if (isFunction) {
     module = functionToModule(module);
   }
 
-  const url = new URL(module).href
+  const url = module instanceof URL ? module.href : module
   let worker = createWorker()
 
   if (isFunction) {
