@@ -3,45 +3,64 @@ import {
   receiveMessageOnPort,
   MessageChannel,
 } from "node:worker_threads"
-import {CALL} from './constants.js'
+import {CALL, GET, GET_MODULE_SPECIFIERS} from './constants.js'
 import createWorker from './utilities/create-worker.js'
 import functionToModule from './utilities/function-to-module.js'
 import callWorker from './utilities/call-worker.js'
 
-function createFunction(url, specifier) {
-  let worker
-  url = url.href
-
+function createSynchronizedFunction(worker, url, specifier) {
   return function (...argumentsList) {
-    worker ??= createWorker()
     return callWorker(worker, CALL, {url, specifier, argumentsList})
   }
 }
 
+function createGetter(worker, url, property) {
+  return function () {
+    return callWorker(worker, GET, {url, property})
+  }
+}
+
+function createDescriptor(getter) {
+  let value;
+  return {
+    value,
+    enumerable: true,
+  };
+}
+
 function makeSynchronized(module) {
-  if (typeof module === 'function') {
+  const isFunction = typeof module === 'function'
+  if (isFunction) {
     module = functionToModule(module);
   }
 
-  const url = new URL(module)
+  const url = new URL(module).href
+  let worker = createWorker()
 
-  const defaultExportFunction = createFunction(url)
-  const functions = new Map([
-    ['default', defaultExportFunction]
-  ])
+  if (isFunction) {
+    return createSynchronizedFunction(worker, url)
+  }
 
-  return new Proxy(defaultExportFunction, {
-    apply(target, thisArg, argumentsList) {
-      return Reflect.apply(target, thisArg, argumentsList);
-    },
-    get(target, property, receiver) {
-      if (!functions.has(property)) {
-        functions.set(property, createFunction(url, property));
-      }
+  const specifiers = callWorker(worker, GET_MODULE_SPECIFIERS, {url});
 
-      return functions.get(property);
-    },
-  })
+  const functions = new Map()
+
+  return Object.defineProperties(
+    Object.create(null),
+    Object.fromEntries(
+      specifiers
+        .map(({specifier, type}) => {
+          let descriptor = {enumerable: true};
+          if (type === 'function') {
+            descriptor.value = createSynchronizedFunction(worker, url, specifier)
+          } else {
+            descriptor.get = createGetter(worker, url, specifier)
+          }
+
+          return [specifier, descriptor];
+        })
+    )
+  )
 }
 
 export default makeSynchronized;

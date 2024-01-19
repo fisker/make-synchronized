@@ -1,22 +1,40 @@
 import { parentPort } from "node:worker_threads"
-import {CALL} from './constants.js'
+import { CALL, GET, GET_MODULE_SPECIFIERS } from './constants.js'
 
 async function callFunction({
   url,
   specifier = 'default',
   argumentsList,
 }) {
-  const {
-    [specifier]: function_
-  } = await import(url);
+  const module = await import(url);
 
-  return await Reflect.apply(function_, this, argumentsList);
+  return await Reflect.apply(module[specifier], this, argumentsList);
+}
+
+async function getSpecifiers({url}) {
+  const module = await import(url);
+
+  return Object.entries(module)
+    .map(([specifier, value]) => ({
+      specifier,
+      type: typeof value
+    }))
+}
+
+async function getProperty({url, property}) {
+  const module = await import(url);
+
+  return module[property];
 }
 
 function processAction(action, payload) {
   switch (action) {
     case CALL:
       return callFunction(payload);
+    case GET:
+      return getProperty(payload);
+    case GET_MODULE_SPECIFIERS:
+      return getSpecifiers(payload);
     default:
       throw new Error(`Unknown action '${action}'.`)
   }
