@@ -33,7 +33,9 @@ class Synchronizer {
   }
 
   getDefaultExportFunction() {
-    return this.createSynchronizedFunction()
+    return this.getModuleSpecifiers().default?.type === VALUE_TYPE_FUNCTION
+     ? this.createSynchronizedFunction()
+     : this.getSpecifier('default')
   }
 
   createSynchronizedFunction(specifier = 'default') {

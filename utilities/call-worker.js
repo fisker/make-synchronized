@@ -10,15 +10,19 @@ function callWorker(worker, action, payload) {
     port2: workerPort,
   } = new MessageChannel()
 
-  worker.postMessage(
-    { 
-      signal,
-      action,
-      port: workerPort,
-      payload,
-    },
-    [workerPort],
-  )
+  try {
+    worker.postMessage(
+      { 
+        signal,
+        action,
+        port: workerPort,
+        payload,
+      },
+      [workerPort],
+    )
+  } catch {
+    throw new Error("Cannot serialize data.")
+  }
 
   Atomics.wait(signal, 0, 0)
 
