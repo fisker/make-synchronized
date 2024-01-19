@@ -6,13 +6,16 @@ parentPort.addListener(
     signal,
     port,
     moduleId,
-    args,
+    entryPoint = 'default',
+    argumentsList,
    }) => {
     const response = {};
 
     try {
-      const {default: function_} = await import('moduleId');
-      response.result = await function_(...args);
+      const {
+        [entryPoint]: function_
+      } = await import(moduleId);
+      response.result = await function_(...argumentsList);
     } catch (error) {
       response.error = error;
       response.errorData = { ...error };
