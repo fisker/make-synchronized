@@ -1,4 +1,4 @@
-import {Worker} from "node:worker_threads"
+import {Worker} from 'node:worker_threads'
 import {WORKER_URL} from './constants.js'
 
 function createWorker(options) {

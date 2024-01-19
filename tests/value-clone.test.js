@@ -1,17 +1,14 @@
 import test from 'node:test'
 import * as assert from 'node:assert/strict'
-import {
-  makeSynchronizedModule,
-} from '../index.js'
+import {makeSynchronizedModule} from '../index.js'
 
-const synchronize = url => makeSynchronizedModule(
-  new URL(url, import.meta.url)
-)
+const synchronize = (url) =>
+  makeSynchronizedModule(new URL(url, import.meta.url))
 
 test('values', async () => {
   const moduleUrl = new URL('../fixtures/values.js', import.meta.url)
   const synchronized = makeSynchronizedModule(moduleUrl)
-  const dynamic = await import(moduleUrl);
+  const dynamic = await import(moduleUrl)
 
   assert.deepEqual(Object.keys(synchronized), Object.keys(dynamic))
   assert.equal(synchronized.NUMBER_POSITIVE_ZERO, 0)
@@ -29,13 +26,12 @@ test('values', async () => {
   assert.equal(synchronized.STRING_EMPTY, '')
   assert.equal(synchronized.STRING_FOO, 'FOO')
 
-
   assert.equal(synchronized.BOOLEAN_TRUE, true)
   assert.equal(synchronized.BOOLEAN_FALSE, false)
 
   assert.ok(synchronized.ERROR_SYNTAXERROR instanceof SyntaxError)
   assert.equal(synchronized.ERROR_SYNTAXERROR.message, 'message')
-  
+
   assert.deepEqual(synchronized.ARRAY_EMPTY, [])
   assert.deepEqual(synchronized.ARRAY_TWO_ZEROS, [0, 0])
 
@@ -46,16 +42,23 @@ test('values', async () => {
 
   assert.ok(synchronized.TIME_NOW instanceof Date)
 
-  assert.throws(() => {
-    synchronized.NON_TRANSFERABLE
-  }, {name: 'Error', message: 'Cannot serialize worker response.'})
+  assert.throws(
+    () => {
+      // eslint-disable-next-line no-unused-expressions
+      synchronized.NON_TRANSFERABLE
+    },
+    {name: 'Error', message: 'Cannot serialize worker response.'},
+  )
 })
 
 test('data to worker', async () => {
   const {default: identity} = synchronize('../fixtures/async-identity.js')
   assert.equal(identity(1), 1)
 
-  assert.throws(() => {
-    identity(Symbol('Symbol description'))
-  }, {name: 'Error', message: 'Cannot serialize data.'})
+  assert.throws(
+    () => {
+      identity(Symbol('Symbol description'))
+    },
+    {name: 'Error', message: 'Cannot serialize data.'},
+  )
 })

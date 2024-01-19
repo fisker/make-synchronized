@@ -1,12 +1,63 @@
 {
   "name": "make-synchronized",
   "version": "1.0.0",
-  "main": "index.js",
-  "repository": "git@github.com:fisker/make-synchronized.git",
-  "author": "fisker <lionkay@gmail.com>",
+  "homepage": "https://github.com/fisker/make-synchronized#readme",
+  "bugs": {
+    "url": "https://github.com/fisker/make-synchronized/issues"
+  },
+  "repository": "fisker/make-synchronized",
+  "funding": "https://github.com/fisker/make-synchronized?sponsor=1",
   "license": "MIT",
+  "author": {
+    "name": "fisker Cheung",
+    "email": "lionkay@gmail.com",
+    "url": "https://www.fiskercheung.com/"
+  },
+  "sideEffects": false,
   "type": "module",
+  "exports": "./index.js",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "utilities"
+  ],
   "scripts": {
-    "test": "node --test"
+    "clean": "run-p \"clean:*\"",
+    "clean:dist": "del-cli dist",
+    "dist": "run-p \"dist:*\"",
+    "dist:npm": "np --yolo --no-yarn",
+    "format": "run-p \"format:*\"",
+    "format:eslint": "yarn lint:eslint --fix",
+    "format:markdown": "markdownlint-cli2 --fix",
+    "format:package-json": "sort-package-json \"package.json\" \"packages/*/package.json\"",
+    "format:prettier": "yarn lint:prettier --write",
+    "lint": "run-p \"lint:*\"",
+    "lint:eslint": "eslint \"**/*.{js,jsx,mjs,cjs,vue}\"",
+    "lint:markdown": "markdownlint-cli2",
+    "lint:package-json": "yarn run format:package-json --check",
+    "lint:prettier": "prettier . --check",
+    "prepare": "husky install",
+    "test": "node --test",
+    "test-coverage": "node --test",
+    "release": "run-s lint format test dist"
+  },
+  "devDependencies": {
+    "@fisker/eslint-config": "12.0.0",
+    "@fisker/lint-staged-config": "3.3.1",
+    "@fisker/markdownlint-cli2-config": "0.0.3",
+    "@fisker/prettier-config": "5.1.1",
+    "del-cli": "5.1.0",
+    "eslint": "8.56.0",
+    "husky": "8.0.3",
+    "lint-staged": "15.2.0",
+    "markdownlint-cli2": "0.12.1",
+    "npm-run-all": "4.1.5",
+    "prettier": "3.2.4",
+    "sort-package-json": "2.6.0"
+  },
+  "packageManager": "yarn@4.0.2",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

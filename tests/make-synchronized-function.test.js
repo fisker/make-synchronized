@@ -1,8 +1,6 @@
 import test from 'node:test'
 import * as assert from 'node:assert/strict'
-import {
-  makeSynchronizedFunction,
-} from '../index.js'
+import {makeSynchronizedFunction} from '../index.js'
 
 test('makeSynchronizedFunction', () => {
   const double = makeSynchronizedFunction(async (x) => x * 2)

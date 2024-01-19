@@ -9,7 +9,7 @@ function toModuleId(module) {
   if (typeof module === 'string' && path.isAbsolute(module)) {
     module = url.pathToFileURL(module).href
   }
-  
+
   return module
 }
 

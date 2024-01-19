@@ -2,9 +2,7 @@ import test from 'node:test'
 import * as assert from 'node:assert/strict'
 import * as url from 'node:url'
 import * as path from 'node:path'
-import {
-  makeSynchronizedModule,
-} from '../index.js'
+import {makeSynchronizedModule} from '../index.js'
 
 test('module', () => {
   const moduleUrl = new URL('../fixtures/async-identity.js', import.meta.url)
@@ -17,23 +15,30 @@ test('built-module', () => {
   const {readFile} = makeSynchronizedModule('node:fs/promises')
   assert.ok(
     // A-comment-to-check-current-file-successfully-read
-    readFile(url.fileURLToPath(import.meta.url), 'utf8')
-      .includes('A-comment-to-check-current-file-successfully-read')
+    readFile(url.fileURLToPath(import.meta.url), 'utf8').includes(
+      'A-comment-to-check-current-file-successfully-read',
+    ),
   )
-  assert.ok(
-    makeSynchronizedModule('node:path').sep,
-    path.sep,
-  )
+  assert.ok(makeSynchronizedModule('node:path').sep, path.sep)
 })
 
 test('invalid', () => {
-  assert.throws(() => {
-    makeSynchronizedModule(/* Invalid module */ true)
-  }, {name: 'Error'})
-  assert.throws(() => {
-    makeSynchronizedModule(/* Missing module */)
-  }, {name: 'Error'})
-  assert.throws(() => {
-    makeSynchronizedModule('/non-exits-module.js')
-  },{name: 'Error'})
+  assert.throws(
+    () => {
+      makeSynchronizedModule(/* Invalid module */ true)
+    },
+    {name: 'Error'},
+  )
+  assert.throws(
+    () => {
+      makeSynchronizedModule(/* Missing module */)
+    },
+    {name: 'Error'},
+  )
+  assert.throws(
+    () => {
+      makeSynchronizedModule('/non-exits-module.js')
+    },
+    {name: 'Error'},
+  )
 })

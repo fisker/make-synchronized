@@ -33,6 +33,14 @@ synchronized()
 // Synchronized return value
 ```
 
+```js
+import {
+  makeSynchronizedDefaultExport,
+  makeSynchronizedFunction,
+  makeSynchronizedModule,
+} from '../index.js'
+```
+
 ## API
 
 ### `makeSynchronized(moduleOrFunction)`
@@ -42,7 +50,7 @@ Return value dependents on `moduleOrFunction`,
 - If `moduleOrFunction` is a `function`, returns a synchronized version of the passed function.
 
   ```js
-  const synchronized = makeSynchronized(() => Promise.resolve('resolved'));
+  const synchronized = makeSynchronized(() => Promise.resolve('resolved'))
 
   synchronized()
   // -> "resolved"
@@ -60,7 +68,7 @@ Return value dependents on `moduleOrFunction`,
   ```
 
   ```js
-  const synchronized = makeSynchronized(new URL('./foo.js', import.meta.url));
+  const synchronized = makeSynchronized(new URL('./foo.js', import.meta.url))
 
   synchronized()
   // -> "default export called"
@@ -84,7 +92,7 @@ Return value dependents on `moduleOrFunction`,
   ```
 
   ```js
-  const module = makeSynchronized(new URL('./foo.js', import.meta.url));
+  const module = makeSynchronized(new URL('./foo.js', import.meta.url))
 
   module
   // [Object: null prototype] [Module] {

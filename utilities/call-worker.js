@@ -1,18 +1,12 @@
-import {
-  receiveMessageOnPort,
-  MessageChannel,
-} from "node:worker_threads"
+import {receiveMessageOnPort, MessageChannel} from 'node:worker_threads'
 
 function callWorker(worker, action, payload) {
   const signal = new Int32Array(new SharedArrayBuffer(4))
-  const {
-    port1: localPort,
-    port2: workerPort,
-  } = new MessageChannel()
+  const {port1: localPort, port2: workerPort} = new MessageChannel()
 
   try {
     worker.postMessage(
-      { 
+      {
         signal,
         action,
         port: workerPort,
@@ -21,13 +15,13 @@ function callWorker(worker, action, payload) {
       [workerPort],
     )
   } catch {
-    throw new Error("Cannot serialize data.")
+    throw new Error('Cannot serialize data.')
   }
 
   Atomics.wait(signal, 0, 0)
 
   const {
-    message: { result, error, errorData },
+    message: {result, error, errorData},
   } = receiveMessageOnPort(localPort)
 
   if (error) {

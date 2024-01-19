@@ -1,12 +1,9 @@
 import test from 'node:test'
 import * as assert from 'node:assert/strict'
-import {
-  makeSynchronizedDefaultExport,
-} from '../index.js'
+import {makeSynchronizedDefaultExport} from '../index.js'
 
-const synchronize = url => makeSynchronizedDefaultExport(
-  new URL(url, import.meta.url)
-)
+const synchronize = (url) =>
+  makeSynchronizedDefaultExport(new URL(url, import.meta.url))
 
 test('makeSynchronizedDefaultExport', () => {
   const identity = synchronize('../fixtures/async-identity.js')
@@ -20,8 +17,5 @@ test('makeSynchronizedDefaultExport', () => {
     'the default export string',
   )
 
-  assert.equal(
-    synchronize('../fixtures/empty-module.js'),
-    undefined,
-  )
+  assert.equal(synchronize('../fixtures/empty-module.js'), undefined)
 })
