@@ -2,17 +2,17 @@ import { parentPort } from "node:worker_threads"
 import { CALL, GET, GET_MODULE_SPECIFIERS } from './constants.js'
 
 async function callFunction({
-  url,
+  moduleId,
   specifier = 'default',
   argumentsList,
 }) {
-  const module = await import(url);
+  const module = await import(moduleId);
 
   return await Reflect.apply(module[specifier], this, argumentsList);
 }
 
-async function getSpecifiers({url}) {
-  const module = await import(url);
+async function getSpecifiers({moduleId}) {
+  const module = await import(moduleId);
 
   return Object.entries(module)
     .map(([specifier, value]) => ({
@@ -21,8 +21,8 @@ async function getSpecifiers({url}) {
     }))
 }
 
-async function getProperty({url, property}) {
-  const module = await import(url);
+async function getProperty({moduleId, property}) {
+  const module = await import(moduleId);
 
   return module[property];
 }

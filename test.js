@@ -5,8 +5,15 @@ import makeSynchronized from './index.js'
 
 test('Main', () => {
   const moduleUrl = new URL('./fixtures/async-identity.js', import.meta.url)
-  const {default: identity} = makeSynchronized(moduleUrl)
-  assert.equal(identity(1), 1)
+  {
+    const {default: identity} = makeSynchronized(moduleUrl)
+    assert.equal(identity(1), 1)
+  }
+
+  {
+    const {default: identity} = makeSynchronized(url.fileURLToPath(moduleUrl))
+    assert.equal(identity(1), 1)
+  }
 })
 
 test('Named exports', () => {

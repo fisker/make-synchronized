@@ -5,14 +5,15 @@ import {
 } from '../constants.js'
 import createWorker from './create-worker.js'
 import callWorker from './call-worker.js'
+import toModuleId from './to-module-id.js'
 
 class Synchronizer {
   #worker
-  #url
+  #moduleId
 
   constructor({module}) {
     this.#worker = createWorker()
-    this.#url = module instanceof URL ? module.href : module
+    this.#moduleId = toModuleId(module)
   }
 
   getModuleSpecifiers() {
@@ -20,7 +21,7 @@ class Synchronizer {
       this.#worker,
       GET_MODULE_SPECIFIERS,
       {
-        url: this.#url,
+        moduleId: this.#moduleId,
       }
     )
   }
@@ -31,7 +32,7 @@ class Synchronizer {
         this.#worker,
         CALL,
         {
-          url: this.#url,
+          moduleId: this.#moduleId,
           specifier,
           argumentsList,
         },
@@ -45,7 +46,7 @@ class Synchronizer {
         this.#worker,
         GET, 
         {
-          url: this.#url,
+          moduleId: this.#moduleId,
           property,
         },
       )
