@@ -1,0 +1,12 @@
+{
+  "name": "make-synchronized",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:fisker/make-synchronized.git",
+  "author": "fisker <lionkay@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}
