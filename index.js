@@ -1,43 +1,40 @@
 import {
-  Worker,
-  receiveMessageOnPort,
-  MessageChannel,
-} from "node:worker_threads"
-import {CALL, GET, GET_MODULE_SPECIFIERS} from './constants.js'
-import createWorker from './utilities/create-worker.js'
+  VALUE_TYPE_FUNCTION,
+} from './utilities/constants.js'
 import functionToModule from './utilities/function-to-module.js'
 import Synchronizer from "./utilities/synchronizer.js"
 
+function makeSynchronizedDefaultExport(module) {
+  return new Synchronizer({module}).getDefaultExportFunction();
+}
+
+function makeSynchronizedFunction(function_) {
+  return makeSynchronizedDefaultExport(functionToModule(function_));
+}
+
+function makeSynchronizedModule(module) {
+  return new Synchronizer({module}).createModule();
+}
+
 function makeSynchronized(module) {
-  const isFunction = typeof module === 'function'
-  if (isFunction) {
-    module = functionToModule(module);
+  if (typeof module === 'function') {
+    return makeSynchronizedFunction(module);
   }
 
   const synchronizer = new Synchronizer({module})
+  const defaultExportType = synchronizer.getModuleSpecifiers().default?.type
 
-  if (isFunction) {
-    return synchronizer.createSynchronizedFunction()
+  if (defaultExportType === VALUE_TYPE_FUNCTION) {
+    return synchronizer.createDefaultExportFunctionProxy();
   }
 
-  const specifiers = synchronizer.getModuleSpecifiers();
-
-  return Object.defineProperties(
-    Object.create(null),
-    Object.fromEntries(
-      specifiers
-        .map(({specifier, type}) => {
-          let descriptor = {enumerable: true};
-          if (type === 'function') {
-            descriptor.value = synchronizer.createSynchronizedFunction(specifier)
-          } else {
-            descriptor.get = synchronizer.createGetter(specifier)
-          }
-
-          return [specifier, descriptor];
-        })
-    )
-  )
+  return synchronizer.createModule()
 }
 
 export default makeSynchronized;
+export {
+  makeSynchronized,
+  makeSynchronizedDefaultExport,
+  makeSynchronizedFunction,
+  makeSynchronizedModule,
+}
