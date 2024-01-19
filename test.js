@@ -8,15 +8,17 @@ test('Main', () => {
 });
 
 test('Named exports', () => {
-  const module = makeSynchronized(new URL('./fixtures/named-exports.js', import.meta.url))
-  assert.equal(typeof module, 'function')
-  assert.equal(typeof module.default, 'function')
-  assert.equal(typeof module.foo, 'function')
-  assert.equal(typeof module.bar, 'function')
-  assert.equal(module(), 'default export')
-  assert.equal(module.default(), 'default export')
-  assert.equal(module.foo(), 'foo export')
-  assert.equal(module.bar(), 'bar export')
+  const proxy = makeSynchronized(new URL('./fixtures/named-exports.js', import.meta.url))
+  assert.equal(typeof proxy, 'function')
+  assert.notEqual(proxy.default, proxy)
+  assert.equal(typeof proxy.default, 'function')
+  assert.equal(typeof proxy.foo, 'function')
+  assert.equal(typeof proxy.bar, 'function')
+  assert.equal(proxy.foo, proxy.foo)
+  assert.equal(proxy(), 'default export')
+  assert.equal(proxy.default(), 'default export')
+  assert.equal(proxy.foo(), 'foo export')
+  assert.equal(proxy.bar(), 'bar export')
 });
 
 test('Functions', () => {

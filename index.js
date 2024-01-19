@@ -49,11 +49,23 @@ function makeSynchronized(module) {
     module = `data:application/javascript;,export default ${encodeURIComponent(String(module))}`;
   }
 
-  const defaultExport = useModule({module})
+  const defaultExportFunction = useModule({module})
+  const functions = new Map([
+    ['default', defaultExportFunction]
+  ])
 
-  return new Proxy(defaultExport, {
-    apply: (target, thisArg, argumentsList) => Reflect.apply(target, thisArg, argumentsList),
-    get: (target, property, receiver) => useModule({module, entryPoint: property}),
+  return new Proxy(defaultExportFunction, {
+    apply(target, thisArg, argumentsList) {
+      return Reflect.apply(target, thisArg, argumentsList);
+    },
+    get(target, property, receiver) {
+
+      if (!functions.has(property)) {
+        functions.set(property, useModule({module, entryPoint: property}));
+      }
+
+      return functions.get(property);
+    },
   })
 }
 
