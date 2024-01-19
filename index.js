@@ -4,7 +4,7 @@ import {
   MessageChannel,
 } from "worker_threads"
 
-function useModule({moduleId, entryPoint}) {
+function useModule({module, entryPoint}) {
   let worker
 
   return function (...argumentsList) {
@@ -21,7 +21,7 @@ function useModule({moduleId, entryPoint}) {
       { 
         signal,
         port: workerPort,
-        moduleId,
+        module,
         entryPoint,
         argumentsList,
       },
@@ -42,16 +42,18 @@ function useModule({moduleId, entryPoint}) {
   }
 }
 
-function makeSynchronized(moduleId) {
-  if (moduleId instanceof URL) {
-    moduleId = moduleId.href;
+function makeSynchronized(module) {
+  if (module instanceof URL) {
+    module = module.href;
+  } else if (typeof module === 'function') {
+    module = `data:application/javascript;,export default ${encodeURIComponent(String(module))}`;
   }
 
-  const defaultExport = useModule({moduleId})
+  const defaultExport = useModule({module})
 
   return new Proxy(defaultExport, {
     apply: (target, thisArg, argumentsList) => Reflect.apply(target, thisArg, argumentsList),
-    get: (target, property, receiver) => useModule({moduleId, entryPoint: property}),
+    get: (target, property, receiver) => useModule({module, entryPoint: property}),
   })
 }
 

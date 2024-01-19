@@ -5,7 +5,7 @@ parentPort.addListener(
   async ({
     signal,
     port,
-    moduleId,
+    module,
     entryPoint = 'default',
     argumentsList,
    }) => {
@@ -14,7 +14,7 @@ parentPort.addListener(
     try {
       const {
         [entryPoint]: function_
-      } = await import(moduleId);
+      } = await import(module);
       response.result = await function_(...argumentsList);
     } catch (error) {
       response.error = error;

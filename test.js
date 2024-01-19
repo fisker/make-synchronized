@@ -4,10 +4,10 @@ import makeSynchronized from './index.js'
 
 test('Main', () => {
   const identity = makeSynchronized(new URL('./fixtures/async-identity.js', import.meta.url))
-  assert.equal(1, 1)
+  assert.equal(identity(1), 1)
 });
 
-test('Main', () => {
+test('Named exports', () => {
   const module = makeSynchronized(new URL('./fixtures/named-exports.js', import.meta.url))
   assert.equal(typeof module, 'function')
   assert.equal(typeof module.default, 'function')
@@ -18,3 +18,8 @@ test('Main', () => {
   assert.equal(module.foo(), 'foo export')
   assert.equal(module.bar(), 'bar export')
 });
+
+test('Functions', () => {
+  const identity = makeSynchronized(async (x) => x);
+  assert.equal(identity(1), 1)
+})
