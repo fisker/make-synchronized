@@ -1,3 +1,4 @@
+import Module from 'module';
 import {
   VALUE_TYPE_FUNCTION,
 } from './utilities/constants.js'
@@ -16,12 +17,12 @@ function makeSynchronizedModule(module) {
   return new Synchronizer({module}).createModule();
 }
 
-function makeSynchronized(module) {
-  if (typeof module === 'function') {
-    return makeSynchronizedFunction(module);
+function makeSynchronized(moduleOrFunction) {
+  if (typeof moduleOrFunction === 'function') {
+    return makeSynchronizedFunction(moduleOrFunction);
   }
 
-  const synchronizer = new Synchronizer({module})
+  const synchronizer = new Synchronizer({module: moduleOrFunction})
   const defaultExportType = synchronizer.getModuleSpecifiers().default?.type
 
   if (defaultExportType === VALUE_TYPE_FUNCTION) {
