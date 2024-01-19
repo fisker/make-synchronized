@@ -2,54 +2,30 @@ import {
   Worker,
   receiveMessageOnPort,
   MessageChannel,
-} from "worker_threads"
+} from "node:worker_threads"
+import {CALL} from './constants.js'
+import createWorker from './utilities/create-worker.js'
+import functionToModule from './utilities/function-to-module.js'
+import callWorker from './utilities/call-worker.js'
 
-function useModule({module, entryPoint}) {
+function createFunction(url, specifier) {
   let worker
+  url = url.href
 
   return function (...argumentsList) {
-    worker ??= (() => {
-      worker = new Worker(new URL('./worker.js', import.meta.url))
-      worker.unref()
-      return worker
-    })()
-
-    const signal = new Int32Array(new SharedArrayBuffer(4))
-    const { port1: localPort, port2: workerPort } = new MessageChannel()
-
-    worker.postMessage(
-      { 
-        signal,
-        port: workerPort,
-        module,
-        entryPoint,
-        argumentsList,
-      },
-      [workerPort],
-    )
-
-    Atomics.wait(signal, 0, 0)
-
-    const {
-      message: { result, error, errorData },
-    } = receiveMessageOnPort(localPort)
-
-    if (error) {
-      throw Object.assign(error, errorData)
-    }
-
-    return result
+    worker ??= createWorker()
+    return callWorker(worker, CALL, {url, specifier, argumentsList})
   }
 }
 
 function makeSynchronized(module) {
-  if (module instanceof URL) {
-    module = module.href;
-  } else if (typeof module === 'function') {
-    module = `data:application/javascript;,export default ${encodeURIComponent(String(module))}`;
+  if (typeof module === 'function') {
+    module = functionToModule(module);
   }
 
-  const defaultExportFunction = useModule({module})
+  const url = new URL(module)
+
+  const defaultExportFunction = createFunction(url)
   const functions = new Map([
     ['default', defaultExportFunction]
   ])
@@ -59,9 +35,8 @@ function makeSynchronized(module) {
       return Reflect.apply(target, thisArg, argumentsList);
     },
     get(target, property, receiver) {
-
       if (!functions.has(property)) {
-        functions.set(property, useModule({module, entryPoint: property}));
+        functions.set(property, createFunction(url, property));
       }
 
       return functions.get(property);

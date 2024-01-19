@@ -5,17 +5,8 @@ import makeSynchronized from './index.js'
 
 test('Main', () => {
   const moduleUrl = new URL('./fixtures/async-identity.js', import.meta.url)
-
-  {
-    const identity = makeSynchronized(moduleUrl)
-    assert.equal(identity(1), 1)
-  }
-
-  // Support path
-  {
-    const identity = makeSynchronized(url.fileURLToPath(moduleUrl))
-    assert.equal(identity(2), 2)
-  }
+  const identity = makeSynchronized(moduleUrl)
+  assert.equal(identity(1), 1)
 })
 
 test('Named exports', () => {
@@ -35,4 +26,13 @@ test('Named exports', () => {
 test('Functions', () => {
   const identity = makeSynchronized(async (x) => x);
   assert.equal(identity(1), 1)
+})
+
+test('Errors', () => {
+  assert.throws(() => {
+    makeSynchronized(/* Invalid module */ true)
+  },{name: 'TypeError'})
+  assert.throws(() => {
+    makeSynchronized(/* Invalid module */ true)
+  },{name: 'TypeError'})
 })

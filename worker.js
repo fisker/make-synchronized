@@ -1,41 +1,53 @@
-import * as url from 'node:url'
-import { parentPort } from "worker_threads"
+import { parentPort } from "node:worker_threads"
+import {CALL} from './constants.js'
 
-parentPort.addListener(
-  "message",
-  async ({
-    signal,
-    port,
-    module,
-    entryPoint = 'default',
-    argumentsList,
-   }) => {
-    if (!module.startsWith('file://') && !module.startsWith('data:')) {
-      module = url.pathToFileURL(module)
-    }
+async function callFunction({
+  url,
+  specifier = 'default',
+  argumentsList,
+}) {
+  const {
+    [specifier]: function_
+  } = await import(url);
 
-    const response = {};
+  return await Reflect.apply(function_, this, argumentsList);
+}
 
-    try {
-      const {
-        [entryPoint]: function_
-      } = await import(module);
-      response.result = await function_(...argumentsList);
-    } catch (error) {
-      response.error = error;
-      response.errorData = { ...error };
-    }
+function processAction(action, payload) {
+  switch (action) {
+    case CALL:
+      return callFunction(payload);
+    default:
+      throw new Error(`Unknown action '${action}'.`)
+  }
+}
 
-    try {
-      port.postMessage(response);
-    } catch {
-      port.postMessage({
-        error: new Error("Cannot serialize worker response"),
-      });
-    } finally {
-      port.close();
-      Atomics.store(signal, 0, 1);
-      Atomics.notify(signal, 0);
-    }
-  },
-);
+async function listener({
+  signal,
+  action,
+  port,
+  payload,
+}) {
+  const response = {};
+
+  try {
+    response.result = await processAction(action, payload);
+  } catch (error) {
+    response.error = error;
+    response.errorData = { ...error };
+  }
+
+  try {
+    port.postMessage(response);
+  } catch {
+    port.postMessage({
+      error: new Error("Cannot serialize worker response."),
+    });
+  } finally {
+    port.close();
+    Atomics.store(signal, 0, 1);
+    Atomics.notify(signal, 0);
+  }
+}
+
+parentPort.addListener("message", listener);
