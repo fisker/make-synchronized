@@ -2,16 +2,29 @@ import test from 'node:test'
 import * as assert from 'node:assert/strict'
 import {makeSynchronizedModule} from '../index.js'
 
-test('Performance', () => {
-  const iteration = 2000
-  const module = new URL('../fixtures/async-identity.js', import.meta.url)
-  const result = []
+function runRepeatedly(function_, iterations) {
   const startTime = performance.now()
-  for (let index = 0; index < iteration; index++) {
-    result.push(makeSynchronizedModule(module).default(index))
+
+  const result = []
+  for (let iteration = 0; iteration < iterations; iteration++) {
+    result.push(function_(iteration))
   }
+
   const time = performance.now() - startTime
-  assert.equal(result.length, iteration, 'Incorrect result')
+
+  return {result, time}
+}
+
+test('Performance', () => {
+  const iterations = 2000
+  const module = new URL('../fixtures/async-identity.js', import.meta.url)
+
+  const {result, time} = runRepeatedly(
+    (iteration) => makeSynchronizedModule(module).default(iteration),
+    iterations,
+  )
+
+  assert.equal(result.length, iterations, 'Incorrect result')
   assert.equal(result.at(100), 100, 'Incorrect result')
   assert.ok(time < 1000, `Too slow, ${time}ms`)
 })

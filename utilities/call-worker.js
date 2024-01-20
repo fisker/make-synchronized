@@ -8,7 +8,7 @@ function createWorker(options) {
 }
 
 let worker
-function callWorker(action, payload) {
+function callWorker(action, moduleId, path, payload) {
   worker ??= createWorker()
 
   const signal = new Int32Array(new SharedArrayBuffer(4))
@@ -18,8 +18,10 @@ function callWorker(action, payload) {
     worker.postMessage(
       {
         signal,
-        action,
         port: workerPort,
+        action,
+        moduleId,
+        path,
         payload,
       },
       [workerPort],

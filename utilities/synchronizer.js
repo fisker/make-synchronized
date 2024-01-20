@@ -1,11 +1,24 @@
 import {
   VALUE_TYPE_FUNCTION,
+  VALUE_TYPE_KNOWN,
   WORKER_ACTION_CALL,
   WORKER_ACTION_GET,
-  WORKER_ACTION_GET_MODULE_SPECIFIERS,
+  WORKER_ACTION_GET_PATH_INFORMATION,
+  WORKER_ACTION_OWN_KEYS,
 } from './constants.js'
 import callWorker from './call-worker.js'
 import toModuleId from './to-module-id.js'
+import {hashPath} from './property-path.js'
+
+const cacheResult = (cache, path, getResult) => {
+  const cacheKey = hashPath(path)
+
+  if (!cache.has(cacheKey)) {
+    cache.set(cacheKey, getResult())
+  }
+
+  return cache.get(cacheKey)
+}
 
 class Synchronizer {
   static #instances = new Map()
@@ -23,74 +36,66 @@ class Synchronizer {
 
   #moduleId
 
-  #specifiers
+  #synchronizedFunctionStore = new Map()
 
-  #specifierFunctions = new Map()
+  #pathInformationStore = new Map()
+
+  #pathOwnKeysStore = new Map()
 
   constructor(moduleId) {
     this.#moduleId = moduleId
   }
 
-  getModuleSpecifiers() {
-    this.#specifiers ??= callWorker(WORKER_ACTION_GET_MODULE_SPECIFIERS, {
-      moduleId: this.#moduleId,
-    })
-
-    return this.#specifiers
+  #callWorker(action, path, payload) {
+    return callWorker(action, this.#moduleId, path, payload)
   }
 
-  getDefaultExportFunction() {
-    return this.getModuleSpecifiers().default?.type === VALUE_TYPE_FUNCTION
-      ? this.createSynchronizedFunction()
-      : this.getSpecifier('default')
+  getModulePathInformation(path) {
+    return cacheResult(this.#pathInformationStore, path, () =>
+      this.#callWorker(WORKER_ACTION_GET_PATH_INFORMATION, path),
+    )
   }
 
-  createSynchronizedFunction(specifier = 'default') {
-    const functions = this.#specifierFunctions
-
-    if (!functions.has(specifier)) {
-      functions.set(specifier, (...argumentsList) =>
-        callWorker(WORKER_ACTION_CALL, {
-          moduleId: this.#moduleId,
-          specifier,
-          argumentsList,
-        }),
-      )
+  getModulePathValue(path) {
+    const information = this.getModulePathInformation(path)
+    switch (information.type) {
+      case VALUE_TYPE_FUNCTION:
+        return this.#createSynchronizedFunction(path)
+      case VALUE_TYPE_KNOWN:
+        return information.value
+      default:
+        return this.#callWorker(WORKER_ACTION_GET, path)
     }
-
-    return functions.get(specifier)
   }
 
-  getSpecifier(property) {
-    return callWorker(WORKER_ACTION_GET, {
-      moduleId: this.#moduleId,
-      property,
-    })
+  getModulePathOwnKeys(path) {
+    return cacheResult(this.#pathOwnKeysStore, path, () =>
+      this.#callWorker(WORKER_ACTION_OWN_KEYS, path),
+    )
   }
 
-  createGetter(property) {
-    return () => this.getSpecifier(property)
+  callModulePathFunction(path, argumentsList) {
+    return this.#callWorker(WORKER_ACTION_CALL, path, {argumentsList})
+  }
+
+  #createSynchronizedFunction(path) {
+    return cacheResult(
+      this.#synchronizedFunctionStore,
+      path,
+      () =>
+        (...argumentsList) =>
+          this.callModulePathFunction(path, argumentsList),
+    )
   }
 
   createDefaultExportFunctionProxy() {
-    const defaultExportFunction = this.getDefaultExportFunction()
+    const defaultExportFunction = this.getModulePathValue('default')
 
     return new Proxy(defaultExportFunction, {
       apply: (target, thisArgument, argumentsList) =>
         Reflect.apply(target, thisArgument, argumentsList),
-      get: (target, property /* , receiver */) => {
-        const specifier = this.getModuleSpecifiers()[property]
-
-        if (!specifier) {
-          return
-        }
-
-        if (specifier.type === VALUE_TYPE_FUNCTION) {
-          return this.createSynchronizedFunction(property)
-        }
-
-        return this.getSpecifier(property)
-      },
+      get: (target, property /* , receiver */) =>
+        this.getModulePathValue(property),
     })
   }
 
@@ -98,21 +103,18 @@ class Synchronizer {
     const module = Object.create(null, {
       [Symbol.toStringTag]: {value: 'Module', enumerable: false},
     })
-    const specifiers = this.getModuleSpecifiers()
+    const specifiers = this.getModulePathOwnKeys()
 
     return Object.defineProperties(
       module,
       Object.fromEntries(
-        Object.values(specifiers).map(({name, type}) => {
-          const descriptor = {enumerable: true}
-          if (type === VALUE_TYPE_FUNCTION) {
-            descriptor.value = this.createSynchronizedFunction(name)
-          } else {
-            descriptor.get = this.createGetter(name)
-          }
-
-          return [name, descriptor]
-        }),
+        specifiers.map((specifier) => [
+          specifier,
+          {
+            get: () => this.getModulePathValue(specifier),
+            enumerable: true,
+          },
+        ]),
       ),
     )
   }

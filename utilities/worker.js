@@ -2,54 +2,45 @@ import {parentPort} from 'node:worker_threads'
 import {
   WORKER_ACTION_CALL,
   WORKER_ACTION_GET,
-  WORKER_ACTION_GET_MODULE_SPECIFIERS,
+  WORKER_ACTION_OWN_KEYS,
+  WORKER_ACTION_GET_PATH_INFORMATION,
 } from './constants.js'
-import getValueType from './get-value-type.js'
+import getValueInformation from './get-value-information.js'
+import {normalizePath} from './property-path.js'
 
-async function callFunction({moduleId, specifier = 'default', argumentsList}) {
-  const module = await import(moduleId)
+async function processAction(action, moduleId, path, payload) {
+  let value = await import(moduleId)
 
-  return Reflect.apply(module[specifier], this, argumentsList)
-}
+  for (const property of normalizePath(path)) {
+    value = value[property]
+  }
 
-async function getSpecifiers({moduleId}) {
-  const module = await import(moduleId)
-
-  return Object.fromEntries(
-    Object.entries(module).map(([specifier, value]) => [
-      specifier,
-      {
-        name: specifier,
-        type: getValueType(value),
-      },
-    ]),
-  )
-}
-
-async function getProperty({moduleId, property}) {
-  const module = await import(moduleId)
-
-  return module[property]
-}
-
-function processAction(action, payload) {
   switch (action) {
     case WORKER_ACTION_CALL:
-      return callFunction(payload)
+      return Reflect.apply(value, this, payload.argumentsList)
     case WORKER_ACTION_GET:
-      return getProperty(payload)
-    case WORKER_ACTION_GET_MODULE_SPECIFIERS:
-      return getSpecifiers(payload)
+      return value
+    case WORKER_ACTION_GET_PATH_INFORMATION:
+      return getValueInformation(value)
+    case WORKER_ACTION_OWN_KEYS:
+      return Reflect.ownKeys(value).filter((key) => typeof key !== 'symbol')
     default:
       throw new Error(`Unknown action '${action}'.`)
   }
 }
 
-async function onMessageReceived({signal, action, port, payload}) {
+async function onMessageReceived({
+  signal,
+  port,
+  action,
+  moduleId,
+  path,
+  payload,
+}) {
   const response = {}
 
   try {
-    response.result = await processAction(action, payload)
+    response.result = await processAction(action, moduleId, path, payload)
   } catch (error) {
     response.error = error
     response.errorData = {...error}
