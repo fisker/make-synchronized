@@ -19,12 +19,21 @@ test('Performance', () => {
   const iterations = 2000
   const module = new URL('../fixtures/async-identity.js', import.meta.url)
 
-  const {result, time} = runRepeatedly(
+  const {result, time: totalTime} = runRepeatedly(
     (iteration) => makeSynchronizedModule(module).default(iteration),
     iterations,
   )
 
   assert.equal(result.length, iterations, 'Incorrect result')
   assert.equal(result.at(100), 100, 'Incorrect result')
-  assert.ok(time < 1000, `Too slow, ${time}ms`)
+  assert.ok(totalTime < 1000, `Too slow, ${totalTime}ms`)
+
+  const identity = makeSynchronizedModule(module).default
+  const {time: runTime} = runRepeatedly(
+    (iteration) => identity(iteration),iterations
+  )
+  assert.ok(runTime < 500, `Too slow, ${runTime}ms`)
+
 })
+
+

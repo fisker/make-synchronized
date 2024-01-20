@@ -20,10 +20,10 @@ async function processAction(action, moduleId, path, payload) {
       return Reflect.apply(value, this, payload.argumentsList)
     case WORKER_ACTION_GET:
       return value
-    case WORKER_ACTION_GET_PATH_INFORMATION:
-      return getValueInformation(value)
     case WORKER_ACTION_OWN_KEYS:
       return Reflect.ownKeys(value).filter((key) => typeof key !== 'symbol')
+    case WORKER_ACTION_GET_PATH_INFORMATION:
+      return getValueInformation(value)
     default:
       throw new Error(`Unknown action '${action}'.`)
   }

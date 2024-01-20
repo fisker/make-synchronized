@@ -1,10 +1,11 @@
 import {
   VALUE_TYPE_FUNCTION,
-  VALUE_TYPE_KNOWN,
+  VALUE_TYPE_PRIMITIVE,
+
   WORKER_ACTION_CALL,
   WORKER_ACTION_GET,
-  WORKER_ACTION_GET_PATH_INFORMATION,
   WORKER_ACTION_OWN_KEYS,
+  WORKER_ACTION_GET_PATH_INFORMATION,
 } from './constants.js'
 import callWorker from './call-worker.js'
 import toModuleId from './to-module-id.js'
@@ -61,7 +62,7 @@ class Synchronizer {
     switch (information.type) {
       case VALUE_TYPE_FUNCTION:
         return this.#createSynchronizedFunction(path)
-      case VALUE_TYPE_KNOWN:
+      case VALUE_TYPE_PRIMITIVE:
         return information.value
       default:
         return this.#callWorker(WORKER_ACTION_GET, path)
