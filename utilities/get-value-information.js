@@ -14,7 +14,7 @@ function getValueInformation(value) {
   if (
     value === null ||
     type === 'undefined' ||
-    type === 'boolean'||
+    type === 'boolean' ||
     type === 'number' ||
     type === 'bigint' ||
     type === 'string'

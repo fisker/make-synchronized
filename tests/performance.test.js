@@ -30,10 +30,8 @@ test('Performance', () => {
 
   const identity = makeSynchronizedModule(module).default
   const {time: runTime} = runRepeatedly(
-    (iteration) => identity(iteration),iterations
+    (iteration) => identity(iteration),
+    iterations,
   )
   assert.ok(runTime < 500, `Too slow, ${runTime}ms`)
-
 })
-
-

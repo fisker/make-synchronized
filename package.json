@@ -38,14 +38,26 @@
     "lint:prettier": "prettier . --check",
     "prepare": "husky install",
     "test": "node --test",
-    "test-coverage": "node --test",
+    "test-coverage": "c8 yarn test",
     "release": "run-s lint format test dist"
+  },
+  "c8": {
+    "all": true,
+    "include": [
+      "index.js",
+      "utilities"
+    ],
+    "reporter": [
+      "lcov",
+      "text"
+    ]
   },
   "devDependencies": {
     "@fisker/eslint-config": "12.0.0",
     "@fisker/lint-staged-config": "3.3.1",
     "@fisker/markdownlint-cli2-config": "0.0.3",
     "@fisker/prettier-config": "5.1.1",
+    "c8": "9.1.0",
     "del-cli": "5.1.0",
     "eslint": "8.56.0",
     "husky": "8.0.3",

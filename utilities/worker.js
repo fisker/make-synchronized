@@ -24,6 +24,7 @@ async function processAction(action, moduleId, path, payload) {
       return Reflect.ownKeys(value).filter((key) => typeof key !== 'symbol')
     case WORKER_ACTION_GET_PATH_INFORMATION:
       return getValueInformation(value)
+    /* c8 ignore next 2 */
     default:
       throw new Error(`Unknown action '${action}'.`)
   }
