@@ -4,13 +4,10 @@ import {
   WORKER_ACTION_GET,
   WORKER_ACTION_GET_MODULE_SPECIFIERS,
 } from './constants.js'
-import createWorker from './create-worker.js'
 import callWorker from './call-worker.js'
 import toModuleId from './to-module-id.js'
 
 class Synchronizer {
-  #worker
-
   #moduleId
 
   #specifiers
@@ -18,18 +15,13 @@ class Synchronizer {
   #specifierFunctions = new Map()
 
   constructor({module}) {
-    this.#worker = createWorker()
     this.#moduleId = toModuleId(module)
   }
 
   getModuleSpecifiers() {
-    this.#specifiers ??= callWorker(
-      this.#worker,
-      WORKER_ACTION_GET_MODULE_SPECIFIERS,
-      {
-        moduleId: this.#moduleId,
-      },
-    )
+    this.#specifiers ??= callWorker(WORKER_ACTION_GET_MODULE_SPECIFIERS, {
+      moduleId: this.#moduleId,
+    })
 
     return this.#specifiers
   }
@@ -45,7 +37,7 @@ class Synchronizer {
 
     if (!functions.has(specifier)) {
       functions.set(specifier, (...argumentsList) =>
-        callWorker(this.#worker, WORKER_ACTION_CALL, {
+        callWorker(WORKER_ACTION_CALL, {
           moduleId: this.#moduleId,
           specifier,
           argumentsList,
@@ -57,7 +49,7 @@ class Synchronizer {
   }
 
   getSpecifier(property) {
-    return callWorker(this.#worker, WORKER_ACTION_GET, {
+    return callWorker(WORKER_ACTION_GET, {
       moduleId: this.#moduleId,
       property,
     })
