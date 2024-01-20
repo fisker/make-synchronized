@@ -3,7 +3,7 @@ import functionToModule from './utilities/function-to-module.js'
 import Synchronizer from './utilities/synchronizer.js'
 
 function makeSynchronizedDefaultExport(module) {
-  return new Synchronizer({module}).getDefaultExportFunction()
+  return Synchronizer.create({module}).getDefaultExportFunction()
 }
 
 function makeSynchronizedFunction(function_) {
@@ -11,7 +11,7 @@ function makeSynchronizedFunction(function_) {
 }
 
 function makeSynchronizedModule(module) {
-  return new Synchronizer({module}).createModule()
+  return Synchronizer.create({module}).createModule()
 }
 
 function makeSynchronized(moduleOrFunction) {
@@ -19,7 +19,7 @@ function makeSynchronized(moduleOrFunction) {
     return makeSynchronizedFunction(moduleOrFunction)
   }
 
-  const synchronizer = new Synchronizer({module: moduleOrFunction})
+  const synchronizer = Synchronizer.create({module: moduleOrFunction})
   const defaultExportType = synchronizer.getModuleSpecifiers().default?.type
 
   if (defaultExportType === VALUE_TYPE_FUNCTION) {

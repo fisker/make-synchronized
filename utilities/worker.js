@@ -45,7 +45,7 @@ function processAction(action, payload) {
   }
 }
 
-async function listener({signal, action, port, payload}) {
+async function onMessageReceived({signal, action, port, payload}) {
   const response = {}
 
   try {
@@ -68,4 +68,4 @@ async function listener({signal, action, port, payload}) {
   }
 }
 
-parentPort.addListener('message', listener)
+parentPort.addListener('message', onMessageReceived)

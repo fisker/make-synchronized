@@ -8,14 +8,27 @@ import callWorker from './call-worker.js'
 import toModuleId from './to-module-id.js'
 
 class Synchronizer {
+  static #instances = new Map()
+
+  static create({module}) {
+    const moduleId = toModuleId(module)
+    const instances = this.#instances
+
+    if (!instances.has(moduleId)) {
+      instances.set(moduleId, new Synchronizer(moduleId))
+    }
+
+    return instances.get(moduleId)
+  }
+
   #moduleId
 
   #specifiers
 
   #specifierFunctions = new Map()
 
-  constructor({module}) {
-    this.#moduleId = toModuleId(module)
+  constructor(moduleId) {
+    this.#moduleId = moduleId
   }
 
   getModuleSpecifiers() {
