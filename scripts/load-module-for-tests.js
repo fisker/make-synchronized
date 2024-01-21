@@ -6,7 +6,7 @@ function loadModuleForTests() {
     case 'esm':
       return import('../index.mjs')
     case 'cjs':
-      return createRequire(import.meta.url)('../dist/index.cjs')
+      return createRequire(import.meta.url)('../index.cjs')
     default:
       return import('../source/index.js')
   }

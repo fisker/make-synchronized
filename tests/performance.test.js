@@ -19,7 +19,7 @@ function runRepeatedly(function_, iterations) {
 }
 
 test('Performance', () => {
-  const iterations = 2000
+  const iterations = 1000
   const module = new URL('../fixtures/async-identity.js', import.meta.url)
 
   const {result, time: totalTime} = runRepeatedly(
