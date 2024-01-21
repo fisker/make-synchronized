@@ -50,7 +50,7 @@
     "test:production-esm": "yarn build && cross-env DIST_TEST_TYPE=esm node --test",
     "test:production-cjs": "yarn build && cross-env DIST_TEST_TYPE=cjs node --test",
     "test-coverage": "c8 yarn test:development",
-    "release": "run-s build lint format test dist"
+    "release": "run-s test build lint format dist"
   },
   "c8": {
     "all": true,
