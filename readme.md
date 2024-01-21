@@ -28,21 +28,21 @@ This module mainly to support two kinds of different purpose of usage:
 
 1. Make a module that turns asynchronous function into synchronized
 
-```js
-import makeSynchronized from 'make-synchronized'
+   ```js
+   import makeSynchronized from 'make-synchronized'
 
-export default makeSynchronized(import.meta, myAsynchronousFunction)
-```
+   export default makeSynchronized(import.meta, myAsynchronousFunction)
+   ```
 
 1. Make asynchronous functions in an existing module into synchronized
 
-```js
-import makeSynchronized from 'make-synchronized'
+   ```js
+   import makeSynchronized from 'make-synchronized'
 
-const synchronized = makeSynchronized(
-  new URL('./my-asynchronous-function-module.js', import.meta.url),
-)
-```
+   const synchronized = makeSynchronized(
+     new URL('./my-asynchronous-function-module.js', import.meta.url),
+   )
+   ```
 
 ## Named exports
 
