@@ -1,1 +1,1 @@
-export default async (value) => value;
+export default async (value) => value

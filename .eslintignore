@@ -18,7 +18,7 @@
 **/*.min.*
 
 # fixtures
-**/fixtures/asynchronous-modules/**
+**/fixtures/**
 
 # test
 **/.nyc_output/**
