@@ -28,3 +28,7 @@
 **/.yarn
 
 # project glob
+index.mjs
+index.cjs
+worker.mjs
+worker.cjs

@@ -17,15 +17,16 @@
   "type": "module",
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.mjs"
+      "require": "./index.cjs",
+      "default": "./index.mjs"
     }
   },
   "main": "index.js",
   "files": [
-    "index.js",
-    "source",
-    "dist"
+    "index.mjs",
+    "index.cjs",
+    "worker.mjs",
+    "worker.cjs"
   ],
   "scripts": {
     "build": "node scripts/build.js",
@@ -49,7 +50,7 @@
     "test:production-esm": "yarn build && cross-env DIST_TEST_TYPE=esm node --test",
     "test:production-cjs": "yarn build && cross-env DIST_TEST_TYPE=cjs node --test",
     "test-coverage": "c8 yarn test:development",
-    "release": "run-s clean build lint format test dist"
+    "release": "run-s build lint format test dist"
   },
   "c8": {
     "all": true,

@@ -99,4 +99,7 @@ typings/
 .pnp.js
 
 # project ignore files
-dist/
+index.mjs
+index.cjs
+worker.mjs
+worker.cjs

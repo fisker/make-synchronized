@@ -1,5 +1,6 @@
 import * as url from 'node:url'
 import * as path from 'node:path'
+
 import * as esbuild from 'esbuild'
 import esbuildPluginReplaceModule from './esbuild-plugin-replace-module.js'
 
@@ -9,7 +10,7 @@ async function build(file, {format}) {
   const input = toPath(file)
   const basename = path.basename(input, '.js')
   const extension = format === 'cjs' ? '.cjs' : '.mjs'
-  const output = toPath(`../dist/${basename}${extension}`)
+  const output = toPath(`../${basename}${extension}`)
 
   await esbuild.build({
     entryPoints: [input],
