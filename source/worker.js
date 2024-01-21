@@ -1,5 +1,6 @@
 import {parentPort} from 'node:worker_threads'
 import {
+  IS_DEVELOPMENT,
   WORKER_ACTION_CALL,
   WORKER_ACTION_GET,
   WORKER_ACTION_OWN_KEYS,
@@ -11,7 +12,7 @@ import getValueInformation from './get-value-information.js'
 import {normalizePath} from './property-path.js'
 
 async function processAction(action, moduleId, path, payload) {
-  if (action === WORKER_ACTION_PING) {
+  if (IS_DEVELOPMENT && action === WORKER_ACTION_PING) {
     return WORKER_READY_SIGNAL
   }
 

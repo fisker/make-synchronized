@@ -11,4 +11,5 @@ export const {
   VALUE_TYPE_PRIMITIVE,
   VALUE_TYPE_UNKNOWN,
 } = new Proxy({}, {get: (_, property) => `[[${property}]]`})
-export const WORKER_URL = new URL('./worker.js', import.meta.url)
+export const WORKER_FILE = new URL('./worker.js', import.meta.url)
+export const IS_DEVELOPMENT = true

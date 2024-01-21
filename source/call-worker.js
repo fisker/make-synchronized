@@ -1,13 +1,18 @@
 import {Worker, receiveMessageOnPort, MessageChannel} from 'node:worker_threads'
 import {
-  WORKER_URL,
+  IS_DEVELOPMENT,
+  WORKER_FILE,
   WORKER_ACTION_PING,
   WORKER_READY_SIGNAL,
 } from './constants.js'
 
 function createWorker(options) {
-  const worker = new Worker(WORKER_URL, options)
+  const worker = new Worker(WORKER_FILE, options)
   worker.unref()
+
+  if (!IS_DEVELOPMENT) {
+    return worker
+  }
 
   /*
   We are running worker synchronously,

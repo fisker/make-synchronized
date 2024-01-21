@@ -1,6 +1,6 @@
-import {VALUE_TYPE_FUNCTION} from './utilities/constants.js'
-import functionToModule from './utilities/function-to-module.js'
-import Synchronizer from './utilities/synchronizer.js'
+import {VALUE_TYPE_FUNCTION} from './constants.js'
+import functionToModule from './function-to-module.js'
+import Synchronizer from './synchronizer.js'
 
 function makeSynchronizedDefaultExport(module) {
   return Synchronizer.create({module}).getModulePathValue('default')

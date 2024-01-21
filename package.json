@@ -15,13 +15,21 @@
   },
   "sideEffects": false,
   "type": "module",
-  "exports": "./index.js",
+  "exports": {
+    ".": {
+      "require": "./index.cjs",
+      "default": "./index.mjs"
+    }
+  },
   "main": "index.js",
   "files": [
-    "index.js",
-    "utilities"
+    "index.mjs",
+    "index.cjs",
+    "worker.mjs",
+    "worker.cjs"
   ],
   "scripts": {
+    "build": "node scripts/build.js",
     "clean": "run-p \"clean:*\"",
     "clean:dist": "del-cli dist",
     "dist": "run-p \"dist:*\"",
@@ -37,9 +45,12 @@
     "lint:package-json": "yarn run format:package-json --check",
     "lint:prettier": "prettier . --check",
     "prepare": "husky install",
-    "test": "node --test",
-    "test-coverage": "c8 yarn test",
-    "release": "run-s lint format test dist"
+    "test": "run-s test:development test:production-esm test:production-cjs",
+    "test:development": "node --test",
+    "test:production-esm": "yarn build && cross-env DIST_TEST_TYPE=esm node --test",
+    "test:production-cjs": "yarn build && cross-env DIST_TEST_TYPE=cjs node --test",
+    "test-coverage": "c8 yarn test:development",
+    "release": "run-s build lint format test dist"
   },
   "c8": {
     "all": true,
@@ -58,7 +69,9 @@
     "@fisker/markdownlint-cli2-config": "0.0.3",
     "@fisker/prettier-config": "5.1.1",
     "c8": "9.1.0",
+    "cross-env": "7.0.3",
     "del-cli": "5.1.0",
+    "esbuild": "0.19.11",
     "eslint": "8.56.0",
     "husky": "8.0.3",
     "lint-staged": "15.2.0",
