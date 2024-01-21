@@ -35,18 +35,16 @@ synchronized()
 
 ```js
 import {
-  makeSynchronizedDefaultExport,
-  makeSynchronizedModule,
+  makeDefaultExportSynchronized,
+  makeModuleSynchronized,
 } from 'make-synchronized'
 ```
 
 ## API
 
-### `makeSynchronized(moduleOrFunction)`
+### `makeSynchronized(module)`
 
-Return value dependents on `moduleOrFunction`,
-
-- If `moduleOrFunction` is a module default export a function, returns a `Proxy` function, with other specifiers attached.
+- If the passing `module` is a module that contains a function type default export, returns a `Proxy` function, with other specifiers attached.
 
   ```js
   // foo.js
@@ -71,7 +69,7 @@ Return value dependents on `moduleOrFunction`,
 
   [Example](./examples/example-default-export-is-a-function.js)
 
-- If `moduleOrFunction` is a module without default export or default export is not a function, a `Module` object will be returned with all specifiers.
+- If the passing `module` is a module without default export or default export is not a function, a `Module` object will be returned with all specifiers.
 
   ```js
   // foo.js
@@ -83,10 +81,7 @@ Return value dependents on `moduleOrFunction`,
   const module = makeSynchronized(new URL('./foo.js', import.meta.url))
 
   module
-  // [Object: null prototype] [Module] {
-  //  bar: [Function (anonymous)],
-  //  foo: [Getter]
-  // }
+  // [Object: null prototype] [Module] { bar: [Getter], foo: [Getter] }
 
   module.foo
   // -> "foo"
@@ -97,21 +92,21 @@ Return value dependents on `moduleOrFunction`,
 
   [Example](./examples/example-named-exports.js)
 
-### `makeSynchronizedDefaultExport(module)`
+### `makeDefaultExportSynchronized(module)`
 
-Explicit version of `makeSynchronized` that only returns the synchronized default export.
+Explicit version of `makeSynchronized(module)` that only returns the synchronized default export.
 
-### `makeSynchronizedModule(module)`
+### `makeModuleSynchronized(module)`
 
 Synchronize version of `import()`, always returns a `Module`.
 
 ```diff
 - const {default: foo} = await import('foo')
-+ const {default: foo} = makeSynchronizedModule('foo')
++ const {default: foo} = makeModuleSynchronized('foo')
 ```
 
 ```js
-const {default: foo} = makeSynchronizedModule('foo')
+const {default: foo} = makeModuleSynchronized('foo')
 
 foo()
 // Synchronized return value
