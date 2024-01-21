@@ -23,11 +23,6 @@ test('makeSynchronized', () => {
   }
 })
 
-test('makeSynchronized(function)', () => {
-  const double = makeSynchronized(async (x) => x * 2)
-  assert.equal(double(1), 2)
-})
-
 test('makeSynchronized() default export is a function', () => {
   const module = synchronize('../fixtures/named-exports.js')
   assert.equal(typeof module, 'function')

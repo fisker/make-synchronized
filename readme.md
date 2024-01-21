@@ -36,7 +36,6 @@ synchronized()
 ```js
 import {
   makeSynchronizedDefaultExport,
-  makeSynchronizedFunction,
   makeSynchronizedModule,
 } from 'make-synchronized'
 ```
@@ -46,17 +45,6 @@ import {
 ### `makeSynchronized(moduleOrFunction)`
 
 Return value dependents on `moduleOrFunction`,
-
-- If `moduleOrFunction` is a `function`, returns a synchronized version of the passed function.
-
-  ```js
-  const synchronized = makeSynchronized(() => Promise.resolve('resolved'))
-
-  synchronized()
-  // -> "resolved"
-  ```
-
-  [Example](./examples/example-make-function-synchronize.js)
 
 - If `moduleOrFunction` is a module default export a function, returns a `Proxy` function, with other specifiers attached.
 
@@ -112,10 +100,6 @@ Return value dependents on `moduleOrFunction`,
 ### `makeSynchronizedDefaultExport(module)`
 
 Explicit version of `makeSynchronized` that only returns the synchronized default export.
-
-### `makeSynchronizedFunction(function_)`
-
-Explicit version of `makeSynchronized(function)` that returns synchronized version of the passed function.
 
 ### `makeSynchronizedModule(module)`
 
