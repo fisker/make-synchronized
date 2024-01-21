@@ -1,6 +1,8 @@
 import test from 'node:test'
 import * as assert from 'node:assert/strict'
-import {makeSynchronizedDefaultExport} from '../source/index.js'
+import loadModuleForTest from '../scripts/load-module-for-test.js'
+
+const {makeSynchronizedDefaultExport} = await loadModuleForTest()
 
 const synchronize = (url) =>
   makeSynchronizedDefaultExport(new URL(url, import.meta.url))

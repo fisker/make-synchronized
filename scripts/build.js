@@ -32,11 +32,10 @@ async function build(file, {format}) {
                   "export const WORKER_FILE = new URL('./worker.js', import.meta.url)",
                   /* Indent */ `
                     import * as __path from "node:path"
-                    export const WORKER_FILE = __path.join('./worker.cjs', __dirname)
+                    export const WORKER_FILE = __path.join(__dirname, './worker.cjs')
                   `,
                 )
               }
-              console.log(text)
               return text
             },
           },
