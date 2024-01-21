@@ -1,4 +1,4 @@
-import makeSynchronized from '../source/index.js'
+import makeSynchronized from '../index.mjs'
 
 const synchronized = makeSynchronized(
   new URL(

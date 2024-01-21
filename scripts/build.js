@@ -28,15 +28,15 @@ async function build(file, {format}) {
                 'export const IS_DEVELOPMENT = true',
                 'export const IS_DEVELOPMENT = false',
               )
-              if (format === 'cjs') {
-                text = text.replace(
-                  "export const WORKER_FILE = new URL('./worker.js', import.meta.url)",
-                  /* Indent */ `
+              text = text.replace(
+                "export const WORKER_FILE = new URL('./worker.js', import.meta.url)",
+                format === 'esm'
+                  ? "export const WORKER_FILE = new URL('./worker.mjs', import.meta.url)"
+                  : /* Indent */ `
                     import * as __path from "node:path"
                     export const WORKER_FILE = __path.join(__dirname, './worker.cjs')
                   `,
-                )
-              }
+              )
               return text
             },
           },
