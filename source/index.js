@@ -3,7 +3,7 @@ import functionToModule from './function-to-module.js'
 import Synchronizer from './synchronizer.js'
 
 function makeSynchronizedDefaultExport(module) {
-  return Synchronizer.create({module}).getModulePathValue('default')
+  return Synchronizer.create({module}).get('default')
 }
 
 function makeSynchronizedFunction(function_) {
@@ -20,8 +20,7 @@ function makeSynchronized(moduleOrFunction) {
   }
 
   const synchronizer = Synchronizer.create({module: moduleOrFunction})
-  const defaultExportType =
-    synchronizer.getModulePathInformation('default').type
+  const defaultExportType = synchronizer.getInformation('default').type
 
   if (defaultExportType === VALUE_TYPE_FUNCTION) {
     return synchronizer.createDefaultExportFunctionProxy()

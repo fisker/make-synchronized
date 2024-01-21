@@ -1,10 +1,10 @@
 import {parentPort} from 'node:worker_threads'
 import {
   IS_DEVELOPMENT,
-  WORKER_ACTION_CALL,
+  WORKER_ACTION_APPLY,
   WORKER_ACTION_GET,
   WORKER_ACTION_OWN_KEYS,
-  WORKER_ACTION_GET_PATH_INFORMATION,
+  WORKER_ACTION_GET_INFORMATION,
   WORKER_ACTION_PING,
   WORKER_READY_SIGNAL,
 } from './constants.js'
@@ -23,13 +23,13 @@ async function processAction(action, moduleId, path, payload) {
   }
 
   switch (action) {
-    case WORKER_ACTION_CALL:
+    case WORKER_ACTION_APPLY:
       return Reflect.apply(value, this, payload.argumentsList)
     case WORKER_ACTION_GET:
       return value
     case WORKER_ACTION_OWN_KEYS:
       return Reflect.ownKeys(value).filter((key) => typeof key !== 'symbol')
-    case WORKER_ACTION_GET_PATH_INFORMATION:
+    case WORKER_ACTION_GET_INFORMATION:
       return getValueInformation(value)
     /* c8 ignore next 2 */
     default:

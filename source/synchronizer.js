@@ -1,18 +1,16 @@
 import {
   VALUE_TYPE_FUNCTION,
   VALUE_TYPE_PRIMITIVE,
-  WORKER_ACTION_CALL,
+  WORKER_ACTION_APPLY,
   WORKER_ACTION_GET,
   WORKER_ACTION_OWN_KEYS,
-  WORKER_ACTION_GET_PATH_INFORMATION,
+  WORKER_ACTION_GET_INFORMATION,
 } from './constants.js'
 import callWorker from './call-worker.js'
 import toModuleId from './to-module-id.js'
 import {hashPath} from './property-path.js'
 
-const cacheResult = (cache, path, getResult) => {
-  const cacheKey = hashPath(path)
-
+const cacheResult = (cache, cacheKey, getResult) => {
   if (!cache.has(cacheKey)) {
     cache.set(cacheKey, getResult())
   }
@@ -20,27 +18,29 @@ const cacheResult = (cache, path, getResult) => {
   return cache.get(cacheKey)
 }
 
+const cachePathResult = (cache, path, getResult) =>
+  cacheResult(cache, hashPath(path), getResult)
+
 class Synchronizer {
   static #instances = new Map()
 
   static create({module}) {
     const moduleId = toModuleId(module)
-    const instances = this.#instances
 
-    if (!instances.has(moduleId)) {
-      instances.set(moduleId, new Synchronizer(moduleId))
-    }
-
-    return instances.get(moduleId)
+    return cacheResult(
+      this.#instances,
+      moduleId,
+      () => new Synchronizer(moduleId),
+    )
   }
 
   #moduleId
 
   #synchronizedFunctionStore = new Map()
 
-  #pathInformationStore = new Map()
+  #informationStore = new Map()
 
-  #pathOwnKeysStore = new Map()
+  #ownKeysStore = new Map()
 
   constructor(moduleId) {
     this.#moduleId = moduleId
@@ -50,14 +50,14 @@ class Synchronizer {
     return callWorker(action, this.#moduleId, path, payload)
   }
 
-  getModulePathInformation(path) {
-    return cacheResult(this.#pathInformationStore, path, () =>
-      this.#callWorker(WORKER_ACTION_GET_PATH_INFORMATION, path),
+  getInformation(path) {
+    return cachePathResult(this.#informationStore, path, () =>
+      this.#callWorker(WORKER_ACTION_GET_INFORMATION, path),
     )
   }
 
-  getModulePathValue(path) {
-    const information = this.getModulePathInformation(path)
+  get(path) {
+    const information = this.getInformation(path)
     switch (information.type) {
       case VALUE_TYPE_FUNCTION:
         return this.#createSynchronizedFunction(path)
@@ -68,34 +68,31 @@ class Synchronizer {
     }
   }
 
-  getModulePathOwnKeys(path) {
-    return cacheResult(this.#pathOwnKeysStore, path, () =>
+  ownKeys(path) {
+    return cachePathResult(this.#ownKeysStore, path, () =>
       this.#callWorker(WORKER_ACTION_OWN_KEYS, path),
     )
   }
 
-  callModulePathFunction(path, argumentsList) {
-    return this.#callWorker(WORKER_ACTION_CALL, path, {argumentsList})
+  apply(path, argumentsList) {
+    return this.#callWorker(WORKER_ACTION_APPLY, path, {argumentsList})
   }
 
   #createSynchronizedFunction(path) {
-    return cacheResult(
+    return cachePathResult(
       this.#synchronizedFunctionStore,
       path,
       () =>
         (...argumentsList) =>
-          this.callModulePathFunction(path, argumentsList),
+          this.apply(path, argumentsList),
     )
   }
 
   createDefaultExportFunctionProxy() {
-    const defaultExportFunction = this.getModulePathValue('default')
+    const defaultExportFunction = this.get('default')
 
     return new Proxy(defaultExportFunction, {
-      apply: (target, thisArgument, argumentsList) =>
-        Reflect.apply(target, thisArgument, argumentsList),
-      get: (target, property /* , receiver */) =>
-        this.getModulePathValue(property),
+      get: (target, property /* , receiver */) => this.get(property),
     })
   }
 
@@ -103,7 +100,7 @@ class Synchronizer {
     const module = Object.create(null, {
       [Symbol.toStringTag]: {value: 'Module', enumerable: false},
     })
-    const specifiers = this.getModulePathOwnKeys()
+    const specifiers = this.ownKeys()
 
     return Object.defineProperties(
       module,
@@ -111,7 +108,7 @@ class Synchronizer {
         specifiers.map((specifier) => [
           specifier,
           {
-            get: () => this.getModulePathValue(specifier),
+            get: () => this.get(specifier),
             enumerable: true,
           },
         ]),
