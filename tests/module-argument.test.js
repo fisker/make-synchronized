@@ -2,9 +2,9 @@ import test from 'node:test'
 import * as assert from 'node:assert/strict'
 import * as url from 'node:url'
 import * as path from 'node:path'
-import loadModuleForTest from '../scripts/load-module-for-test.js'
+import loadModuleForTests from '../scripts/load-module-for-tests.js'
 
-const {makeSynchronizedModule} = await loadModuleForTest()
+const {makeSynchronizedModule} = await loadModuleForTests()
 
 test('module', () => {
   const moduleUrl = new URL('../fixtures/async-identity.js', import.meta.url)

@@ -1,9 +1,9 @@
 import test from 'node:test'
 import * as assert from 'node:assert/strict'
 
-import loadModuleForTest from '../scripts/load-module-for-test.js'
+import loadModuleForTests from '../scripts/load-module-for-tests.js'
 
-const {makeSynchronizedModule} = await loadModuleForTest()
+const {makeSynchronizedModule} = await loadModuleForTests()
 
 function runRepeatedly(function_, iterations) {
   const startTime = performance.now()

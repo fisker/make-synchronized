@@ -1,8 +1,8 @@
 import test from 'node:test'
 import * as assert from 'node:assert/strict'
-import loadModuleForTest from '../scripts/load-module-for-test.js'
+import loadModuleForTests from '../scripts/load-module-for-tests.js'
 
-const {makeSynchronizedFunction} = await loadModuleForTest()
+const {makeSynchronizedFunction} = await loadModuleForTests()
 
 test('makeSynchronizedFunction', () => {
   const double = makeSynchronizedFunction(async (x) => x * 2)

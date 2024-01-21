@@ -1,7 +1,7 @@
 import * as process from 'node:process'
 import {createRequire} from 'node:module'
 
-function loadModuleForTest() {
+function loadModuleForTests() {
   switch (process.env.DIST_TEST_TYPE) {
     case 'esm':
       return import('../index.mjs')
@@ -12,4 +12,4 @@ function loadModuleForTest() {
   }
 }
 
-export default loadModuleForTest
+export default loadModuleForTests

@@ -54,3 +54,5 @@ await Promise.all(
     ].map((options) => build(file, options)),
   ),
 )
+
+console.log('✅ Build success.')
