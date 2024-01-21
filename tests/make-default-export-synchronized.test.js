@@ -2,12 +2,12 @@ import test from 'node:test'
 import * as assert from 'node:assert/strict'
 import loadModuleForTests from '../scripts/load-module-for-tests.js'
 
-const {makeSynchronizedDefaultExport} = await loadModuleForTests()
+const {makeDefaultExportSynchronized} = await loadModuleForTests()
 
 const synchronize = (url) =>
-  makeSynchronizedDefaultExport(new URL(url, import.meta.url))
+  makeDefaultExportSynchronized(new URL(url, import.meta.url))
 
-test('makeSynchronizedDefaultExport', () => {
+test('makeDefaultExportSynchronized', () => {
   const identity = synchronize('../fixtures/async-identity.js')
   assert.equal(identity(1n), 1n)
 

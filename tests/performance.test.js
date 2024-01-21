@@ -3,7 +3,7 @@ import * as assert from 'node:assert/strict'
 
 import loadModuleForTests from '../scripts/load-module-for-tests.js'
 
-const {makeSynchronizedModule} = await loadModuleForTests()
+const {makeModuleSynchronized} = await loadModuleForTests()
 
 function runRepeatedly(function_, iterations) {
   const startTime = performance.now()
@@ -23,7 +23,7 @@ test('Performance', () => {
   const module = new URL('../fixtures/async-identity.js', import.meta.url)
 
   const {result, time: totalTime} = runRepeatedly(
-    (iteration) => makeSynchronizedModule(module).default(iteration),
+    (iteration) => makeModuleSynchronized(module).default(iteration),
     iterations,
   )
 
@@ -31,7 +31,7 @@ test('Performance', () => {
   assert.equal(result.at(100), 100, 'Incorrect result')
   assert.ok(totalTime < 1000, `Too slow, ${totalTime}ms`)
 
-  const identity = makeSynchronizedModule(module).default
+  const identity = makeModuleSynchronized(module).default
   const {time: runTime} = runRepeatedly(
     (iteration) => identity(iteration),
     iterations,
