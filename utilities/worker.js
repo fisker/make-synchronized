@@ -4,11 +4,17 @@ import {
   WORKER_ACTION_GET,
   WORKER_ACTION_OWN_KEYS,
   WORKER_ACTION_GET_PATH_INFORMATION,
+  WORKER_ACTION_PING,
+  WORKER_READY_SIGNAL,
 } from './constants.js'
 import getValueInformation from './get-value-information.js'
 import {normalizePath} from './property-path.js'
 
 async function processAction(action, moduleId, path, payload) {
+  if (action === WORKER_ACTION_PING) {
+    return WORKER_READY_SIGNAL
+  }
+
   let value = await import(moduleId)
 
   for (const property of normalizePath(path)) {
