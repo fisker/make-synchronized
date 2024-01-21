@@ -15,7 +15,7 @@
   },
   "sideEffects": false,
   "type": "module",
-  "exports": "./index.js",
+  "exports": "./source/index.js",
   "main": "index.js",
   "files": [
     "index.js",

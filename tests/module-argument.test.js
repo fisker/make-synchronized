@@ -2,7 +2,7 @@ import test from 'node:test'
 import * as assert from 'node:assert/strict'
 import * as url from 'node:url'
 import * as path from 'node:path'
-import {makeSynchronizedModule} from '../index.js'
+import {makeSynchronizedModule} from '../source/index.js'
 
 test('module', () => {
   const moduleUrl = new URL('../fixtures/async-identity.js', import.meta.url)

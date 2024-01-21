@@ -5,7 +5,7 @@ import defaultExport, {
   makeSynchronizedDefaultExport,
   makeSynchronizedFunction,
   makeSynchronizedModule,
-} from '../index.js'
+} from '../source/index.js'
 
 test('Package', () => {
   assert.equal(defaultExport, makeSynchronized)

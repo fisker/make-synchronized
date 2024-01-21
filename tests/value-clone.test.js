@@ -1,6 +1,6 @@
 import test from 'node:test'
 import * as assert from 'node:assert/strict'
-import {makeSynchronizedModule} from '../index.js'
+import {makeSynchronizedModule} from '../source/index.js'
 
 const synchronize = (url) =>
   makeSynchronizedModule(new URL(url, import.meta.url))

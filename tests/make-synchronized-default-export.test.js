@@ -1,6 +1,6 @@
 import test from 'node:test'
 import * as assert from 'node:assert/strict'
-import {makeSynchronizedDefaultExport} from '../index.js'
+import {makeSynchronizedDefaultExport} from '../source/index.js'
 
 const synchronize = (url) =>
   makeSynchronizedDefaultExport(new URL(url, import.meta.url))
