@@ -1,8 +1,8 @@
-import makeSynchronized from '../index.mjs'
+import makeSynchronized from 'make-synchronized'
 
 const synchronized = makeSynchronized(
   new URL(
-    './modules/example-module-for-default-export-is-a-function.js',
+    './asynchronous-modules/example-module-default-export-is-a-asynchronous-function.js',
     import.meta.url,
   ),
 )

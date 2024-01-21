@@ -7,7 +7,10 @@ import loadModuleForTests from '../scripts/load-module-for-tests.js'
 const {makeModuleSynchronized} = await loadModuleForTests()
 
 test('module', () => {
-  const moduleUrl = new URL('../fixtures/async-identity.js', import.meta.url)
+  const moduleUrl = new URL(
+    '../fixtures/asynchronous-modules/async-identity.js',
+    import.meta.url,
+  )
   const modulePath = url.fileURLToPath(moduleUrl)
   assert.equal(makeModuleSynchronized(moduleUrl).default('foo'), 'foo')
   assert.equal(makeModuleSynchronized(modulePath).default('bar'), 'bar')

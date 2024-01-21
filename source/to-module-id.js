@@ -7,7 +7,12 @@ function toModuleId(module) {
   }
 
   if (typeof module === 'string' && path.isAbsolute(module)) {
-    module = url.pathToFileURL(module).href
+    return url.pathToFileURL(module).href
+  }
+
+  // `import.meta`
+  if (typeof module?.url === 'string' && module.url.startsWith('file://')) {
+    return module.url
   }
 
   return module

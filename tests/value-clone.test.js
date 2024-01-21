@@ -9,7 +9,10 @@ const synchronize = (url) =>
   makeModuleSynchronized(new URL(url, import.meta.url))
 
 test('values', async () => {
-  const moduleUrl = new URL('../fixtures/values.js', import.meta.url)
+  const moduleUrl = new URL(
+    '../fixtures/asynchronous-modules/values.js',
+    import.meta.url,
+  )
   const synchronized = makeModuleSynchronized(moduleUrl)
   const dynamic = await import(moduleUrl)
 
@@ -55,7 +58,9 @@ test('values', async () => {
 })
 
 test('data to worker', async () => {
-  const {default: identity} = synchronize('../fixtures/async-identity.js')
+  const {default: identity} = synchronize(
+    '../fixtures/asynchronous-modules/async-identity.js',
+  )
   assert.equal(identity(1), 1)
 
   assert.throws(

@@ -8,16 +8,25 @@ const synchronize = (url) =>
   makeDefaultExportSynchronized(new URL(url, import.meta.url))
 
 test('makeDefaultExportSynchronized', () => {
-  const identity = synchronize('../fixtures/async-identity.js')
+  const identity = synchronize(
+    '../fixtures/asynchronous-modules/async-identity.js',
+  )
   assert.equal(identity(1n), 1n)
 
-  const defaultExport = synchronize('../fixtures/named-exports.js')
+  const defaultExport = synchronize(
+    '../fixtures/asynchronous-modules/named-exports.js',
+  )
   assert.equal(defaultExport(), 'default export called')
 
   assert.equal(
-    synchronize('../fixtures/default-export-is-a-string.js'),
+    synchronize(
+      '../fixtures/asynchronous-modules/default-export-is-a-string.js',
+    ),
     'the default export string',
   )
 
-  assert.equal(synchronize('../fixtures/empty-module.js'), undefined)
+  assert.equal(
+    synchronize('../fixtures/asynchronous-modules/empty-module.js'),
+    undefined,
+  )
 })

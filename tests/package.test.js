@@ -4,6 +4,8 @@ import defaultExport, {
   makeSynchronized,
   makeDefaultExportSynchronized,
   makeModuleSynchronized,
+  makeSynchronizedFunction,
+  makeSynchronizedFunctions,
 } from '../source/index.js'
 
 test('Package', () => {
@@ -12,4 +14,6 @@ test('Package', () => {
   assert.equal(typeof makeDefaultExportSynchronized, 'function')
   assert.equal(typeof makeDefaultExportSynchronized, 'function')
   assert.equal(typeof makeModuleSynchronized, 'function')
+  assert.equal(typeof makeSynchronizedFunction, 'function')
+  assert.equal(typeof makeSynchronizedFunctions, 'function')
 })
