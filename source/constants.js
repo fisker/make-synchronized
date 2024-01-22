@@ -11,6 +11,7 @@ export const {
 
   VALUE_TYPE_FUNCTION,
   VALUE_TYPE_PRIMITIVE,
+  VALUE_TYPE_PLAIN_OBJECT,
   VALUE_TYPE_UNKNOWN,
 } = new Proxy({}, {get: (_, property) => `[[${property}]]`})
 

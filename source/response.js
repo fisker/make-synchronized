@@ -1,4 +1,5 @@
 import process from 'node:process'
+import util from 'node:util'
 
 const processExit = process.exit
 
@@ -25,9 +26,11 @@ class Response {
     try {
       responsePort.postMessage(response)
     } catch {
-      responsePort.postMessage({
-        error: new Error('Cannot serialize worker response.'),
-      })
+      const error = new Error(
+        `Cannot serialize worker response:\n${util.inspect(response.result)}`,
+      )
+
+      responsePort.postMessage({error})
     } finally {
       responsePort.close()
 

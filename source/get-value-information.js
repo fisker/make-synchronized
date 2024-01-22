@@ -1,6 +1,7 @@
 import {
   VALUE_TYPE_FUNCTION,
   VALUE_TYPE_PRIMITIVE,
+  VALUE_TYPE_PLAIN_OBJECT,
   VALUE_TYPE_UNKNOWN,
 } from './constants.js'
 
@@ -20,6 +21,10 @@ function getValueInformation(value) {
     type === 'string'
   ) {
     return {type: VALUE_TYPE_PRIMITIVE, value}
+  }
+
+  if (Object.prototype.toString.call(value) === '[object Object]') {
+    return {type: VALUE_TYPE_PLAIN_OBJECT}
   }
 
   return {type: VALUE_TYPE_UNKNOWN}
