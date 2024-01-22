@@ -25,14 +25,20 @@ async function build(file, {format = 'esm'} = {}) {
             module: toPath('../source/constants.js'),
             process(text) {
               text = text.replace(
-                "export const WORKER_FILE = new URL('./worker.js', import.meta.url)",
-                format === 'esm'
-                  ? "export const WORKER_FILE = new URL('./worker.mjs', import.meta.url)"
-                  : /* Indent */ `
-                    import * as __path from "node:path"
-                    export const WORKER_FILE = __path.join(__dirname, './worker.mjs')
-                  `,
+                "const WORKER_FILE_NAME = 'worker.js'",
+                "const WORKER_FILE_NAME = 'worker.mjs'",
               )
+
+              if (format === 'cjs') {
+                text = /* Indent */ `
+                  import * as path from 'node:path'
+
+                  ${text.replace(
+                    'new URL(WORKER_FILE_NAME, import.meta.url)',
+                    'path.join(__dirname, WORKER_FILE_NAME)',
+                  )}
+                `
+              }
               return text
             },
           },

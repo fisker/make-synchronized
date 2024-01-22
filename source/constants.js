@@ -1,3 +1,5 @@
+const WORKER_FILE_NAME = 'worker.js'
+
 export const {
   WORKER_ACTION_APPLY,
   WORKER_ACTION_GET,
@@ -12,4 +14,4 @@ export const {
   VALUE_TYPE_UNKNOWN,
 } = new Proxy({}, {get: (_, property) => `[[${property}]]`})
 
-export const WORKER_FILE = new URL('./worker.js', import.meta.url)
+export const WORKER_FILE = new URL(WORKER_FILE_NAME, import.meta.url)
