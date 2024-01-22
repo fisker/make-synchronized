@@ -25,10 +25,6 @@ async function build(file, {format}) {
             module: toPath('../source/constants.js'),
             process(text) {
               text = text.replace(
-                'export const IS_DEVELOPMENT = true',
-                'export const IS_DEVELOPMENT = false',
-              )
-              text = text.replace(
                 "export const WORKER_FILE = new URL('./worker.js', import.meta.url)",
                 format === 'esm'
                   ? "export const WORKER_FILE = new URL('./worker.mjs', import.meta.url)"

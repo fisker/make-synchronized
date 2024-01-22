@@ -1,7 +1,6 @@
 import {Worker, receiveMessageOnPort, MessageChannel} from 'node:worker_threads'
 import process from 'node:process'
 import {
-  IS_DEVELOPMENT,
   WORKER_FILE,
   WORKER_ACTION_PING,
   WORKER_READY_SIGNAL,
@@ -12,10 +11,6 @@ function createWorker() {
     execArgv: (process.env.NODE_OPTIONS ?? '').split(' '),
   })
   worker.unref()
-
-  if (!IS_DEVELOPMENT) {
-    return worker
-  }
 
   /*
   We are running worker synchronously,
