@@ -25,7 +25,7 @@ function createWorker() {
 
   if (response !== WORKER_READY_SIGNAL) {
     throw new Error(
-      "Unexpected error, most likely caused by syntax error in 'worker.js'",
+      `Unexpected error, most likely caused by syntax error in '${WORKER_FILE}'`,
     )
   }
 
