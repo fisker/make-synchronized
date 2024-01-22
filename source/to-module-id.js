@@ -1,6 +1,10 @@
 import * as url from 'node:url'
 import * as path from 'node:path'
 
+/**
+@param {import('./types.ts').Module} module
+@returns {import('./types.ts').ModuleId}
+*/
 function toModuleId(module) {
   if (module instanceof URL) {
     return module.href

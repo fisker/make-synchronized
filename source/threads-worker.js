@@ -1,4 +1,4 @@
-import {Worker, receiveMessageOnPort, MessageChannel} from 'node:worker_threads'
+import {Worker} from 'node:worker_threads'
 
 import process from 'node:process'
 import {
@@ -6,14 +6,12 @@ import {
   WORKER_ACTION_PING,
   WORKER_READY_SIGNAL,
 } from './constants.js'
+import request from './request.js'
 
-class AtomicsWaitTimeoutError extends Error {
-  name = 'AtomicsWaitTimeoutError'
-
-  message = 'Timed out.'
-}
+/** @typedef {import('./types.ts')} types */
 
 class ThreadsWorker {
+  /** @type {types.Worker} */
   #worker
 
   #workerData
@@ -27,6 +25,9 @@ class ThreadsWorker {
     return this.#sendActionToWorker(this.#worker, action, payload)
   }
 
+  /**
+  @returns {types.Worker}
+  */
   #createWorker() {
     const worker = new Worker(WORKER_FILE, {
       execArgv: (process.env.NODE_OPTIONS ?? '').split(' '),
@@ -56,33 +57,19 @@ class ThreadsWorker {
     return worker
   }
 
+  /**
+  @param {types.Worker} worker
+  @param {string} action
+  @param {Record<string, any>} payload
+  @param {number} [timeout]
+  */
   #sendActionToWorker(worker, action, payload, timeout) {
-    const signal = new Int32Array(new SharedArrayBuffer(4))
-    const {port1: localPort, port2: workerPort} = new MessageChannel()
-
-    try {
-      worker.postMessage(
-        {
-          signal,
-          port: workerPort,
-          action,
-          payload,
-        },
-        [workerPort],
-      )
-    } catch {
-      throw new Error('Cannot serialize data.')
-    }
-
-    const status = Atomics.wait(signal, 0, 0, timeout)
-
-    if (status === 'timed-out') {
-      throw new AtomicsWaitTimeoutError()
-    }
-
-    const {
-      message: {terminated, result, error, errorData},
-    } = receiveMessageOnPort(localPort)
+    const {terminated, result, error, errorData} = request(
+      worker,
+      action,
+      payload,
+      timeout,
+    )
 
     if (terminated && this.#worker) {
       this.#worker.terminate()
