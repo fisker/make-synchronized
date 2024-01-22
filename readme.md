@@ -56,6 +56,10 @@ import {
 } from 'make-synchronized'
 ```
 
+## Limitation
+
+This module uses [`MessagePort#postMessage`](https://nodejs.org/api/worker_threads.html#portpostmessagevalue-transferlist) to transfer arguments, return values, errors between the main thread and the [worker](https://nodejs.org/api/worker_threads.html#class-worker). Please make sure the arguments and return values are serializable by [the structured clone algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm).
+
 ## API
 
 ### `makeSynchronized(module, implementation)`
