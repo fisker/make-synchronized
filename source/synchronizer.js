@@ -61,10 +61,7 @@ class Synchronizer {
       case VALUE_TYPE_PRIMITIVE:
         return information.value
       case VALUE_TYPE_PLAIN_OBJECT:
-        return this.createProxy(
-          this.#worker.sendAction(WORKER_ACTION_GET, {path}),
-          path,
-        )
+        return this.createPlainObjectProxy(path)
       default:
         return this.#worker.sendAction(WORKER_ACTION_GET, {path})
     }
@@ -98,19 +95,22 @@ class Synchronizer {
     })
   }
 
-  createProxy(value, path) {
+  createPlainObjectProxy(path) {
     path = normalizePath(path)
 
-    return new Proxy(value, {
-      get: (target, property, receiver) => {
-        // Allow well-known symbols?
-        if (typeof property === 'symbol') {
-          return Reflect.get(target, property, receiver)
-        }
+    return new Proxy(
+      {},
+      {
+        get: (target, property, receiver) => {
+          // Allow well-known symbols?
+          if (typeof property === 'symbol') {
+            return Reflect.get(target, property, receiver)
+          }
 
-        return this.get([...path, property])
+          return this.get([...path, property])
+        },
       },
-    })
+    )
   }
 
   createModule() {

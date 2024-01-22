@@ -31,6 +31,13 @@ test('makeSynchronized', () => {
     assert.equal(context.getterIsWorkingAsExpected, true)
     assert.equal(context.methodIsWorkingAsExpected(), true)
   }
+
+  {
+    const module = synchronize(
+      '../fixtures/asynchronous-modules/deep-functions.js',
+    )
+    assert.equal(module.a.b.c.d(), 'a.b.c.d called')
+  }
 })
 
 test('makeSynchronized() default export is a function', () => {
