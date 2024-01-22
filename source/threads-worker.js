@@ -40,15 +40,12 @@ class ThreadsWorker {
     it's worth to add this check since any syntax error will cause the program hangs forever.
     Since it's only a development problem, we can consider remove it if we use a bundler
     */
-    let response
-    try {
-      response = this.#sendActionToWorker(
-        worker,
-        WORKER_ACTION_PING,
-        undefined,
-        500,
-      )
-    } catch {}
+    const response = this.#sendActionToWorker(
+      worker,
+      WORKER_ACTION_PING,
+      undefined,
+      1000,
+    )
 
     if (response !== WORKER_READY_SIGNAL) {
       throw new Error(

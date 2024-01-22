@@ -1,5 +1,4 @@
 import {parentPort, workerData} from 'node:worker_threads'
-import process from 'node:process'
 import {
   WORKER_ACTION_APPLY,
   WORKER_ACTION_GET,
@@ -10,66 +9,33 @@ import {
 } from './constants.js'
 import getValueInformation from './get-value-information.js'
 import {normalizePath} from './property-path.js'
+import Response from './response.js'
 
-const processExit = process.exit
-let processing = {}
-
-async function processAction(action, payload) {
-  if (action === WORKER_ACTION_PING) {
-    return WORKER_READY_SIGNAL
-  }
-
+async function getValue(payload) {
   let value = await import(workerData.moduleId)
 
   for (const property of normalizePath(payload.path)) {
     value = value[property]
   }
-
-  switch (action) {
-    case WORKER_ACTION_APPLY:
-      return Reflect.apply(value, this, payload.argumentsList)
-    case WORKER_ACTION_GET:
-      return value
-    case WORKER_ACTION_OWN_KEYS:
-      return Reflect.ownKeys(value).filter((key) => typeof key !== 'symbol')
-    case WORKER_ACTION_GET_INFORMATION:
-      return getValueInformation(value)
-    /* c8 ignore next 2 */
-    default:
-      throw new Error(`Unknown action '${action}'.`)
-  }
+  return value
 }
 
-async function onMessageReceived({signal, port, action, payload}) {
-  processing = {signal, port}
-  const response = {}
-
-  try {
-    response.result = await processAction(action, payload)
-  } catch (error) {
-    response.error = error
-    response.errorData = {...error}
-  }
-
-  try {
-    port.postMessage(response)
-  } catch {
-    port.postMessage({
-      error: new Error('Cannot serialize worker response.'),
-    })
-  } finally {
-    port.close()
-    Atomics.store(signal, 0, 1)
-    Atomics.notify(signal, 0)
-  }
+const actionHandlers = {
+  [WORKER_ACTION_PING]: () => WORKER_READY_SIGNAL,
+  [WORKER_ACTION_GET]: getValue,
+  async [WORKER_ACTION_APPLY](payload) {
+    const value = await getValue(payload)
+    return Reflect.apply(value, this, payload.argumentsList)
+  },
+  async [WORKER_ACTION_OWN_KEYS](payload) {
+    const value = await getValue(payload)
+    return Reflect.ownKeys(value).filter((key) => typeof key !== 'symbol')
+  },
+  async [WORKER_ACTION_GET_INFORMATION](payload) {
+    const value = await getValue(payload)
+    return getValueInformation(value)
+  },
 }
 
-process.exit = () => {
-  const {port, signal} = processing
-  port.postMessage({terminated: true})
-  port.close()
-  Atomics.store(signal, 0, 1)
-  Atomics.notify(signal, 0)
-  processExit()
-}
-parentPort.addListener('message', onMessageReceived)
+const response = new Response(actionHandlers)
+response.listen(parentPort)
