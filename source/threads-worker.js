@@ -1,11 +1,17 @@
-import {Worker} from 'node:worker_threads'
+import {Worker, receiveMessageOnPort, MessageChannel} from 'node:worker_threads'
+
 import process from 'node:process'
 import {
   WORKER_FILE,
   WORKER_ACTION_PING,
   WORKER_READY_SIGNAL,
 } from './constants.js'
-import sendActionToWorker from './send-action-to-worker.js'
+
+class AtomicsWaitTimeoutError extends Error {
+  name = 'AtomicsWaitTimeoutError'
+
+  message = 'Timed out.'
+}
 
 class ThreadsWorker {
   #worker
@@ -18,7 +24,7 @@ class ThreadsWorker {
 
   sendAction(action, payload) {
     this.#worker ??= this.#createWorker()
-    return sendActionToWorker(this.#worker, action, payload)
+    return this.#sendActionToWorker(this.#worker, action, payload)
   }
 
   #createWorker() {
@@ -36,7 +42,12 @@ class ThreadsWorker {
     */
     let response
     try {
-      response = sendActionToWorker(worker, WORKER_ACTION_PING, undefined, 500)
+      response = this.#sendActionToWorker(
+        worker,
+        WORKER_ACTION_PING,
+        undefined,
+        500,
+      )
     } catch {}
 
     if (response !== WORKER_READY_SIGNAL) {
@@ -46,6 +57,46 @@ class ThreadsWorker {
     }
 
     return worker
+  }
+
+  #sendActionToWorker(worker, action, payload, timeout) {
+    const signal = new Int32Array(new SharedArrayBuffer(4))
+    const {port1: localPort, port2: workerPort} = new MessageChannel()
+
+    try {
+      worker.postMessage(
+        {
+          signal,
+          port: workerPort,
+          action,
+          payload,
+        },
+        [workerPort],
+      )
+    } catch {
+      throw new Error('Cannot serialize data.')
+    }
+
+    const status = Atomics.wait(signal, 0, 0, timeout)
+
+    if (status === 'timed-out') {
+      throw new AtomicsWaitTimeoutError()
+    }
+
+    const {
+      message: {terminated, result, error, errorData},
+    } = receiveMessageOnPort(localPort)
+
+    if (terminated && this.#worker) {
+      this.#worker.terminate()
+      this.#worker = undefined
+    }
+
+    if (error) {
+      throw Object.assign(error, errorData)
+    }
+
+    return result
   }
 }
 

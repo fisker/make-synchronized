@@ -1,4 +1,5 @@
 import {parentPort, workerData} from 'node:worker_threads'
+import process from 'node:process'
 import {
   WORKER_ACTION_APPLY,
   WORKER_ACTION_GET,
@@ -9,6 +10,9 @@ import {
 } from './constants.js'
 import getValueInformation from './get-value-information.js'
 import {normalizePath} from './property-path.js'
+
+const processExit = process.exit
+let processing = {}
 
 async function processAction(action, payload) {
   if (action === WORKER_ACTION_PING) {
@@ -37,6 +41,7 @@ async function processAction(action, payload) {
 }
 
 async function onMessageReceived({signal, port, action, payload}) {
+  processing = {signal, port}
   const response = {}
 
   try {
@@ -59,4 +64,12 @@ async function onMessageReceived({signal, port, action, payload}) {
   }
 }
 
+process.exit = () => {
+  const {port, signal} = processing
+  port.postMessage({terminated: true})
+  port.close()
+  Atomics.store(signal, 0, 1)
+  Atomics.notify(signal, 0)
+  processExit()
+}
 parentPort.addListener('message', onMessageReceived)

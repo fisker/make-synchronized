@@ -14,6 +14,7 @@ module.exports = {
   extends: ['@fisker'],
   settings: {},
   rules: {
+    'max-classes-per-file': 'off',
     'import/no-named-as-default': 'off',
   },
   plugins: [],
