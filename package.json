@@ -25,8 +25,7 @@
   "files": [
     "index.mjs",
     "index.cjs",
-    "worker.mjs",
-    "worker.cjs"
+    "worker.mjs"
   ],
   "scripts": {
     "build": "node scripts/build.js",

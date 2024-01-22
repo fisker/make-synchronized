@@ -6,7 +6,7 @@ import esbuildPluginReplaceModule from './esbuild-plugin-replace-module.js'
 
 const toPath = (file) => url.fileURLToPath(new URL(file, import.meta.url))
 
-async function build(file, {format}) {
+async function build(file, {format = 'esm'} = {}) {
   const input = toPath(file)
   const basename = path.basename(input, '.js')
   const extension = format === 'cjs' ? '.cjs' : '.mjs'
@@ -30,7 +30,7 @@ async function build(file, {format}) {
                   ? "export const WORKER_FILE = new URL('./worker.mjs', import.meta.url)"
                   : /* Indent */ `
                     import * as __path from "node:path"
-                    export const WORKER_FILE = __path.join(__dirname, './worker.cjs')
+                    export const WORKER_FILE = __path.join(__dirname, './worker.mjs')
                   `,
               )
               return text
@@ -42,13 +42,10 @@ async function build(file, {format}) {
   })
 }
 
-await Promise.all(
-  ['../source/index.js', '../source/worker.js'].flatMap((file) =>
-    [
-      {format: 'esm', WORKER_FILE: 'undefined'},
-      {format: 'cjs', WORKER_FILE: 'require.resolve("./worker.cjs")'},
-    ].map((options) => build(file, options)),
-  ),
-)
+await Promise.all([
+  build('../source/index.js'),
+  build('../source/worker.js'),
+  build('../source/index.js', {format: 'cjs'}),
+])
 
 console.log('✅ Build success.')
