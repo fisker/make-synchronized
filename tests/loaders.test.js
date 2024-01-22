@@ -3,13 +3,13 @@ import * as assert from 'node:assert/strict'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import {temporaryDirectory as getTemporaryDirectory} from 'tempy'
-import {execa} from 'execa'
+import {execaCommand} from 'execa'
 
 async function run({type}) {
   const directory = getTemporaryDirectory()
 
   try {
-    await execa('yarn init -y', {cwd: directory})
+    await execaCommand('yarn init -y', {cwd: directory})
 
     const packageJsonFile = path.join(directory, 'package.json')
     const packageJson = JSON.parse(await fs.readFile(packageJsonFile))
@@ -17,8 +17,8 @@ async function run({type}) {
       packageJsonFile,
       JSON.stringify({...packageJson, type}, undefined, 2),
     )
-    await execa('yarn set version berry', {cwd: directory})
-    await execa('yarn', {cwd: directory})
+    await execaCommand('yarn set version berry', {cwd: directory})
+    await execaCommand('yarn', {cwd: directory})
 
     const file = path.join(directory, 'foo.mjs')
     const module = new URL(
@@ -33,7 +33,7 @@ async function run({type}) {
     `,
     )
 
-    return await execa('yarn node foo.mjs --silent', {
+    return await execaCommand('yarn node foo.mjs --silent', {
       cwd: directory,
       env: {FORCE_COLOR: '0'},
     })
