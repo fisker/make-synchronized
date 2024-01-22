@@ -1,4 +1,5 @@
 import {Worker, receiveMessageOnPort, MessageChannel} from 'node:worker_threads'
+import process from 'node:process'
 import {
   IS_DEVELOPMENT,
   WORKER_FILE,
@@ -6,8 +7,10 @@ import {
   WORKER_READY_SIGNAL,
 } from './constants.js'
 
-function createWorker(options) {
-  const worker = new Worker(WORKER_FILE, options)
+function createWorker() {
+  const worker = new Worker(WORKER_FILE, {
+    execArgv: (process.env.NODE_OPTIONS ?? '').split(' '),
+  })
   worker.unref()
 
   if (!IS_DEVELOPMENT) {
