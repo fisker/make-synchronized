@@ -9,6 +9,6 @@ const normalizePath = (propertyOrPath = []) =>
 @param {import('./types.ts').PropertyPath} propertyOrPath
 @returns {string}
 */
-const hashPath = (path) => normalizePath(path).join('\0'.repeat(5))
+const hashPath = (path) => JSON.stringify(normalizePath(path))
 
 export {hashPath, normalizePath}

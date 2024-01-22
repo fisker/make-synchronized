@@ -25,6 +25,19 @@ test('makeSynchronized', () => {
     assert.equal(module.bar(), 'bar export called')
     assert.equal(module.nonExistsSpecifier, undefined)
   }
+
+  {
+    const {context} = synchronize('../fixtures/asynchronous-modules/context.js')
+    assert.equal(context.getterIsWorkingAsExpected, true)
+    assert.equal(context.methodIsWorkingAsExpected(), true)
+  }
+
+  {
+    const module = synchronize(
+      '../fixtures/asynchronous-modules/deep-functions.js',
+    )
+    assert.equal(module.a.b.c.d(), 'a.b.c.d called')
+  }
 })
 
 test('makeSynchronized() default export is a function', () => {
