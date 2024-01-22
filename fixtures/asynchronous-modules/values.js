@@ -26,8 +26,11 @@ export const ARRAY_ONE_HUNDRED_ELEMENTS = Array.from(
 export const OBJECT_UNDEFINED = undefined
 export const OBJECT_NULL = null
 export const OBJECT_EMPTY = {}
+export const OBJECT_NULL_PROTOTYPE = Object.create(null)
 export const OBJECT_FISKER_IS_JERK = {fisker: 'jerk'}
 
 export const TIME_NOW = new Date()
+
+export const REGEXP_WITH_LAST_INDEX = Object.assign(/foo/, {lastIndex: 11})
 
 export const NON_TRANSFERABLE = Symbol('foo')

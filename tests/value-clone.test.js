@@ -48,6 +48,14 @@ test('values', async () => {
 
   assert.ok(synchronized.TIME_NOW instanceof Date)
 
+  assert.ok(synchronized.REGEXP_WITH_LAST_INDEX instanceof RegExp)
+  assert.equal(synchronized.REGEXP_WITH_LAST_INDEX.lastIndex, 0)
+  assert.equal(dynamic.REGEXP_WITH_LAST_INDEX.lastIndex, 11)
+  assert.equal(
+    synchronized.REGEXP_WITH_LAST_INDEX.source,
+    dynamic.REGEXP_WITH_LAST_INDEX.source,
+  )
+
   assert.throws(
     () => {
       // eslint-disable-next-line no-unused-expressions

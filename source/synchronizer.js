@@ -1,8 +1,7 @@
 import {
   VALUE_TYPE_FUNCTION,
   VALUE_TYPE_PRIMITIVE,
-  VALUE_TYPE_ARRAY,
-  VALUE_TYPE_SYMBOL,
+  VALUE_TYPE_PLAIN_OBJECT,
   WORKER_ACTION_APPLY,
   WORKER_ACTION_GET,
   WORKER_ACTION_OWN_KEYS,
@@ -61,15 +60,13 @@ class Synchronizer {
         return this.#createSynchronizedFunction(path)
       case VALUE_TYPE_PRIMITIVE:
         return information.value
-      // Option to proxy array?
-      case VALUE_TYPE_SYMBOL:
-      case VALUE_TYPE_ARRAY:
-        return this.#worker.sendAction(WORKER_ACTION_GET, {path})
-      default:
-        return this.createObjectProxy(
+      case VALUE_TYPE_PLAIN_OBJECT:
+        return this.createProxy(
           this.#worker.sendAction(WORKER_ACTION_GET, {path}),
           path,
         )
+      default:
+        return this.#worker.sendAction(WORKER_ACTION_GET, {path})
     }
   }
 
@@ -101,7 +98,7 @@ class Synchronizer {
     })
   }
 
-  createObjectProxy(value, path) {
+  createProxy(value, path) {
     path = normalizePath(path)
 
     return new Proxy(value, {
