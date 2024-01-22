@@ -1,4 +1,4 @@
-import {parentPort} from 'node:worker_threads'
+import {parentPort, workerData} from 'node:worker_threads'
 import {
   WORKER_ACTION_APPLY,
   WORKER_ACTION_GET,
@@ -10,14 +10,14 @@ import {
 import getValueInformation from './get-value-information.js'
 import {normalizePath} from './property-path.js'
 
-async function processAction(action, moduleId, path, payload) {
+async function processAction(action, payload) {
   if (action === WORKER_ACTION_PING) {
     return WORKER_READY_SIGNAL
   }
 
-  let value = await import(moduleId)
+  let value = await import(workerData.moduleId)
 
-  for (const property of normalizePath(path)) {
+  for (const property of normalizePath(payload.path)) {
     value = value[property]
   }
 
@@ -36,18 +36,11 @@ async function processAction(action, moduleId, path, payload) {
   }
 }
 
-async function onMessageReceived({
-  signal,
-  port,
-  action,
-  moduleId,
-  path,
-  payload,
-}) {
+async function onMessageReceived({signal, port, action, payload}) {
   const response = {}
 
   try {
-    response.result = await processAction(action, moduleId, path, payload)
+    response.result = await processAction(action, payload)
   } catch (error) {
     response.error = error
     response.errorData = {...error}

@@ -6,9 +6,9 @@ import {
   WORKER_ACTION_OWN_KEYS,
   WORKER_ACTION_GET_INFORMATION,
 } from './constants.js'
-import callWorker from './call-worker.js'
 import toModuleId from './to-module-id.js'
 import {hashPath} from './property-path.js'
+import ThreadWorker from './threads-worker.js'
 
 const cacheResult = (cache, cacheKey, getResult) => {
   if (!cache.has(cacheKey)) {
@@ -34,7 +34,7 @@ class Synchronizer {
     )
   }
 
-  #moduleId
+  #worker
 
   #synchronizedFunctionStore = new Map()
 
@@ -43,16 +43,12 @@ class Synchronizer {
   #ownKeysStore = new Map()
 
   constructor(moduleId) {
-    this.#moduleId = moduleId
-  }
-
-  #callWorker(action, path, payload) {
-    return callWorker(action, this.#moduleId, path, payload)
+    this.#worker = new ThreadWorker({moduleId})
   }
 
   getInformation(path) {
     return cachePathResult(this.#informationStore, path, () =>
-      this.#callWorker(WORKER_ACTION_GET_INFORMATION, path),
+      this.#worker.sendAction(WORKER_ACTION_GET_INFORMATION, {path}),
     )
   }
 
@@ -64,18 +60,18 @@ class Synchronizer {
       case VALUE_TYPE_PRIMITIVE:
         return information.value
       default:
-        return this.#callWorker(WORKER_ACTION_GET, path)
+        return this.#worker.sendAction(WORKER_ACTION_GET, {path})
     }
   }
 
   ownKeys(path) {
     return cachePathResult(this.#ownKeysStore, path, () =>
-      this.#callWorker(WORKER_ACTION_OWN_KEYS, path),
+      this.#worker.sendAction(WORKER_ACTION_OWN_KEYS, {path}),
     )
   }
 
   apply(path, argumentsList) {
-    return this.#callWorker(WORKER_ACTION_APPLY, path, {argumentsList})
+    return this.#worker.sendAction(WORKER_ACTION_APPLY, {path, argumentsList})
   }
 
   #createSynchronizedFunction(path) {
