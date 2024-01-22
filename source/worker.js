@@ -14,25 +14,31 @@ import Response from './response.js'
 async function getValue(payload) {
   let value = await import(workerData.moduleId)
 
+  let receiver
   for (const property of normalizePath(payload.path)) {
-    value = value[property]
+    receiver = value
+    value = Reflect.get(value, property, value)
   }
-  return value
+
+  return {value, receiver}
 }
 
 const actionHandlers = {
   [WORKER_ACTION_PING]: () => WORKER_READY_SIGNAL,
-  [WORKER_ACTION_GET]: getValue,
+  async [WORKER_ACTION_GET](payload) {
+    const {value} = await getValue(payload)
+    return value
+  },
   async [WORKER_ACTION_APPLY](payload) {
-    const value = await getValue(payload)
-    return Reflect.apply(value, this, payload.argumentsList)
+    const {value: method, receiver} = await getValue(payload)
+    return Reflect.apply(method, receiver, payload.argumentsList)
   },
   async [WORKER_ACTION_OWN_KEYS](payload) {
-    const value = await getValue(payload)
+    const {value} = await getValue(payload)
     return Reflect.ownKeys(value).filter((key) => typeof key !== 'symbol')
   },
   async [WORKER_ACTION_GET_INFORMATION](payload) {
-    const value = await getValue(payload)
+    const {value} = await getValue(payload)
     return getValueInformation(value)
   },
 }

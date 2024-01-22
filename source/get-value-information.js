@@ -1,6 +1,7 @@
 import {
   VALUE_TYPE_FUNCTION,
   VALUE_TYPE_PRIMITIVE,
+  VALUE_TYPE_ARRAY,
   VALUE_TYPE_UNKNOWN,
 } from './constants.js'
 
@@ -20,6 +21,10 @@ function getValueInformation(value) {
     type === 'string'
   ) {
     return {type: VALUE_TYPE_PRIMITIVE, value}
+  }
+
+  if (Array.isArray(value)) {
+    return {type: VALUE_TYPE_ARRAY, length: value.length}
   }
 
   return {type: VALUE_TYPE_UNKNOWN}

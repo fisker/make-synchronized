@@ -18,6 +18,10 @@ export const ERROR_SYNTAXERROR = new SyntaxError('message')
 
 export const ARRAY_EMPTY = []
 export const ARRAY_TWO_ZEROS = [0, 0]
+export const ARRAY_ONE_HUNDRED_ELEMENTS = Array.from(
+  {length: 100},
+  (_, index) => index,
+)
 
 export const OBJECT_UNDEFINED = undefined
 export const OBJECT_NULL = null

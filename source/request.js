@@ -1,4 +1,5 @@
 import {receiveMessageOnPort, MessageChannel} from 'node:worker_threads'
+import * as util from 'node:util'
 import AtomicsWaitTimeoutError from './atomics-wait-timeout-error.js'
 
 /**
@@ -23,7 +24,10 @@ function request(worker, action, payload, timeout) {
       [workerPort],
     )
   } catch {
-    throw new Error('Cannot serialize data.')
+    throw Object.assign(
+      new Error(`Cannot serialize request data:\n${util.inspect(payload)}`),
+      {requestData: payload},
+    )
   }
 
   const status = Atomics.wait(signal, 0, 0, timeout)

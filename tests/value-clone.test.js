@@ -53,7 +53,7 @@ test('values', async () => {
       // eslint-disable-next-line no-unused-expressions
       synchronized.NON_TRANSFERABLE
     },
-    {name: 'Error', message: 'Cannot serialize worker response.'},
+    {name: 'Error', message: /Cannot serialize worker response:/},
   )
 })
 
@@ -67,6 +67,6 @@ test('data to worker', async () => {
     () => {
       identity(Symbol('Symbol description'))
     },
-    {name: 'Error', message: 'Cannot serialize data.'},
+    {name: 'Error', message: /^Cannot serialize request data:/},
   )
 })
