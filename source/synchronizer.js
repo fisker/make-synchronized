@@ -43,6 +43,8 @@ class Synchronizer {
 
   #ownKeysStore = new Map()
 
+  #plainObjectStore = new Map()
+
   constructor(moduleId) {
     this.#worker = new ThreadWorker({moduleId})
   }
@@ -61,7 +63,7 @@ class Synchronizer {
       case VALUE_TYPE_PRIMITIVE:
         return information.value
       case VALUE_TYPE_PLAIN_OBJECT:
-        return this.createPlainObjectProxy(path)
+        return this.#createPlainObjectProxy(path, information)
       default:
         return this.#worker.sendAction(WORKER_ACTION_GET, {path})
     }
@@ -95,22 +97,35 @@ class Synchronizer {
     })
   }
 
-  createPlainObjectProxy(path) {
+  #createPlainObjectProxy(path, {isNullPrototypeObject, properties}) {
     path = normalizePath(path)
 
-    return new Proxy(
-      {},
-      {
+    return cachePathResult(this.#plainObjectStore, path, () => {
+      const object = isNullPrototypeObject ? Object.create(null) : {}
+
+      for (const [property, propertyInformation] of properties) {
+        if (propertyInformation?.type === VALUE_TYPE_PRIMITIVE) {
+          object[property] = propertyInformation.value
+        } else {
+          Object.defineProperties(object, property, {
+            get: () => this.get([...path, property]),
+            enumerable: true,
+            configurable: true,
+          })
+        }
+      }
+
+      return new Proxy(object, {
         get: (target, property, receiver) => {
           // Allow well-known symbols?
-          if (typeof property === 'symbol') {
+          if (typeof property === 'symbol' || properties.has(property)) {
             return Reflect.get(target, property, receiver)
           }
 
           return this.get([...path, property])
         },
-      },
-    )
+      })
+    })
   }
 
   createModule() {
