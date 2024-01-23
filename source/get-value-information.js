@@ -8,7 +8,7 @@ import {
 function getPlainObjectPropertyInformation(object, key) {
   const descriptor = Object.getOwnPropertyDescriptor(object, key)
 
-  if (Object.hasOwn(descriptor, 'value')) {
+  if (!Object.hasOwn(descriptor, 'value')) {
     return
   }
 
@@ -65,7 +65,7 @@ function getValueInformation(value) {
     )
   }
 
-  return {type: VALUE_TYPE_UNKNOWN}
+  return information
 }
 
 export default getValueInformation

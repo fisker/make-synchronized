@@ -107,7 +107,7 @@ class Synchronizer {
         if (propertyInformation?.type === VALUE_TYPE_PRIMITIVE) {
           object[property] = propertyInformation.value
         } else {
-          Object.defineProperties(object, property, {
+          Object.defineProperty(object, property, {
             get: () => this.get([...path, property]),
             enumerable: true,
             configurable: true,
