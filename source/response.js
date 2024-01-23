@@ -43,7 +43,7 @@ class Response {
         `Cannot serialize worker response:\n${util.inspect(response.result)}`,
       )
 
-      responsePort.postMessage({error})
+      responsePort.postMessage({error, stdio: this.#stdio})
     } finally {
       responsePort.close()
 
