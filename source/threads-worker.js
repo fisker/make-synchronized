@@ -32,6 +32,10 @@ class ThreadsWorker {
     const worker = new Worker(WORKER_FILE, {
       execArgv: process.env.NODE_OPTIONS?.split(' '),
       workerData: this.#workerData,
+      // https://nodejs.org/api/worker_threads.html#new-workerfilename-options
+      // Do not pipe `stdio`s
+      stdout: true,
+      stderr: true,
     })
     worker.unref()
 
