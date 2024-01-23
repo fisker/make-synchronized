@@ -10,7 +10,7 @@ const stdio = makeSynchronized(
   new URL('../fixtures/asynchronous-modules/stdio.js', import.meta.url),
 )
 
-const getResult = (run, keepColors) => {
+const getResult = (run) => {
   const original = {}
   const result = []
 
@@ -18,10 +18,7 @@ const getResult = (run, keepColors) => {
     original[type] = process[type].write
 
     process[type].write = (message) => {
-      if (!keepColors) {
-        message = stripAnsi(message)
-      }
-
+      message = stripAnsi(message)
       result.push({type, message})
     }
   }
@@ -67,14 +64,14 @@ test('stdio', () => {
 
   {
     const result = getResult(() => {
-      stdio.console.table([{foo: 1}])
-    }, /* keepColors */ true)
+      stdio.console.table([{fisker: 'jerk'}])
+    })
     const table = /* Indent */ `
-      ┌─────────┬─────┐
-      │ (index) │ foo │
-      ├─────────┼─────┤
-      │    0    │  \u001B[33m1\u001B[39m  │
-      └─────────┴─────┘
+      ┌─────────┬────────┐
+      │ (index) │ fisker │
+      ├─────────┼────────┤
+      │    0    │ 'jerk' │
+      └─────────┴────────┘
     `
     assert.deepEqual(result, [
       {
@@ -103,6 +100,14 @@ test('stdio', () => {
       {type: 'stdout', message: '3\n'},
       {type: 'stderr', message: '4\n'},
     ])
+  }
+
+  {
+    const [{message}] = getResult(() => {
+      stdio.logs([{type: 'time'}, {type: 'timeEnd'}])
+    })
+
+    assert.ok(/default: [\d.]+ms\n/.test(message), message)
   }
 
   {
