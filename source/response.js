@@ -10,12 +10,25 @@ class Response {
 
   #actionHandlers
 
+  #stdio = []
+
   constructor(actionHandlers) {
     this.#actionHandlers = actionHandlers
 
     process.exit = () => {
       this.#terminate()
       processExit()
+    }
+
+    // https://github.com/nodejs/node/blob/66556f53a7b36384bce305865c30ca43eaa0874b/lib/internal/worker/io.js#L369
+    for (const type of ['stdout', 'stderr']) {
+      process[type]._writev = (chunks, callback) => {
+        for (const {chunk} of chunks) {
+          this.#stdio.push({type, chunk})
+        }
+
+        callback()
+      }
     }
   }
 
@@ -24,13 +37,13 @@ class Response {
     const signal = this.#signal
 
     try {
-      responsePort.postMessage(response)
+      responsePort.postMessage({...response, stdio: this.#stdio})
     } catch {
       const error = new Error(
         `Cannot serialize worker response:\n${util.inspect(response.result)}`,
       )
 
-      responsePort.postMessage({error})
+      responsePort.postMessage({error, stdio: this.#stdio})
     } finally {
       responsePort.close()
 
@@ -68,6 +81,7 @@ class Response {
       async ({signal, port, action, payload}) => {
         this.#signal = signal
         this.#responsePort = port
+        this.#stdio.length = 0
 
         try {
           this.#sendResult(await this.#processAction(action, payload))

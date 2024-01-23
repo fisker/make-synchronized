@@ -64,12 +64,16 @@ class ThreadsWorker {
   @param {number} [timeout]
   */
   #sendActionToWorker(worker, action, payload, timeout) {
-    const {terminated, result, error, errorData} = request(
+    const {terminated, result, error, errorData, stdio} = request(
       worker,
       action,
       payload,
       timeout,
     )
+
+    for (const {chunk, type} of stdio) {
+      process[type].write(chunk)
+    }
 
     if (terminated && this.#worker) {
       this.#worker.terminate()
