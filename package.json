@@ -28,6 +28,8 @@
     "worker.mjs"
   ],
   "scripts": {
+    "build-types-esm": "tsc --emitDeclarationOnly --noEmit false --project tsconfig.esm.json",
+    "build-types-cjs": "tsc --emitDeclarationOnly --noEmit false --project tsconfig.cjs.json",
     "build": "node scripts/build.js",
     "clean": "run-p \"clean:*\"",
     "clean:dist": "del-cli dist",
@@ -62,11 +64,15 @@
       "text"
     ]
   },
+  "dependencies": {
+    "typescript": "5.3.3"
+  },
   "devDependencies": {
     "@fisker/eslint-config": "12.1.0",
     "@fisker/lint-staged-config": "3.3.2",
     "@fisker/markdownlint-cli2-config": "0.0.3",
     "@fisker/prettier-config": "5.1.1",
+    "@types/node": "20.11.5",
     "c8": "9.1.0",
     "cross-env": "7.0.3",
     "del-cli": "5.1.0",
