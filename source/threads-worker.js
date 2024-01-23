@@ -30,7 +30,7 @@ class ThreadsWorker {
   */
   #createWorker() {
     const worker = new Worker(WORKER_FILE, {
-      execArgv: (process.env.NODE_OPTIONS ?? '').split(' '),
+      execArgv: process.env.NODE_OPTIONS?.split(' '),
       workerData: this.#workerData,
     })
     worker.unref()
