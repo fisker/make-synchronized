@@ -10,7 +10,7 @@ import {normalizePath} from './property-path.js'
 import Response from './response.js'
 import Lock from './lock.js'
 
-const {semaphore, moduleId} = workerData
+const {workerRunningSemaphore, moduleId} = workerData
 
 async function getValue(payload) {
   let value = await import(moduleId)
@@ -43,8 +43,8 @@ const actionHandlers = {
   },
 }
 
-if (semaphore) {
-  Lock.signal(semaphore)
+if (workerRunningSemaphore) {
+  Lock.signal(workerRunningSemaphore)
 }
 
 const response = new Response(actionHandlers)

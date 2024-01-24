@@ -11,13 +11,13 @@ import Lock from './lock.js'
 */
 function request(worker, action, payload, timeout) {
   const lock = new Lock()
-  const {port1: localPort, port2: workerPort} = new MessageChannel()
+  const {port1: mainThreadPort, port2: workerPort} = new MessageChannel()
 
   try {
     worker.postMessage(
       {
-        semaphore: lock.semaphore,
-        port: workerPort,
+        responseSemaphore: lock.semaphore,
+        responsePort: workerPort,
         action,
         payload,
       },
@@ -32,7 +32,7 @@ function request(worker, action, payload, timeout) {
 
   lock.lock(timeout)
 
-  const {message} = receiveMessageOnPort(localPort)
+  const {message} = receiveMessageOnPort(mainThreadPort)
 
   return message
 }

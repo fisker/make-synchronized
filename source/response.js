@@ -6,7 +6,7 @@ import Lock from './lock.js'
 const processExit = process.exit
 
 class Response {
-  #semaphore
+  #responseSemaphore
 
   #responsePort
 
@@ -58,10 +58,10 @@ class Response {
   }
 
   #finish() {
+    Lock.signal(this.#responseSemaphore)
     process.exitCode = undefined
     this.#responsePort.close()
     this.#stdio.length = 0
-    Lock.signal(this.#semaphore)
   }
 
   #terminate() {
@@ -82,9 +82,9 @@ class Response {
   listen(receivePort) {
     receivePort.addListener(
       'message',
-      async ({semaphore, port, action, payload}) => {
-        this.#semaphore = semaphore
-        this.#responsePort = port
+      async ({responseSemaphore, responsePort, action, payload}) => {
+        this.#responseSemaphore = responseSemaphore
+        this.#responsePort = responsePort
 
         try {
           this.#sendResult(await this.#processAction(action, payload))
