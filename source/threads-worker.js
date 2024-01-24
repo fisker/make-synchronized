@@ -1,12 +1,10 @@
 import {Worker} from 'node:worker_threads'
 
 import process from 'node:process'
-import {
-  WORKER_FILE,
-  WORKER_ACTION_PING,
-  WORKER_READY_SIGNAL,
-} from './constants.js'
+import {WORKER_FILE} from './constants.js'
+import Lock from './lock.js'
 import request from './request.js'
+import AtomicsWaitTimeoutError from './atomics-wait-timeout-error.js'
 
 /** @typedef {import('./types.ts')} types */
 
@@ -29,9 +27,14 @@ class ThreadsWorker {
   @returns {types.Worker}
   */
   #createWorker() {
+    const lock = new Lock()
+
     const worker = new Worker(WORKER_FILE, {
       execArgv: process.env.NODE_OPTIONS?.split(' '),
-      workerData: this.#workerData,
+      workerData: {
+        semaphore: lock.semaphore,
+        ...this.#workerData,
+      },
       // https://nodejs.org/api/worker_threads.html#new-workerfilename-options
       // Do not pipe `stdio`s
       stdout: true,
@@ -39,23 +42,18 @@ class ThreadsWorker {
     })
     worker.unref()
 
-    /*
-    We are running worker synchronously,
-    it's not possible to get syntax error by add listener to `error` event,
-    it's worth to add this check since any syntax error will cause the program hangs forever.
-    Since it's only a development problem, we can consider remove it if we use a bundler
-    */
-    const response = this.#sendActionToWorker(
-      worker,
-      WORKER_ACTION_PING,
-      undefined,
-      1000,
-    )
+    // Wait for worker to start
+    try {
+      lock.lock(1000)
+    } catch (error) {
+      if (error instanceof AtomicsWaitTimeoutError) {
+        // eslint-disable-next-line unicorn/prefer-type-error
+        throw new Error(
+          `Unexpected error, most likely caused by syntax error in '${WORKER_FILE}'`,
+        )
+      }
 
-    if (response !== WORKER_READY_SIGNAL) {
-      throw new Error(
-        `Unexpected error, most likely caused by syntax error in '${WORKER_FILE}'`,
-      )
+      throw error
     }
 
     return worker

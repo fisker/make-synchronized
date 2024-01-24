@@ -1,12 +1,9 @@
 import AtomicsWaitTimeoutError from './atomics-wait-timeout-error.js'
 
 class Lock {
-  /**
-   * @param {Int32Array} semaphore
-   * @returns {Lock}
-   */
-  static from(semaphore) {
-    return new Lock(semaphore)
+  /** @param {Int32Array} semaphore */
+  static signal(semaphore) {
+    return new Lock(semaphore).unlock()
   }
 
   semaphore

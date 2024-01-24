@@ -9,7 +9,7 @@ import {
 } from './constants.js'
 import toModuleId from './to-module-id.js'
 import {normalizePath, hashPath} from './property-path.js'
-import ThreadWorker from './threads-worker.js'
+import ThreadsWorker from './threads-worker.js'
 
 const cacheResult = (cache, cacheKey, getResult) => {
   if (!cache.has(cacheKey)) {
@@ -46,7 +46,7 @@ class Synchronizer {
   #plainObjectStore = new Map()
 
   constructor(moduleId) {
-    this.#worker = new ThreadWorker({moduleId})
+    this.#worker = new ThreadsWorker({moduleId})
   }
 
   getInformation(path) {

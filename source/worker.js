@@ -4,15 +4,16 @@ import {
   WORKER_ACTION_GET,
   WORKER_ACTION_OWN_KEYS,
   WORKER_ACTION_GET_INFORMATION,
-  WORKER_ACTION_PING,
-  WORKER_READY_SIGNAL,
 } from './constants.js'
 import getValueInformation from './get-value-information.js'
 import {normalizePath} from './property-path.js'
 import Response from './response.js'
+import Lock from './lock.js'
+
+const {semaphore, moduleId} = workerData
 
 async function getValue(payload) {
-  let value = await import(workerData.moduleId)
+  let value = await import(moduleId)
 
   let receiver
   for (const property of normalizePath(payload.path)) {
@@ -24,7 +25,6 @@ async function getValue(payload) {
 }
 
 const actionHandlers = {
-  [WORKER_ACTION_PING]: () => WORKER_READY_SIGNAL,
   async [WORKER_ACTION_GET](payload) {
     const {value} = await getValue(payload)
     return value
@@ -41,6 +41,10 @@ const actionHandlers = {
     const {value} = await getValue(payload)
     return getValueInformation(value)
   },
+}
+
+if (semaphore) {
+  Lock.signal(semaphore)
 }
 
 const response = new Response(actionHandlers)

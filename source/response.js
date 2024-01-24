@@ -1,3 +1,4 @@
+import {parentPort, workerData} from 'node:worker_threads'
 import process from 'node:process'
 import util from 'node:util'
 import Lock from './lock.js'
@@ -5,7 +6,7 @@ import Lock from './lock.js'
 const processExit = process.exit
 
 class Response {
-  #lock
+  #semaphore
 
   #responsePort
 
@@ -45,7 +46,7 @@ class Response {
       responsePort.postMessage({error, stdio: this.#stdio})
     } finally {
       responsePort.close()
-      this.#lock.unlock()
+      Lock.signal(this.#semaphore)
     }
   }
 
@@ -76,7 +77,7 @@ class Response {
     receivePort.addListener(
       'message',
       async ({semaphore, port, action, payload}) => {
-        this.#lock = Lock.from(semaphore)
+        this.#semaphore = semaphore
         this.#responsePort = port
         this.#stdio.length = 0
 
