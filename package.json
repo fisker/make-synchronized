@@ -43,6 +43,7 @@
     "lint:markdown": "markdownlint-cli2",
     "lint:package-json": "yarn run format:package-json --check",
     "lint:prettier": "prettier . --check",
+    "lint:types": "tsc",
     "prepare": "husky install",
     "test": "run-s test:development test:production-esm test:production-cjs",
     "test:development": "node --test",
@@ -67,6 +68,7 @@
     "@fisker/lint-staged-config": "3.3.2",
     "@fisker/markdownlint-cli2-config": "0.0.3",
     "@fisker/prettier-config": "5.1.1",
+    "@types/node": "20.11.5",
     "c8": "9.1.0",
     "cross-env": "7.0.3",
     "del-cli": "5.1.0",
@@ -80,7 +82,8 @@
     "prettier": "3.2.4",
     "sort-package-json": "2.6.0",
     "strip-ansi": "7.1.0",
-    "tempy": "3.1.0"
+    "tempy": "3.1.0",
+    "typescript": "5.3.3"
   },
   "packageManager": "yarn@4.0.2",
   "publishConfig": {

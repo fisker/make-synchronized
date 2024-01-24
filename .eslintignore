@@ -32,3 +32,4 @@ dist/
 index.mjs
 index.cjs
 worker.mjs
+**/*.ts

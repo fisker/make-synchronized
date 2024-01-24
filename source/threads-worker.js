@@ -6,10 +6,12 @@ import Lock from './lock.js'
 import request from './request.js'
 import AtomicsWaitTimeoutError from './atomics-wait-timeout-error.js'
 
-/** @typedef {import('./types.ts')} types */
+/**
+@typedef {import('./types.ts')} types
+*/
 
 class ThreadsWorker {
-  /** @type {types.Worker} */
+  /** @type {Worker} */
   #worker
 
   #workerData
@@ -24,7 +26,7 @@ class ThreadsWorker {
   }
 
   /**
-  @returns {types.Worker}
+  @returns {Worker}
   */
   #createWorker() {
     const lock = new Lock()
@@ -60,12 +62,13 @@ class ThreadsWorker {
   }
 
   /**
-  @param {types.Worker} worker
+  @param {Worker} worker
   @param {string} action
   @param {Record<string, any>} payload
   @param {number} [timeout]
   */
   #sendActionToWorker(worker, action, payload, timeout) {
+    // @ts-expect-error -- ?
     const {stdio, result, error, errorData, terminated} = request(
       worker,
       action,

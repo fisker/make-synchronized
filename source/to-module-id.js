@@ -15,10 +15,13 @@ function toModuleId(module) {
   }
 
   // `import.meta`
+  // @ts-expect-error -- don't know what to say
   if (typeof module?.url === 'string' && module.url.startsWith('file://')) {
+    // @ts-expect-error -- don't know what to say
     return module.url
   }
 
+  // @ts-expect-error -- Safe
   return module
 }
 
