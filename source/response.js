@@ -45,8 +45,7 @@ class Response {
       )
       responsePort.postMessage({error, stdio: this.#stdio})
     } finally {
-      responsePort.close()
-      Lock.signal(this.#semaphore)
+      this.#finish()
     }
   }
 
@@ -56,6 +55,13 @@ class Response {
 
   #throws(error) {
     this.#send({error, errorData: {...error}})
+  }
+
+  #finish() {
+    process.exitCode = undefined
+    this.#responsePort.close()
+    this.#stdio.length = 0
+    Lock.signal(this.#semaphore)
   }
 
   #terminate() {
@@ -79,7 +85,6 @@ class Response {
       async ({semaphore, port, action, payload}) => {
         this.#semaphore = semaphore
         this.#responsePort = port
-        this.#stdio.length = 0
 
         try {
           this.#sendResult(await this.#processAction(action, payload))
