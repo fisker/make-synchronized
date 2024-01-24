@@ -13,3 +13,5 @@ export const {
 } = new Proxy({}, {get: (_, property) => `[[${property}]]`})
 
 export const WORKER_FILE = new URL(WORKER_FILE_NAME, import.meta.url)
+
+export const STDIO_STREAMS = ['stdout', 'stderr']

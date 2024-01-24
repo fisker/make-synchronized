@@ -1,6 +1,6 @@
-import {parentPort, workerData} from 'node:worker_threads'
 import process from 'node:process'
 import util from 'node:util'
+import {STDIO_STREAMS} from './constants.js'
 import Lock from './lock.js'
 
 const processExit = process.exit
@@ -23,10 +23,10 @@ class Response {
     }
 
     // https://github.com/nodejs/node/blob/66556f53a7b36384bce305865c30ca43eaa0874b/lib/internal/worker/io.js#L369
-    for (const type of ['stdout', 'stderr']) {
-      process[type]._writev = (chunks, callback) => {
+    for (const stream of STDIO_STREAMS) {
+      process[stream]._writev = (chunks, callback) => {
         for (const {chunk} of chunks) {
-          this.#stdio.push({type, chunk})
+          this.#stdio.push({stream, chunk})
         }
 
         callback()
