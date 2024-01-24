@@ -1,5 +1,7 @@
 import AtomicsWaitTimeoutError from './atomics-wait-timeout-error.js'
 
+const UNLOCKED = 2
+
 class Lock {
   /** @param {Int32Array} semaphore */
   static signal(semaphore) {
@@ -14,7 +16,17 @@ class Lock {
 
   /** @param {number} [timeout] */
   lock(timeout) {
-    const status = Atomics.wait(this.semaphore, 0, 0, timeout)
+    const {semaphore} = this
+
+    // Not reuseable
+    this.semaphore = undefined
+
+    // May already unlocked
+    if (semaphore[0] === UNLOCKED) {
+      return
+    }
+
+    const status = Atomics.wait(semaphore, 0, 0, timeout)
     switch (status) {
       case 'timed-out':
         throw new AtomicsWaitTimeoutError()
@@ -27,7 +39,7 @@ class Lock {
 
   unlock() {
     const {semaphore} = this
-    Atomics.store(semaphore, 0, 1)
+    Atomics.store(semaphore, 0, UNLOCKED)
     Atomics.notify(semaphore, 0)
   }
 }

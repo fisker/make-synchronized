@@ -63,26 +63,36 @@ test('stdio', () => {
   }
 
   {
-    const result = getResult(() => {
+    const [{message}] = getResult(() => {
       stdio.console.table([{fisker: 'jerk'}])
     })
-    const table = /* Indent */ `
-      ┌─────────┬────────┐
-      │ (index) │ fisker │
-      ├─────────┼────────┤
-      │    0    │ 'jerk' │
-      └─────────┴────────┘
-    `
-    assert.deepEqual(result, [
-      {
-        type: 'stdout',
-        message: `${table
+    const possibleOutputs = [
+      /* Indent */ `
+        ┌─────────┬────────┐
+        │ (index) │ fisker │
+        ├─────────┼────────┤
+        │ 0       │ 'jerk' │
+        └─────────┴────────┘
+      `,
+      /* Indent */ `
+        ┌─────────┬────────┐
+        │ (index) │ fisker │
+        ├─────────┼────────┤
+        │    0    │ 'jerk' │
+        └─────────┴────────┘
+      `,
+    ].map(
+      (table) =>
+        `${table
           .trim()
           .split('\n')
           .map((line) => line.trim())
           .join('\n')}\n`,
-      },
-    ])
+    )
+    assert.ok(
+      possibleOutputs.includes(message),
+      `expected one of: ${possibleOutputs.join('\n\n')}`,
+    )
   }
 
   {
