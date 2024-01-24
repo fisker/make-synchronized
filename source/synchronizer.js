@@ -11,6 +11,12 @@ import toModuleId from './to-module-id.js'
 import {normalizePath, hashPath} from './property-path.js'
 import ThreadsWorker from './threads-worker.js'
 
+/**
+@typedef {import('./types.ts').Module} Module
+@typedef {import('./types.ts').SynchronizedDefaultExportProxy} SynchronizedDefaultExportProxy
+@typedef {import('./types.ts').SynchronizedModule} SynchronizedModule
+*/
+
 const cacheResult = (cache, cacheKey, getResult) => {
   if (!cache.has(cacheKey)) {
     cache.set(cacheKey, getResult())
@@ -25,6 +31,10 @@ const cachePathResult = (cache, path, getResult) =>
 class Synchronizer {
   static #instances = new Map()
 
+  /**
+   @param {{module: Module}} param0
+   @returns {Synchronizer}
+   */
   static create({module}) {
     const moduleId = toModuleId(module)
 
@@ -89,6 +99,7 @@ class Synchronizer {
     )
   }
 
+  /** @return {SynchronizedDefaultExportProxy} */
   createDefaultExportFunctionProxy() {
     const defaultExportFunction = this.get('default')
 
@@ -128,6 +139,7 @@ class Synchronizer {
     })
   }
 
+  /** @return {SynchronizedModule} */
   createModule() {
     const module = Object.create(null, {
       [Symbol.toStringTag]: {value: 'Module', enumerable: false},
