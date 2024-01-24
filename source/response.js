@@ -1,10 +1,11 @@
 import process from 'node:process'
 import util from 'node:util'
+import Lock from './lock.js'
 
 const processExit = process.exit
 
 class Response {
-  #signal
+  #lock
 
   #responsePort
 
@@ -34,7 +35,6 @@ class Response {
 
   #send(response) {
     const responsePort = this.#responsePort
-    const signal = this.#signal
 
     try {
       responsePort.postMessage({...response, stdio: this.#stdio})
@@ -42,13 +42,10 @@ class Response {
       const error = new Error(
         `Cannot serialize worker response:\n${util.inspect(response.result)}`,
       )
-
       responsePort.postMessage({error, stdio: this.#stdio})
     } finally {
       responsePort.close()
-
-      Atomics.store(signal, 0, 1)
-      Atomics.notify(signal, 0)
+      this.#lock.unlock()
     }
   }
 
@@ -78,8 +75,8 @@ class Response {
   listen(receivePort) {
     receivePort.addListener(
       'message',
-      async ({signal, port, action, payload}) => {
-        this.#signal = signal
+      async ({semaphore, port, action, payload}) => {
+        this.#lock = Lock.from(semaphore)
         this.#responsePort = port
         this.#stdio.length = 0
 
