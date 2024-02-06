@@ -1,4 +1,4 @@
-import AtomicsWaitTimeoutError from './atomics-wait-timeout-error.js'
+import AtomicsWaitError from './atomics-wait-error.js'
 
 const UNLOCKED = 2
 
@@ -27,14 +27,12 @@ class Lock {
     }
 
     const status = Atomics.wait(semaphore, 0, 0, timeout)
-    switch (status) {
-      case 'timed-out':
-        throw new AtomicsWaitTimeoutError()
-      case 'ok':
-        return
-      default:
-        throw new Error('Unexpected error.')
+
+    if (status === 'ok') {
+      return
     }
+
+    throw new AtomicsWaitError(status)
   }
 
   unlock() {
