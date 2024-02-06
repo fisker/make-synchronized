@@ -44,19 +44,18 @@
     "lint:package-json": "yarn run format:package-json --check",
     "lint:prettier": "prettier . --check",
     "lint:types": "tsc",
-    "prepare": "husky install",
     "test": "run-s test:development test:production-esm test:production-cjs",
     "test:development": "node --test",
     "test:production-esm": "yarn build && cross-env DIST_TEST_TYPE=esm node --test",
     "test:production-cjs": "yarn build && cross-env DIST_TEST_TYPE=cjs node --test",
     "test-coverage": "c8 yarn test",
-    "release": "run-s build lint format dist"
+    "release": "run-s build lint format dist",
+    "prepare": "husky"
   },
   "c8": {
     "all": true,
     "include": [
-      "index.js",
-      "utilities"
+      "source"
     ],
     "reporter": [
       "lcov",
@@ -68,18 +67,18 @@
     "@fisker/lint-staged-config": "3.3.2",
     "@fisker/markdownlint-cli2-config": "0.0.3",
     "@fisker/prettier-config": "5.1.1",
-    "@types/node": "20.11.15",
+    "@types/node": "20.11.16",
     "c8": "9.1.0",
     "cross-env": "7.0.3",
     "del-cli": "5.1.0",
     "esbuild": "0.20.0",
     "eslint": "8.56.0",
     "execa": "8.0.1",
-    "husky": "9.0.7",
-    "lint-staged": "15.2.1",
+    "husky": "9.0.10",
+    "lint-staged": "15.2.2",
     "markdownlint-cli2": "0.12.1",
     "npm-run-all": "4.1.5",
-    "prettier": "3.2.4",
+    "prettier": "3.2.5",
     "sort-package-json": "2.7.0",
     "strip-ansi": "7.1.0",
     "tempy": "3.1.0",
