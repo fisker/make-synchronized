@@ -21,7 +21,7 @@
       "default": "./index.mjs"
     }
   },
-  "main": "index.js",
+  "main": "index.cjs",
   "files": [
     "index.mjs",
     "index.cjs",
