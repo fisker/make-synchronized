@@ -28,6 +28,10 @@ async function build(file, {format = 'esm'} = {}) {
                 "const WORKER_FILE_NAME = 'worker.js'",
                 "const WORKER_FILE_NAME = 'worker.mjs'",
               )
+              text = text.replace(
+                'export const IS_PRODUCTION = false',
+                'export const IS_PRODUCTION = true',
+              )
 
               if (format === 'cjs') {
                 text = /* Indent */ `
