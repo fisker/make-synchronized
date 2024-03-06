@@ -84,7 +84,7 @@
     "tempy": "3.1.0",
     "typescript": "5.3.3"
   },
-  "packageManager": "yarn@4.0.2",
+  "packageManager": "yarn@4.1.1",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
