@@ -53,6 +53,7 @@ jobs:
         with:
           fail_ci_if_error: true
           files: coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   lint:
     name: Lint
