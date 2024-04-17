@@ -30,3 +30,5 @@ export const {
 export const WORKER_FILE = new URL(WORKER_FILE_NAME, import.meta.url)
 
 export const STDIO_STREAMS = ['stdout', 'stderr']
+
+export const IS_PRODUCTION = false

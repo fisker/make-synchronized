@@ -1,10 +1,10 @@
 import {Worker} from 'node:worker_threads'
 
 import process from 'node:process'
-import {WORKER_FILE} from './constants.js'
+import {WORKER_FILE, IS_PRODUCTION} from './constants.js'
 import Lock from './lock.js'
 import request from './request.js'
-import AtomicsWaitTimeoutError from './atomics-wait-timeout-error.js'
+import AtomicsWaitError from './atomics-wait-error.js'
 
 /**
 @typedef {import('./types.ts')} types
@@ -29,7 +29,7 @@ class ThreadsWorker {
   @returns {Worker}
   */
   #createWorker() {
-    const lock = new Lock()
+    const lock = IS_PRODUCTION ? {} : new Lock()
 
     const worker = new Worker(WORKER_FILE, {
       execArgv: process.env.NODE_OPTIONS?.split(' '),
@@ -44,11 +44,15 @@ class ThreadsWorker {
     })
     worker.unref()
 
+    if (IS_PRODUCTION) {
+      return worker
+    }
+
     // Wait for worker to start
     try {
       lock.lock(1000)
     } catch (error) {
-      if (error instanceof AtomicsWaitTimeoutError) {
+      if (error instanceof AtomicsWaitError) {
         // eslint-disable-next-line unicorn/prefer-type-error
         throw new Error(
           `Unexpected error, most likely caused by syntax error in '${WORKER_FILE}'`,
