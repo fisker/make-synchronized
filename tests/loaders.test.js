@@ -27,15 +27,19 @@ async function run({type}) {
     )
     await fs.writeFile(
       file,
-      `
-      import print from ${JSON.stringify(module.href)}
-      console.log(JSON.stringify(print(), undefined, 2))
-    `,
+      /* Indent */ `
+        import print from ${JSON.stringify(module.href)}
+        console.log(JSON.stringify(print(), undefined, 2))
+      `,
     )
 
     return await execaCommand('yarn node foo.mjs --silent', {
       cwd: directory,
-      env: {FORCE_COLOR: '0'},
+      env: {
+        FORCE_COLOR: '0',
+        // https://github.com/fisker/make-synchronized/pull/44
+        NODE_OPTIONS: '--max-old-space-size=4096',
+      },
     })
   } finally {
     await fs.rm(directory, {force: true, recursive: true})

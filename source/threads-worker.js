@@ -32,7 +32,6 @@ class ThreadsWorker {
     const lock = IS_PRODUCTION ? {} : new Lock()
 
     const worker = new Worker(WORKER_FILE, {
-      execArgv: process.env.NODE_OPTIONS?.split(' '),
       workerData: {
         workerRunningSemaphore: lock.semaphore,
         ...this.#workerData,
