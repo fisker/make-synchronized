@@ -67,7 +67,7 @@
     "@fisker/lint-staged-config": "3.3.2",
     "@fisker/markdownlint-cli2-config": "0.0.3",
     "@fisker/prettier-config": "5.1.1",
-    "@types/node": "22.7.8",
+    "@types/node": "22.7.9",
     "c8": "10.1.2",
     "cross-env": "7.0.3",
     "del-cli": "5.1.0",
