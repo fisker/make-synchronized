@@ -1,10 +1,9 @@
-import {Worker} from 'node:worker_threads'
-
 import process from 'node:process'
-import {WORKER_FILE, IS_PRODUCTION} from './constants.js'
+import {Worker} from 'node:worker_threads'
+import AtomicsWaitError from './atomics-wait-error.js'
+import {IS_PRODUCTION, WORKER_FILE} from './constants.js'
 import Lock from './lock.js'
 import request from './request.js'
-import AtomicsWaitError from './atomics-wait-error.js'
 
 /**
 @typedef {import('./types.ts')} types

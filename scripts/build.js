@@ -1,6 +1,5 @@
-import * as url from 'node:url'
 import * as path from 'node:path'
-
+import * as url from 'node:url'
 import * as esbuild from 'esbuild'
 import esbuildPluginReplaceModule from './esbuild-plugin-replace-module.js'
 

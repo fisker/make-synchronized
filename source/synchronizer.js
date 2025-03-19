@@ -1,15 +1,15 @@
 import {
   VALUE_TYPE_FUNCTION,
-  VALUE_TYPE_PRIMITIVE,
   VALUE_TYPE_PLAIN_OBJECT,
+  VALUE_TYPE_PRIMITIVE,
   WORKER_ACTION_APPLY,
   WORKER_ACTION_GET,
-  WORKER_ACTION_OWN_KEYS,
   WORKER_ACTION_GET_INFORMATION,
+  WORKER_ACTION_OWN_KEYS,
 } from './constants.js'
-import toModuleId from './to-module-id.js'
-import {normalizePath, hashPath} from './property-path.js'
+import {hashPath, normalizePath} from './property-path.js'
 import ThreadsWorker from './threads-worker.js'
+import toModuleId from './to-module-id.js'
 
 /**
 @typedef {import('./types.ts').Module} Module

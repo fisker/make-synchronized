@@ -1,5 +1,5 @@
-import * as process from 'node:process'
 import {createRequire} from 'node:module'
+import * as process from 'node:process'
 
 function loadModuleForTests() {
   switch (process.env.DIST_TEST_TYPE) {

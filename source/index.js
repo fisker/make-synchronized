@@ -97,9 +97,9 @@ function makeSynchronized(module, implementation) {
 
 export default makeSynchronized
 export {
-  makeSynchronized,
   makeDefaultExportSynchronized,
   makeModuleSynchronized,
+  makeSynchronized,
   makeSynchronizedFunction,
   makeSynchronizedFunctions,
 }

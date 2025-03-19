@@ -2,13 +2,13 @@ import {parentPort, workerData} from 'node:worker_threads'
 import {
   WORKER_ACTION_APPLY,
   WORKER_ACTION_GET,
-  WORKER_ACTION_OWN_KEYS,
   WORKER_ACTION_GET_INFORMATION,
+  WORKER_ACTION_OWN_KEYS,
 } from './constants.js'
 import getValueInformation from './get-value-information.js'
+import Lock from './lock.js'
 import {normalizePath} from './property-path.js'
 import Response from './response.js'
-import Lock from './lock.js'
 
 const {workerRunningSemaphore, moduleId} = workerData
 

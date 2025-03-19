@@ -1,5 +1,5 @@
-import {receiveMessageOnPort, MessageChannel} from 'node:worker_threads'
 import * as util from 'node:util'
+import {MessageChannel, receiveMessageOnPort} from 'node:worker_threads'
 import Lock from './lock.js'
 
 /**

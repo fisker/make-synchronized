@@ -1,5 +1,5 @@
-import test from 'node:test'
 import * as assert from 'node:assert/strict'
+import test from 'node:test'
 
 test('makeSynchronizedFunction & makeSynchronizedFunctions', async () => {
   const module = await import(
