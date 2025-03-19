@@ -1,7 +1,7 @@
 import process from 'node:process'
 import util from 'node:util'
 import {STDIO_STREAMS} from './constants.js'
-import Lock from './lock.js'
+import {unlock} from './lock.js'
 
 const processExit = process.exit
 
@@ -58,9 +58,11 @@ class Response {
   }
 
   #finish() {
-    Lock.signal(this.#responseSemaphore)
+    unlock(this.#responseSemaphore)
     process.exitCode = undefined
     this.#responsePort.close()
+    this.#responseSemaphore = undefined
+    this.#responsePort = undefined
     this.#stdio.length = 0
   }
 
@@ -69,14 +71,14 @@ class Response {
   }
 
   #processAction(action, payload) {
-    const handler = this.#actionHandlers[action]
+    const actionHandlers = this.#actionHandlers
 
     /* c8 ignore next 3 */
-    if (!handler) {
+    if (!actionHandlers.has(action)) {
       throw new Error(`Unknown action '${action}'.`)
     }
 
-    return handler(payload)
+    return actionHandlers.get(action)(payload)
   }
 
   listen(receivePort) {

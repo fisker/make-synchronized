@@ -12,6 +12,8 @@ import Lock from './lock.js'
 function request(worker, action, payload, timeout) {
   const lock = new Lock()
   const {port1: mainThreadPort, port2: workerPort} = new MessageChannel()
+  mainThreadPort.unref()
+  workerPort.unref()
 
   try {
     worker.postMessage(
