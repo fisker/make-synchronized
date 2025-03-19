@@ -1,6 +1,6 @@
-import test from 'node:test'
 import * as assert from 'node:assert/strict'
 import process from 'node:process'
+import test from 'node:test'
 import stripAnsi from 'strip-ansi'
 import loadModuleForTests from '../scripts/load-module-for-tests.js'
 

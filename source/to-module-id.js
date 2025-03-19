@@ -1,5 +1,5 @@
-import * as url from 'node:url'
 import * as path from 'node:path'
+import * as url from 'node:url'
 
 /**
 @param {import('./types.ts').Module} module

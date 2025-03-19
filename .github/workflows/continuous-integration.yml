@@ -18,6 +18,7 @@ jobs:
           - "macos-latest"
           - "windows-latest"
         node_version:
+          - "22"
           - "20"
           - "18"
         # exclude:
@@ -49,9 +50,10 @@ jobs:
       - name: Run Test
         run: yarn test-coverage
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
+          disable_search: true
           files: coverage/lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
 

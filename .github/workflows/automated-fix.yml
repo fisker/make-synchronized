@@ -1,0 +1,16 @@
+name: autofix.ci # needed to securely identify the workflow
+
+on:
+  pull_request:
+  push:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fix:
+    if: github.repository == 'fisker/make-synchronized'
+    name: Run automated fix
+    permissions: {}
+    uses: fisker/shared-workflows/.github/workflows/automated-fix.yml@main

@@ -4,7 +4,7 @@ import {ATOMICS_WAIT_RESULT_TIMED_OUT} from './constants.js'
 const STATE_UNLOCKED = 2
 const SIGNAL_INDEX = 0
 
-/** @param {Int32Array} semaphore */
+/** @param {Int32Array<SharedArrayBuffer>} semaphore */
 const unlock = (semaphore) => {
   Atomics.store(semaphore, SIGNAL_INDEX, STATE_UNLOCKED)
   Atomics.notify(semaphore, SIGNAL_INDEX, 1)
