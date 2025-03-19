@@ -8,7 +8,7 @@ import {
 import getValueInformation from './get-value-information.js'
 import {normalizePath} from './property-path.js'
 import Response from './response.js'
-import Lock from './lock.js'
+import {unlock} from './lock.js'
 
 let moduleImportPromise
 let module
@@ -54,5 +54,5 @@ if (parentPort) {
 
 const workerRunningSemaphore = workerData?.workerRunningSemaphore
 if (workerRunningSemaphore) {
-  Lock.signal(workerRunningSemaphore)
+  unlock(workerRunningSemaphore)
 }

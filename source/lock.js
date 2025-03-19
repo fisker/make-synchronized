@@ -4,12 +4,13 @@ import {ATOMICS_WAIT_RESULT_TIMED_OUT} from './constants.js'
 const STATE_UNLOCKED = 2
 const SIGNAL_INDEX = 0
 
-class Lock {
-  /** @param {Int32Array} semaphore */
-  static signal(semaphore) {
-    return new Lock(semaphore).unlock()
-  }
+/** @param {Int32Array} semaphore */
+const unlock = semaphore => {
+  Atomics.store(semaphore, SIGNAL_INDEX, STATE_UNLOCKED)
+  Atomics.notify(semaphore, SIGNAL_INDEX, 1)
+}
 
+class Lock {
   semaphore
 
   constructor(semaphore = new Int32Array(new SharedArrayBuffer(4))) {
@@ -36,12 +37,7 @@ class Lock {
 
     throw new AtomicsWaitError(result)
   }
-
-  unlock() {
-    const {semaphore} = this
-    Atomics.store(semaphore, SIGNAL_INDEX, STATE_UNLOCKED)
-    Atomics.notify(semaphore, SIGNAL_INDEX, 1)
-  }
 }
 
 export default Lock
+export {unlock}

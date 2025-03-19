@@ -1,7 +1,7 @@
 import process from 'node:process'
 import util from 'node:util'
 import {STDIO_STREAMS} from './constants.js'
-import Lock from './lock.js'
+import {unlock} from './lock.js'
 
 const processExit = process.exit
 
@@ -58,7 +58,7 @@ class Response {
   }
 
   #finish() {
-    Lock.signal(this.#responseSemaphore)
+    unlock(this.#responseSemaphore)
     process.exitCode = undefined
     this.#responsePort.close()
     this.#responseSemaphore = undefined
