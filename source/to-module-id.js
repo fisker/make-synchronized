@@ -15,9 +15,11 @@ function toModuleId(module) {
   }
 
   // `import.meta`
-  // @ts-expect-error -- don't know what to say
-  if (typeof module?.url === 'string' && module.url.startsWith('file://')) {
-    // @ts-expect-error -- don't know what to say
+  if (
+    typeof module !== 'string' &&
+    typeof module?.url === 'string' &&
+    module.url.startsWith('file:')
+  ) {
     return module.url
   }
 
