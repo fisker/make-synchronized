@@ -15,7 +15,11 @@ function toModuleId(module) {
   }
 
   // `import.meta`
-  if (typeof module !== 'string' && module.url.startsWith('file:')) {
+  if (
+    typeof module !== 'string' &&
+    typeof module?.url === 'string' &&
+    module.url.startsWith('file:')
+  ) {
     return module.url
   }
 

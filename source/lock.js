@@ -5,7 +5,7 @@ const STATE_UNLOCKED = 2
 const SIGNAL_INDEX = 0
 
 /** @param {Int32Array} semaphore */
-const unlock = semaphore => {
+const unlock = (semaphore) => {
   Atomics.store(semaphore, SIGNAL_INDEX, STATE_UNLOCKED)
   Atomics.notify(semaphore, SIGNAL_INDEX, 1)
 }
