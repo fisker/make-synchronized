@@ -61,6 +61,8 @@ class Response {
     Lock.signal(this.#responseSemaphore)
     process.exitCode = undefined
     this.#responsePort.close()
+    this.#responseSemaphore = undefined
+    this.#responsePort = undefined
     this.#stdio.length = 0
   }
 
@@ -69,14 +71,14 @@ class Response {
   }
 
   #processAction(action, payload) {
-    const handler = this.#actionHandlers[action]
+    const actionHandlers = this.#actionHandlers
 
     /* c8 ignore next 3 */
-    if (!handler) {
+    if (!actionHandlers.has(action)) {
       throw new Error(`Unknown action '${action}'.`)
     }
 
-    return handler(payload)
+    return actionHandlers.get(action)(payload)
   }
 
   listen(receivePort) {

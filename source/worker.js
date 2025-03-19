@@ -10,10 +10,13 @@ import {normalizePath} from './property-path.js'
 import Response from './response.js'
 import Lock from './lock.js'
 
-const {workerRunningSemaphore, moduleId} = workerData
-
+let moduleImportPromise
+let module
 async function getValue(payload) {
-  let value = await import(moduleId)
+  moduleImportPromise ??= import(workerData.moduleId)
+  module ??= await moduleImportPromise
+
+  let value = module
 
   let receiver
   for (const property of normalizePath(payload.path)) {
@@ -24,28 +27,32 @@ async function getValue(payload) {
   return {value, receiver}
 }
 
-const actionHandlers = {
-  async [WORKER_ACTION_GET](payload) {
-    const {value} = await getValue(payload)
-    return value
-  },
-  async [WORKER_ACTION_APPLY](payload) {
-    const {value: method, receiver} = await getValue(payload)
-    return Reflect.apply(method, receiver, payload.argumentsList)
-  },
-  async [WORKER_ACTION_OWN_KEYS](payload) {
-    const {value} = await getValue(payload)
-    return Reflect.ownKeys(value).filter((key) => typeof key !== 'symbol')
-  },
-  async [WORKER_ACTION_GET_INFORMATION](payload) {
-    const {value} = await getValue(payload)
-    return getValueInformation(value)
-  },
+const createHandler = (handler) => async (payload) =>
+  handler(await getValue(payload), payload)
+
+const actionHandlers = new Map(
+  [
+    [WORKER_ACTION_GET, ({value}) => value],
+    [
+      WORKER_ACTION_APPLY,
+      ({value: method, receiver}, {argumentsList}) =>
+        Reflect.apply(method, receiver, argumentsList),
+    ],
+    [
+      WORKER_ACTION_OWN_KEYS,
+      ({value}) =>
+        Reflect.ownKeys(value).filter((key) => typeof key !== 'symbol'),
+    ],
+    [WORKER_ACTION_GET_INFORMATION, ({value}) => getValueInformation(value)],
+  ].map(([action, handler]) => [action, createHandler(handler)]),
+)
+
+if (parentPort) {
+  const response = new Response(actionHandlers)
+  response.listen(parentPort)
 }
 
+const workerRunningSemaphore = workerData?.workerRunningSemaphore
 if (workerRunningSemaphore) {
   Lock.signal(workerRunningSemaphore)
 }
-
-const response = new Response(actionHandlers)
-response.listen(parentPort)

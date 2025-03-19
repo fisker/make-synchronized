@@ -55,6 +55,7 @@ class ThreadsWorker {
         // eslint-disable-next-line unicorn/prefer-type-error
         throw new Error(
           `Unexpected error, most likely caused by syntax error in '${WORKER_FILE}'`,
+          {cause: error},
         )
       }
 
