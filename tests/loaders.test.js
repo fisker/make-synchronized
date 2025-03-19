@@ -9,7 +9,7 @@ async function run({type}) {
   const directory = getTemporaryDirectory()
 
   try {
-    await spawn('yarn init -y', {cwd: directory})
+    await spawn('yarn', ['init', '-y'], {cwd: directory})
 
     const packageJsonFile = path.join(directory, 'package.json')
     const packageJson = JSON.parse(await fs.readFile(packageJsonFile))
@@ -17,7 +17,7 @@ async function run({type}) {
       packageJsonFile,
       JSON.stringify({...packageJson, type}, undefined, 2),
     )
-    await spawn('yarn set version berry', {cwd: directory})
+    await spawn('yarn', ['set', 'version', 'berry'], {cwd: directory})
     await spawn('yarn', {cwd: directory})
 
     const file = path.join(directory, 'foo.mjs')
@@ -33,7 +33,7 @@ async function run({type}) {
       `,
     )
 
-    return await spawn('yarn node foo.mjs --silent', {
+    return await spawn('yarn', ['node', 'foo.mjs', '--silent'], {
       cwd: directory,
       env: {
         FORCE_COLOR: '0',
