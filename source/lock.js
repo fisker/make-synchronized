@@ -3,7 +3,7 @@ import AtomicsWaitError from './atomics-wait-error.js'
 const UNLOCKED = 2
 
 class Lock {
-  /** @param {Int32Array} semaphore */
+  /** @param {Int32Array<SharedArrayBuffer>} semaphore */
   static signal(semaphore) {
     return new Lock(semaphore).unlock()
   }
