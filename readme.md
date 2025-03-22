@@ -1,14 +1,14 @@
 # make-synchronized
 
 [![Build Status][github_actions_badge]][github_actions_link]
-[![Coverage][coveralls_badge]][coveralls_link]
+[![Coverage][codecov_badge]][codecov_link]
 [![Npm Version][package_version_badge]][package_link]
 [![MIT License][license_badge]][license_link]
 
 [github_actions_badge]: https://img.shields.io/github/actions/workflow/status/fisker/make-synchronized/continuous-integration.yml?branch=main&style=flat-square
 [github_actions_link]: https://github.com/fisker/make-synchronized/actions?query=branch%3Amain
-[coveralls_badge]: https://img.shields.io/coveralls/github/fisker/make-synchronized/main?style=flat-square
-[coveralls_link]: https://coveralls.io/github/fisker/make-synchronized?branch=main
+[codecov_badge]: https://img.shields.io/codecov/c/github/fisker/make-synchronized?style=flat-square
+[codecov_link]: https://codecov.io/gh/fisker/make-synchronized
 [license_badge]: https://img.shields.io/npm/l/make-synchronized.svg?style=flat-square
 [license_link]: https://github.com/fisker/make-synchronized/blob/main/license
 [package_version_badge]: https://img.shields.io/npm/v/make-synchronized.svg?style=flat-square
