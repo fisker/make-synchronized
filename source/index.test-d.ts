@@ -109,3 +109,17 @@ import {expectError, expectType} from 'tsd'
   expectType<2>(makeSynchronizedFunctions(import.meta, functions).bar())
   expectError(() => makeSynchronizedFunctions(import.meta, 0))
 }
+
+// `makeDefaultExportSynchronized`
+{
+  expectType<number>(
+    makeDefaultExportSynchronized<{default: () => Promise<number>}>('x')(),
+  )
+  expectType<number>(
+    makeDefaultExportSynchronized<{default: () => number}>('x')(),
+  )
+  expectError(() =>
+    makeDefaultExportSynchronized<{foo: () => Promise<number>}>('x'),
+  )
+  expectError(() => makeDefaultExportSynchronized<{default: number}>('x'))
+}

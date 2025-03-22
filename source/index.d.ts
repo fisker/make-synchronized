@@ -34,17 +34,14 @@ type SynchronizedDefaultExportProxy<
 > = SynchronizedFunction<InputNodeModule['default']> &
   SynchronizedModule<InputNodeModule>
 
-export type MakeDefaultExportSynchronized<
-  InputNodeModule extends
-    NodeModuleWithFunctionDefaultExport = NodeModuleWithFunctionDefaultExport,
-> = (module: Module) => SynchronizedFunction<InputNodeModule['default']>
-
 export type MakeModuleSynchronized<
   InputNodeModule extends NodeModule = NodeModule,
 > = (module: Module) => SynchronizedModule<InputNodeModule>
 
+// For imports
+
 /**
-Make a module synchronized.
+Make functions in a module synchronized.
 
 @param {string | URL | ImportMeta} module - module to be synchronized
 
@@ -53,6 +50,7 @@ Make a module synchronized.
 import makeSynchronized from 'make-synchronized'
 
 const synchronizedFoo = makeSynchronized<typeof import('foo')>('foo')
+const {bar: synchronizedBar} = makeSynchronized<typeof import('foo')>('foo')
 ```
 */
 export function makeSynchronized<InputNodeModule = Record<string, any>>(
@@ -60,6 +58,25 @@ export function makeSynchronized<InputNodeModule = Record<string, any>>(
 ): InputNodeModule extends NodeModuleWithFunctionDefaultExport
   ? SynchronizedDefaultExportProxy<InputNodeModule>
   : SynchronizedModule<InputNodeModule>
+
+/**
+Make default export asynchronous function of module synchronized.
+
+@param {string | URL | ImportMeta} module - module to be synchronized
+
+@example
+```js
+import {makeDefaultExportSynchronized} from 'make-synchronized'
+
+const synchronizedFoo = makeSynchronized<typeof import('foo')>('foo')
+```
+*/
+export function makeDefaultExportSynchronized<
+  InputNodeModule extends
+    NodeModuleWithFunctionDefaultExport = NodeModuleWithFunctionDefaultExport,
+>(module: Module): SynchronizedFunction<InputNodeModule['default']>
+
+// For exports
 
 /**
 Make a function synchronized for default export.
@@ -153,6 +170,5 @@ export function makeSynchronizedFunctions<
   implementation: InputObjectWithFunctions,
 ): SynchronizedObject<InputObjectWithFunctions>
 
-export const makeDefaultExportSynchronized: MakeDefaultExportSynchronized
 export const makeModuleSynchronized: MakeModuleSynchronized
 export default makeSynchronized
