@@ -34,10 +34,6 @@ type SynchronizedDefaultExportProxy<
 > = SynchronizedFunction<InputNodeModule['default']> &
   SynchronizedModule<InputNodeModule>
 
-export type MakeModuleSynchronized<
-  InputNodeModule extends NodeModule = NodeModule,
-> = (module: Module) => SynchronizedModule<InputNodeModule>
-
 // For imports
 
 /**
@@ -75,6 +71,22 @@ export function makeDefaultExportSynchronized<
   InputNodeModule extends
     NodeModuleWithFunctionDefaultExport = NodeModuleWithFunctionDefaultExport,
 >(module: Module): SynchronizedFunction<InputNodeModule['default']>
+
+/**
+Make functions of module synchronized.
+
+@param {string | URL | ImportMeta} module - module to be synchronized
+
+@example
+```js
+import {makeDefaultExportSynchronized} from 'make-synchronized'
+
+const {default: synchronizedFoo, bar: synchronizedBar} = makeSynchronized<typeof import('foo')>('foo')
+```
+*/
+export function makeModuleSynchronized<
+  InputNodeModule extends NodeModule = NodeModule,
+>(module: Module): SynchronizedModule<InputNodeModule>
 
 // For exports
 
@@ -170,5 +182,4 @@ export function makeSynchronizedFunctions<
   implementation: InputObjectWithFunctions,
 ): SynchronizedObject<InputObjectWithFunctions>
 
-export const makeModuleSynchronized: MakeModuleSynchronized
 export default makeSynchronized
