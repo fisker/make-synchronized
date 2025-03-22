@@ -65,5 +65,4 @@ export {
   makeSynchronized,
   makeSynchronizedFunction,
   makeSynchronizedFunctions,
-  makeSynchronized as 'module.exports',
 }
