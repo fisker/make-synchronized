@@ -6,7 +6,7 @@ import defaultExport, {
   makeSynchronizedFunctions,
 } from './index.js'
 
-import {expectType} from 'tsd'
+import {expectError, expectType} from 'tsd'
 
 {
   // `makeSynchronized` is the same as default export
@@ -81,4 +81,16 @@ import {expectType} from 'tsd'
   expectType<number>(
     makeSynchronized({url: 'file:///path/to/module'}, async () => 1)(),
   )
+}
+
+{
+  const function_ = async (): Promise<1> => 1
+  expectType<1>(makeSynchronizedFunction(import.meta, function_)())
+  expectType<1>(makeSynchronizedFunction(import.meta, function_, 'default')())
+  expectType<1>(
+    makeSynchronizedFunction(import.meta, function_, ['foo', 'bar'])(),
+  )
+  expectError(() => makeSynchronizedFunction(import.meta, () => 1))
+  expectError(() => makeSynchronizedFunction(import.meta, () => 1, 'foo'))
+  expectError(() => makeSynchronizedFunction(import.meta, function_, true))
 }

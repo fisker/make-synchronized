@@ -102,7 +102,7 @@ typings/
 .gitpod.yml
 .deleted/
 dist/
-index.mjs
-index.cjs
-worker.mjs
-index.d.ts
+/index.mjs
+/index.cjs
+/worker.mjs
+/index.d.ts
