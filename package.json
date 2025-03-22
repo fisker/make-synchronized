@@ -26,7 +26,8 @@
   "files": [
     "index.mjs",
     "index.cjs",
-    "worker.mjs"
+    "worker.mjs",
+    "types.d.ts"
   ],
   "scripts": {
     "build": "run-s clean build:scripts",
