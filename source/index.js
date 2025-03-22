@@ -11,11 +11,9 @@ function makeSynchronizedFunctions(module, implementation) {
 
   return new Proxy(implementation, {
     get: (target, property /* , receiver */) =>
-      // @ts-expect-error -- ?
       typeof implementation[property] === 'function'
         ? synchronizer.get(property)
-        : // @ts-expect-error -- ?
-          target[property],
+        : target[property],
   })
 }
 

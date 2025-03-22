@@ -1,9 +1,6 @@
 import * as path from 'node:path'
 import * as url from 'node:url'
 
-/** @import * as types from './types.ts'; */
-
-/** @type {types.ToModuleId} */
 function toModuleId(module) {
   if (module instanceof URL) {
     return module.href
@@ -14,11 +11,11 @@ function toModuleId(module) {
   }
 
   // `import.meta`
-  if (typeof module !== 'string' && typeof module?.url === 'string') {
+  if (typeof module?.url === 'string') {
     return module.url
   }
 
-  return String(module)
+  return module
 }
 
 export default toModuleId
