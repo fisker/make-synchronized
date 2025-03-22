@@ -18,6 +18,7 @@ jobs:
           - "macos-latest"
           - "windows-latest"
         node_version:
+          - "23"
           - "22"
           - "20"
           - "18"
