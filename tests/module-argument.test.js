@@ -32,6 +32,9 @@ test('invalid', () => {
     makeModuleSynchronized(/* Invalid module */ true)
   })
   assert.throws(() => {
+    makeModuleSynchronized(/* Invalid module */ 0)
+  })
+  assert.throws(() => {
     makeModuleSynchronized(/* Missing module */)
   })
   assert.throws(() => {
