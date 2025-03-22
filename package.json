@@ -17,6 +17,7 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./types.d.ts",
       "require": "./index.cjs",
       "default": "./index.mjs"
     }
@@ -28,11 +29,10 @@
     "worker.mjs"
   ],
   "scripts": {
-    "build-types-esm": "tsc --emitDeclarationOnly --noEmit false --project tsconfig.esm.json",
-    "build-types-cjs": "tsc --emitDeclarationOnly --noEmit false --project tsconfig.cjs.json",
-    "build": "node scripts/build.js",
+    "build": "run-s clean build:scripts",
+    "build:script": "node scripts/build.js",
     "clean": "run-p \"clean:*\"",
-    "clean:dist": "del-cli dist",
+    "clean:dist": "del-cli types",
     "dist": "run-p \"dist:*\"",
     "dist:npm": "release-it",
     "lint": "run-p --continue-on-error \"lint:*\"",
@@ -88,6 +88,7 @@
     "sort-package-json": "3.0.0",
     "strip-ansi": "7.1.0",
     "tempy": "3.1.0",
+    "tsd": "0.31.2",
     "typescript": "5.8.2"
   },
   "packageManager": "yarn@4.7.0",

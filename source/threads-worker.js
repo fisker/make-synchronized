@@ -6,11 +6,11 @@ import Lock from './lock.js'
 import request from './request.js'
 
 /**
-@typedef {import('./types.ts')} types
+@import * as types from './types.ts';
 */
 
 class ThreadsWorker {
-  /** @type {Worker} */
+  /** @type {types.Worker} */
   #worker
 
   #workerData
@@ -25,7 +25,7 @@ class ThreadsWorker {
   }
 
   /**
-  @returns {Worker}
+  @returns {types.Worker}
   */
   #createWorker() {
     const lock = IS_PRODUCTION ? {} : new Lock()
@@ -65,13 +65,13 @@ class ThreadsWorker {
   }
 
   /**
-  @param {Worker} worker
+  @param {types.Worker} worker
   @param {string} action
-  @param {Record<string, any>} payload
+  @param {Record<string, undefined>} payload
   @param {number} [timeout]
   */
   #sendActionToWorker(worker, action, payload, timeout) {
-    // @ts-expect-error -- ?
+    // @ts-expect-error
     const {stdio, result, error, errorData, terminated} = request(
       worker,
       action,
