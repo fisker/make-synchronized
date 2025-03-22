@@ -99,6 +99,8 @@ typings/
 .pnp.js
 
 # project ignore files
+.gitpod.yml
+.deleted/
 dist/
 index.mjs
 index.cjs

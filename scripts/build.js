@@ -1,6 +1,5 @@
-import * as url from 'node:url'
 import * as path from 'node:path'
-
+import * as url from 'node:url'
 import * as esbuild from 'esbuild'
 import esbuildPluginReplaceModule from './esbuild-plugin-replace-module.js'
 
@@ -27,6 +26,10 @@ async function build(file, {format = 'esm'} = {}) {
               text = text.replace(
                 "const WORKER_FILE_NAME = 'worker.js'",
                 "const WORKER_FILE_NAME = 'worker.mjs'",
+              )
+              text = text.replace(
+                'export const IS_PRODUCTION = false',
+                'export const IS_PRODUCTION = true',
               )
 
               if (format === 'cjs') {

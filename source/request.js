@@ -1,6 +1,6 @@
-import {receiveMessageOnPort, MessageChannel} from 'node:worker_threads'
 import * as util from 'node:util'
-import AtomicsWaitTimeoutError from './atomics-wait-timeout-error.js'
+import {MessageChannel, receiveMessageOnPort} from 'node:worker_threads'
+import Lock from './lock.js'
 
 /**
 @param {import('node:worker_threads').Worker} worker
@@ -10,14 +10,16 @@ import AtomicsWaitTimeoutError from './atomics-wait-timeout-error.js'
 @returns {import('./types.ts').WorkerResponseData}
 */
 function request(worker, action, payload, timeout) {
-  const signal = new Int32Array(new SharedArrayBuffer(4))
-  const {port1: localPort, port2: workerPort} = new MessageChannel()
+  const lock = new Lock()
+  const {port1: mainThreadPort, port2: workerPort} = new MessageChannel()
+  mainThreadPort.unref()
+  workerPort.unref()
 
   try {
     worker.postMessage(
       {
-        signal,
-        port: workerPort,
+        responseSemaphore: lock.semaphore,
+        responsePort: workerPort,
         action,
         payload,
       },
@@ -30,13 +32,9 @@ function request(worker, action, payload, timeout) {
     )
   }
 
-  const status = Atomics.wait(signal, 0, 0, timeout)
+  lock.lock(timeout)
 
-  if (status === 'timed-out') {
-    throw new AtomicsWaitTimeoutError()
-  }
-
-  const {message} = receiveMessageOnPort(localPort)
+  const {message} = receiveMessageOnPort(mainThreadPort)
 
   return message
 }

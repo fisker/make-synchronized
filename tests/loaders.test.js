@@ -1,15 +1,15 @@
-import test from 'node:test'
 import * as assert from 'node:assert/strict'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
+import test from 'node:test'
+import spawn from 'nano-spawn'
 import {temporaryDirectory as getTemporaryDirectory} from 'tempy'
-import {execaCommand} from 'execa'
 
 async function run({type}) {
   const directory = getTemporaryDirectory()
 
   try {
-    await execaCommand('yarn init -y', {cwd: directory})
+    await spawn('yarn', ['init', '-y'], {cwd: directory})
 
     const packageJsonFile = path.join(directory, 'package.json')
     const packageJson = JSON.parse(await fs.readFile(packageJsonFile))
@@ -17,8 +17,8 @@ async function run({type}) {
       packageJsonFile,
       JSON.stringify({...packageJson, type}, undefined, 2),
     )
-    await execaCommand('yarn set version berry', {cwd: directory})
-    await execaCommand('yarn', {cwd: directory})
+    await spawn('yarn', ['set', 'version', 'berry'], {cwd: directory})
+    await spawn('yarn', {cwd: directory})
 
     const file = path.join(directory, 'foo.mjs')
     const module = new URL(
@@ -27,15 +27,19 @@ async function run({type}) {
     )
     await fs.writeFile(
       file,
-      `
-      import print from ${JSON.stringify(module.href)}
-      console.log(JSON.stringify(print(), undefined, 2))
-    `,
+      /* Indent */ `
+        import print from ${JSON.stringify(module.href)}
+        console.log(JSON.stringify(print(), undefined, 2))
+      `,
     )
 
-    return await execaCommand('yarn node foo.mjs --silent', {
+    return await spawn('yarn', ['node', 'foo.mjs', '--silent'], {
       cwd: directory,
-      env: {FORCE_COLOR: '0'},
+      env: {
+        FORCE_COLOR: '0',
+        // https://github.com/fisker/make-synchronized/pull/44
+        NODE_OPTIONS: '--max-old-space-size=4096',
+      },
     })
   } finally {
     await fs.rm(directory, {force: true, recursive: true})

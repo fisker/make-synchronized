@@ -1,9 +1,20 @@
 import {
   VALUE_TYPE_FUNCTION,
-  VALUE_TYPE_PRIMITIVE,
   VALUE_TYPE_PLAIN_OBJECT,
+  VALUE_TYPE_PRIMITIVE,
   VALUE_TYPE_UNKNOWN,
 } from './constants.js'
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#primitive_values
+const PRIMITIVE_VALUE_TYPES = new Set([
+  'undefined',
+  'boolean',
+  'number',
+  'bigint',
+  'string',
+])
+const isPrimitive = (value) =>
+  value === null || PRIMITIVE_VALUE_TYPES.has(typeof value)
 
 function getPlainObjectPropertyInformation(object, key) {
   const descriptor = Object.getOwnPropertyDescriptor(object, key)
@@ -14,16 +25,7 @@ function getPlainObjectPropertyInformation(object, key) {
 
   const {value} = descriptor
 
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#primitive_values
-  const type = typeof value
-  if (
-    value === null ||
-    type === 'undefined' ||
-    type === 'boolean' ||
-    type === 'number' ||
-    type === 'bigint' ||
-    type === 'string'
-  ) {
+  if (isPrimitive(value)) {
     return {type: VALUE_TYPE_PRIMITIVE, value}
   }
 }
@@ -33,16 +35,7 @@ function getValueInformation(value) {
     return {type: VALUE_TYPE_FUNCTION}
   }
 
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#primitive_values
-  const type = typeof value
-  if (
-    value === null ||
-    type === 'undefined' ||
-    type === 'boolean' ||
-    type === 'number' ||
-    type === 'bigint' ||
-    type === 'string'
-  ) {
+  if (isPrimitive(value)) {
     return {type: VALUE_TYPE_PRIMITIVE, value}
   }
 

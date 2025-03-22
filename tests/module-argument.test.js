@@ -1,7 +1,7 @@
-import test from 'node:test'
 import * as assert from 'node:assert/strict'
-import * as url from 'node:url'
 import * as path from 'node:path'
+import test from 'node:test'
+import * as url from 'node:url'
 import loadModuleForTests from '../scripts/load-module-for-tests.js'
 
 const {makeModuleSynchronized} = await loadModuleForTests()

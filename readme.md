@@ -26,14 +26,6 @@ yarn add make-synchronized
 
 This module mainly to support two kinds of different purpose of usage:
 
-1. Make a module that turns asynchronous function into synchronized
-
-   ```js
-   import makeSynchronized from 'make-synchronized'
-
-   export default makeSynchronized(import.meta, myAsynchronousFunction)
-   ```
-
 1. Make asynchronous functions in an existing module into synchronized
 
    ```js
@@ -42,6 +34,14 @@ This module mainly to support two kinds of different purpose of usage:
    const synchronized = makeSynchronized(
      new URL('./my-asynchronous-function-module.js', import.meta.url),
    )
+   ```
+
+1. Make a module that turns asynchronous function into synchronized
+
+   ```js
+   import makeSynchronized from 'make-synchronized'
+
+   export default makeSynchronized(import.meta, myAsynchronousFunction)
    ```
 
 ## Named exports
@@ -62,61 +62,7 @@ This module uses [`MessagePort#postMessage`](https://nodejs.org/api/worker_threa
 
 ## API
 
-### `makeSynchronized(module, implementation)`
-
-> Make asynchronous functions to be synchronized for export.
-
-- If `implementation` is a `function`, returns a synchronized version of the passed function.
-
-  **Note: It MUST be used as the default export**
-
-  ```js
-  // foo.js
-  import makeSynchronized from 'make-synchronized'
-
-  export default makeSynchronized(import.meta, () => Promise.resolve('foo'))
-  ```
-
-  ```js
-  import foo from './foo.js'
-
-  foo()
-  // -> foo
-  ```
-
-  - [Example](./examples/use-module-synchronized-as-default.js)
-
-- If `implementation` is a `object` with multiple functions, returns a `Proxy` object with synchronized functions attached.
-
-  **Note: Functions MUST exported as the same name as the key in `implementation` object.**
-
-  ```js
-  // foo-and-bar.js
-  import makeSynchronized from 'make-synchronized'
-
-  export const {foo, bar} = makeSynchronized(import.meta, {
-    async foo() {
-      return 'foo'
-    },
-    async bar() {
-      return 'bar'
-    },
-  })
-  ```
-
-  ```js
-  import {foo, bar} from './foo-and-bar.js'
-
-  foo()
-  // -> foo
-
-  bar()
-  // -> bar
-  ```
-
-- [Example](./examples/use-module-synchronized-as-default.js)
-
-### `makeSynchronized(module)`
+### `makeSynchronized(module: string | URL | ImportMeta)`
 
 > Make asynchronous functions in an existing module to be synchronized to call.
 
@@ -170,7 +116,61 @@ This module uses [`MessagePort#postMessage`](https://nodejs.org/api/worker_threa
 
   [Example](./examples/make-module-specifiers-synchronized.js)
 
-### `makeSynchronizedFunction(module, implementation, specifier?)`
+### `makeSynchronized(module: string | URL | ImportMeta, implementation: function | object)`
+
+> Make asynchronous functions to be synchronized for export.
+
+- If `implementation` is a `function`, returns a synchronized version of the passed function.
+
+  **Note: It MUST be used as the default export**
+
+  ```js
+  // foo.js
+  import makeSynchronized from 'make-synchronized'
+
+  export default makeSynchronized(import.meta, () => Promise.resolve('foo'))
+  ```
+
+  ```js
+  import foo from './foo.js'
+
+  foo()
+  // -> foo
+  ```
+
+  - [Example](./examples/use-module-synchronized-as-default.js)
+
+- If `implementation` is a `object` with multiple functions, returns a `Proxy` object with synchronized functions attached.
+
+  **Note: Functions MUST exported as the same name as the key in `implementation` object.**
+
+  ```js
+  // foo-and-bar.js
+  import makeSynchronized from 'make-synchronized'
+
+  export const {foo, bar} = makeSynchronized(import.meta, {
+    async foo() {
+      return 'foo'
+    },
+    async bar() {
+      return 'bar'
+    },
+  })
+  ```
+
+  ```js
+  import {foo, bar} from './foo-and-bar.js'
+
+  foo()
+  // -> foo
+
+  bar()
+  // -> bar
+  ```
+
+- [Example](./examples/use-module-synchronized-as-default.js)
+
+### `makeSynchronizedFunction(module: string | URL | ImportMeta, implementation: function, specifier?: string)`
 
 > Make a synchronized function for export.
 
@@ -190,7 +190,7 @@ export const foo = makeSynchronizedFunction(
 )
 ```
 
-### `makeSynchronizedFunctions(module, implementation)`
+### `makeSynchronizedFunctions(module: string | URL | ImportMeta, implementation: object)`
 
 > Make synchronized functions for export.
 
@@ -209,7 +209,7 @@ export const {
 })
 ```
 
-### `makeDefaultExportSynchronized(module)`
+### `makeDefaultExportSynchronized(module: string | URL | ImportMeta)`
 
 > Make an existing module's default export to be a synchronized function.
 
@@ -224,7 +224,7 @@ foo()
 // -> default export of `foo` module is called.
 ```
 
-### `makeModuleSynchronized(module)`
+### `makeModuleSynchronized(module: string | URL | ImportMeta)`
 
 > Make an existing module's exports to be synchronized functions.
 

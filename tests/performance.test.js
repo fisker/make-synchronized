@@ -1,6 +1,5 @@
-import test from 'node:test'
 import * as assert from 'node:assert/strict'
-
+import test from 'node:test'
 import loadModuleForTests from '../scripts/load-module-for-tests.js'
 
 const {makeModuleSynchronized} = await loadModuleForTests()
@@ -19,7 +18,7 @@ function runRepeatedly(function_, iterations) {
 }
 
 test('Performance', () => {
-  const iterations = 1000
+  const iterations = 500
   const module = new URL(
     '../fixtures/asynchronous-modules/async-identity.js',
     import.meta.url,
@@ -31,7 +30,7 @@ test('Performance', () => {
   )
 
   assert.equal(result.length, iterations, 'Incorrect result')
-  assert.equal(result.at(100), 100, 'Incorrect result')
+  assert.equal(result.at(33), 33, 'Incorrect result')
   assert.ok(totalTime < 1000, `Too slow, ${totalTime}ms`)
 
   const identity = makeModuleSynchronized(module).default

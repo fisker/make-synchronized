@@ -18,7 +18,7 @@
 **/*.min.*
 
 # fixtures
-# **/fixtures/**
+**/fixtures/**
 
 # test
 .nyc_output/**

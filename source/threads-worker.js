@@ -1,17 +1,16 @@
-import {Worker} from 'node:worker_threads'
-
 import process from 'node:process'
-import {
-  WORKER_FILE,
-  WORKER_ACTION_PING,
-  WORKER_READY_SIGNAL,
-} from './constants.js'
+import {Worker} from 'node:worker_threads'
+import AtomicsWaitError from './atomics-wait-error.js'
+import {IS_PRODUCTION, WORKER_FILE} from './constants.js'
+import Lock from './lock.js'
 import request from './request.js'
 
-/** @typedef {import('./types.ts')} types */
+/**
+@typedef {import('./types.ts')} types
+*/
 
 class ThreadsWorker {
-  /** @type {types.Worker} */
+  /** @type {Worker} */
   #worker
 
   #workerData
@@ -26,50 +25,63 @@ class ThreadsWorker {
   }
 
   /**
-  @returns {types.Worker}
+  @returns {Worker}
   */
   #createWorker() {
+    const lock = IS_PRODUCTION ? {} : new Lock()
+
     const worker = new Worker(WORKER_FILE, {
-      execArgv: process.env.NODE_OPTIONS?.split(' '),
-      workerData: this.#workerData,
+      workerData: {
+        workerRunningSemaphore: lock.semaphore,
+        ...this.#workerData,
+      },
+      // https://nodejs.org/api/worker_threads.html#new-workerfilename-options
+      // Do not pipe `stdio`s
+      stdout: true,
+      stderr: true,
     })
     worker.unref()
 
-    /*
-    We are running worker synchronously,
-    it's not possible to get syntax error by add listener to `error` event,
-    it's worth to add this check since any syntax error will cause the program hangs forever.
-    Since it's only a development problem, we can consider remove it if we use a bundler
-    */
-    const response = this.#sendActionToWorker(
-      worker,
-      WORKER_ACTION_PING,
-      undefined,
-      1000,
-    )
+    if (IS_PRODUCTION) {
+      return worker
+    }
 
-    if (response !== WORKER_READY_SIGNAL) {
-      throw new Error(
-        `Unexpected error, most likely caused by syntax error in '${WORKER_FILE}'`,
-      )
+    // Wait for worker to start
+    try {
+      lock.lock(1000)
+    } catch (error) {
+      if (error instanceof AtomicsWaitError) {
+        // eslint-disable-next-line unicorn/prefer-type-error
+        throw new Error(
+          `Unexpected error, most likely caused by syntax error in '${WORKER_FILE}'`,
+          {cause: error},
+        )
+      }
+
+      throw error
     }
 
     return worker
   }
 
   /**
-  @param {types.Worker} worker
+  @param {Worker} worker
   @param {string} action
   @param {Record<string, any>} payload
   @param {number} [timeout]
   */
   #sendActionToWorker(worker, action, payload, timeout) {
-    const {terminated, result, error, errorData} = request(
+    // @ts-expect-error -- ?
+    const {stdio, result, error, errorData, terminated} = request(
       worker,
       action,
       payload,
       timeout,
     )
+
+    for (const {stream, chunk} of stdio) {
+      process[stream].write(chunk)
+    }
 
     if (terminated && this.#worker) {
       this.#worker.terminate()
