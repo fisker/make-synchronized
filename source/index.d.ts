@@ -16,7 +16,7 @@ type SynchronizedObject<
 > = {
   [Key in keyof InputObject]: InputObject[Key] extends AsynchronousFunction
     ? SynchronizedFunction<InputObject[Key]>
-    : InputObject[Key]
+    : Awaited<InputObject[Key]>
 }
 type SynchronizedModule<InputNodeModule = Record<string, any>> = {
   [Key in keyof InputNodeModule]: InputNodeModule[Key] extends AsynchronousFunction
@@ -43,14 +43,6 @@ export type MakeModuleSynchronized<
   InputNodeModule extends NodeModule = NodeModule,
 > = (module: Module) => SynchronizedModule<InputNodeModule>
 
-export type MakeSynchronizedFunctions<
-  InputObjectWithFunctions extends ObjectWithFunctions = ObjectWithFunctions,
-> = (
-  module: Module,
-  implementation: InputObjectWithFunctions,
-  specifier?: PropertyPath,
-) => SynchronizedObject<InputObjectWithFunctions>
-
 /**
 Make a module synchronized.
 
@@ -70,7 +62,7 @@ export function makeSynchronized<InputNodeModule = Record<string, any>>(
   : SynchronizedModule<InputNodeModule>
 
 /**
-Make a function synchronized to export.
+Make a function synchronized for default export.
 
 @param {string | URL | ImportMeta} module - current module
 @param {function | Record<string, any>} implementation - current module implementation
@@ -79,7 +71,7 @@ Make a function synchronized to export.
 ```js
 import makeSynchronized from 'make-synchronized'
 
-export default makeSynchronized(import.meta, async () => {})
+export default makeSynchronized(import.meta, myAsynchronousFunction)
 ```
 */
 export function makeSynchronized<
@@ -94,7 +86,7 @@ export function makeSynchronized<
     : never
 
 /**
-Make a asynchronous function synchronized for default export.
+Make an asynchronous function synchronized for default export.
 
 @param {string | URL | ImportMeta} module - current module location
 @param {AsynchronousFunction} implementation - asynchronous function implementation
@@ -114,7 +106,7 @@ export function makeSynchronizedFunction<
 ): SynchronizedFunction<InputFunction>
 
 /**
-Make a asynchronous function synchronized for named export.
+Make an asynchronous function synchronized for named export.
 
 @param {string | URL | ImportMeta} module - current module location
 @param {AsynchronousFunction} implementation - asynchronous function implementation
@@ -122,7 +114,7 @@ Make a asynchronous function synchronized for named export.
 
 @example
 ```js
-import {MakeSynchronizedFunction} from 'make-synchronized'
+import {makeSynchronizedFunction} from 'make-synchronized'
 
 export const mySynchronousFunction = makeSynchronizedFunction(import.meta, myAsynchronousFunction, 'mySynchronousFunction')
 ```
@@ -135,7 +127,32 @@ export function makeSynchronizedFunction<
   specifier?: PropertyPath,
 ): SynchronizedFunction<InputFunction>
 
+/**
+Make a group of asynchronous functions synchronized to export.
+
+@param {string | URL | ImportMeta} module - current module location
+@param {ObjectWithFunctions} implementation - asynchronous function implementations
+
+@example
+```js
+import {makeSynchronizedFunctions} from 'make-synchronized'
+
+export const {
+  foo,
+  bar,
+} = makeSynchronizedFunctions(import.meta, {
+  foo: myAsynchronousFunctionFoo,
+  bar: myAsynchronousFunctionBar,
+})
+```
+*/
+export function makeSynchronizedFunctions<
+  InputObjectWithFunctions extends ObjectWithFunctions = ObjectWithFunctions,
+>(
+  module: Module,
+  implementation: InputObjectWithFunctions,
+): SynchronizedObject<InputObjectWithFunctions>
+
 export const makeDefaultExportSynchronized: MakeDefaultExportSynchronized
 export const makeModuleSynchronized: MakeModuleSynchronized
-export const makeSynchronizedFunctions: MakeSynchronizedFunctions
 export default makeSynchronized

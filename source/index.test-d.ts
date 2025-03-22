@@ -83,8 +83,9 @@ import {expectError, expectType} from 'tsd'
   )
 }
 
+// `makeSynchronizedFunction`
 {
-  const function_ = async (): Promise<1> => 1
+  const function_ = async () => 1 as const
   expectType<1>(makeSynchronizedFunction(import.meta, function_)())
   expectType<1>(makeSynchronizedFunction(import.meta, function_, 'default')())
   expectType<1>(
@@ -93,4 +94,18 @@ import {expectError, expectType} from 'tsd'
   expectError(() => makeSynchronizedFunction(import.meta, () => 1))
   expectError(() => makeSynchronizedFunction(import.meta, () => 1, 'foo'))
   expectError(() => makeSynchronizedFunction(import.meta, function_, true))
+}
+
+// `makeSynchronizedFunctions`
+{
+  const functions = {
+    foo: async () => 1 as const,
+    bar() {
+      return 2 as const
+    },
+    baz: 3,
+  }
+  expectType<1>(makeSynchronizedFunctions(import.meta, functions).foo())
+  expectType<2>(makeSynchronizedFunctions(import.meta, functions).bar())
+  expectError(() => makeSynchronizedFunctions(import.meta, 0))
 }
