@@ -24,101 +24,27 @@ yarn add make-synchronized
 
 ## Usage
 
-This module mainly to support two kinds of different purpose of usage:
-
-1. Make a module that turns asynchronous function into synchronized
-
-   ```js
-   import makeSynchronized from 'make-synchronized'
-
-   export default makeSynchronized(import.meta, myAsynchronousFunction)
-   ```
-
-1. Make asynchronous functions in an existing module into synchronized
-
-   ```js
-   import makeSynchronized from 'make-synchronized'
-
-   const synchronized = makeSynchronized(
-     new URL('./my-asynchronous-function-module.js', import.meta.url),
-   )
-   ```
-
-## Named exports
-
 ```js
-import {
-  makeSynchronized, // Same as the default export
-  makeDefaultExportSynchronized,
-  makeModuleSynchronized,
-  makeSynchronizedFunction,
-  makeSynchronizedFunctions,
-} from 'make-synchronized'
+import makeSynchronized from 'make-synchronized'
+
+const synchronized = makeSynchronized(
+  new URL('./my-asynchronous-function-module.js', import.meta.url),
+)
+
+// Now you can call any async function in `my-asynchronous-function-module.js`
+// and it will return the value synchronously
+synchronized()
 ```
 
 ## Limitation
 
-This module uses [`MessagePort#postMessage`](https://nodejs.org/api/worker_threads.html#portpostmessagevalue-transferlist) to transfer arguments, return values, errors between the main thread and the [worker](https://nodejs.org/api/worker_threads.html#class-worker). Please make sure the arguments and return values are serializable by [the structured clone algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm).
+This module uses [`MessagePort#postMessage`](https://nodejs.org/api/worker_threads.html#portpostmessagevalue-transferlist) to transfer arguments, return values, and errors between the main thread and the [worker](https://nodejs.org/api/worker_threads.html#class-worker). Please make sure the arguments and return values are serializable by [the structured clone algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm).
 
 ## API
 
-### `makeSynchronized(module, implementation)`
+### `makeSynchronized(module: string | URL | ImportMeta)`
 
-> Make asynchronous functions to be synchronized for export.
-
-- If `implementation` is a `function`, returns a synchronized version of the passed function.
-
-  **Note: It MUST be used as the default export**
-
-  ```js
-  // foo.js
-  import makeSynchronized from 'make-synchronized'
-
-  export default makeSynchronized(import.meta, () => Promise.resolve('foo'))
-  ```
-
-  ```js
-  import foo from './foo.js'
-
-  foo()
-  // -> foo
-  ```
-
-  - [Example](./examples/use-module-synchronized-as-default.js)
-
-- If `implementation` is a `object` with multiple functions, returns a `Proxy` object with synchronized functions attached.
-
-  **Note: Functions MUST exported as the same name as the key in `implementation` object.**
-
-  ```js
-  // foo-and-bar.js
-  import makeSynchronized from 'make-synchronized'
-
-  export const {foo, bar} = makeSynchronized(import.meta, {
-    async foo() {
-      return 'foo'
-    },
-    async bar() {
-      return 'bar'
-    },
-  })
-  ```
-
-  ```js
-  import {foo, bar} from './foo-and-bar.js'
-
-  foo()
-  // -> foo
-
-  bar()
-  // -> bar
-  ```
-
-- [Example](./examples/use-module-synchronized-as-default.js)
-
-### `makeSynchronized(module)`
-
-> Make asynchronous functions in an existing module to be synchronized to call.
+> Make asynchronous functions in module to be synchronized to call.
 
 - If the passing `module` is a module that contains a function type default export, returns a `Proxy` function, with other specifiers attached.
 
@@ -170,79 +96,11 @@ This module uses [`MessagePort#postMessage`](https://nodejs.org/api/worker_threa
 
   [Example](./examples/make-module-specifiers-synchronized.js)
 
-### `makeSynchronizedFunction(module, implementation, specifier?)`
+---
 
-> Make a synchronized function for export.
-
-Explicit version of `makeSynchronized(module, implementation)` that returns the synchronized function for export.
-
-```js
-import {makeSynchronizedFunction} from 'make-synchronized'
-
-export default makeSynchronizedFunction(
-  import.meta,
-  async () => 'default export called',
-)
-export const foo = makeSynchronizedFunction(
-  import.meta,
-  async () => 'foo export called',
-  'foo',
-)
-```
-
-### `makeSynchronizedFunctions(module, implementation)`
-
-> Make synchronized functions for export.
-
-Explicit version of `makeSynchronized(module, implementation)` that only returns `Proxy` with synchronized functions for export.
-
-```js
-import {makeSynchronizedFunctions} from 'make-synchronized'
-
-export const {
-  // MUST match the key in second argument
-  foo,
-  bar,
-} = makeSynchronizedFunctions(import.meta, {
-  foo: async () => 'foo export called',
-  bar: async () => 'bar export called',
-})
-```
-
-### `makeDefaultExportSynchronized(module)`
-
-> Make an existing module's default export to be a synchronized function.
-
-Explicit version of `makeSynchronized(module)` that only returns the synchronized default export.
-
-```js
-import {makeDefaultExportSynchronized} from 'make-synchronized'
-
-const foo = makeModuleSynchronized('foo')
-
-foo()
-// -> default export of `foo` module is called.
-```
-
-### `makeModuleSynchronized(module)`
-
-> Make an existing module's exports to be synchronized functions.
-
-Synchronize version of `import(module)`, always returns a `Module`.
+This module can be considered as a drop-in replacement of dynamic `import()`
 
 ```diff
 - const {default: foo} = await import('foo')
 + const {default: foo} = makeModuleSynchronized('foo')
-```
-
-```js
-import {makeModuleSynchronized} from 'make-synchronized'
-
-const {default: foo, bar} = makeModuleSynchronized('foo')
-
-foo()
-// -> default export of `foo` module is called.
-
-bar()
-// -> `bar` function from `foo` module is called.
 ```

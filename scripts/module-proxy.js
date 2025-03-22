@@ -12,4 +12,4 @@ function loadModuleForTests() {
   }
 }
 
-export default loadModuleForTests
+export default await loadModuleForTests()

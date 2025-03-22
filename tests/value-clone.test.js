@@ -1,18 +1,15 @@
 import * as assert from 'node:assert/strict'
 import test from 'node:test'
-import loadModuleForTests from '../scripts/load-module-for-tests.js'
+import makeSynchronized from '../../scripts/module-proxy.js'
 
-const {makeModuleSynchronized} = await loadModuleForTests()
-
-const synchronize = (url) =>
-  makeModuleSynchronized(new URL(url, import.meta.url))
+const synchronize = (url) => makeSynchronized(new URL(url, import.meta.url))
 
 test('values', async () => {
   const moduleUrl = new URL(
     '../fixtures/asynchronous-modules/values.js',
     import.meta.url,
   )
-  const synchronized = makeModuleSynchronized(moduleUrl)
+  const synchronized = makeSynchronized(moduleUrl)
   const dynamic = await import(moduleUrl)
 
   assert.deepEqual(Object.keys(synchronized), Object.keys(dynamic))

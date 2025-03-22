@@ -2,9 +2,7 @@ import * as assert from 'node:assert/strict'
 import process from 'node:process'
 import test from 'node:test'
 import stripAnsi from 'strip-ansi'
-import loadModuleForTests from '../scripts/load-module-for-tests.js'
-
-const {makeSynchronized} = await loadModuleForTests()
+import makeSynchronized from '../../scripts/module-proxy.js'
 
 const stdio = makeSynchronized(
   new URL('../fixtures/asynchronous-modules/stdio.js', import.meta.url),

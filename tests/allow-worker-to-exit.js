@@ -1,8 +1,7 @@
 import * as assert from 'node:assert/strict'
 import test from 'node:test'
-import loadModuleForTests from '../scripts/load-module-for-tests.js'
+import makeSynchronized from '../../scripts/module-proxy.js'
 
-const {makeModuleSynchronized} = await loadModuleForTests()
 const delay = (time) =>
   new Promise((resolve) => {
     globalThis.setTimeout(() => {
@@ -11,7 +10,7 @@ const delay = (time) =>
   })
 
 test('makeModuleSynchronized', async () => {
-  const module = makeModuleSynchronized(
+  const module = makeSynchronized(
     new URL(
       '../fixtures/asynchronous-modules/allow-worker-to-exit.js',
       import.meta.url,

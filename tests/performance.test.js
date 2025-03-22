@@ -1,8 +1,6 @@
 import * as assert from 'node:assert/strict'
 import test from 'node:test'
-import loadModuleForTests from '../scripts/load-module-for-tests.js'
-
-const {makeModuleSynchronized} = await loadModuleForTests()
+import makeSynchronized from '../../scripts/module-proxy.js'
 
 function runRepeatedly(function_, iterations) {
   const startTime = performance.now()
@@ -25,7 +23,7 @@ test('Performance', () => {
   )
 
   const {result, time: totalTime} = runRepeatedly(
-    (iteration) => makeModuleSynchronized(module).default(iteration),
+    (iteration) => makeSynchronized(module).default(iteration),
     iterations,
   )
 
@@ -33,7 +31,7 @@ test('Performance', () => {
   assert.equal(result.at(33), 33, 'Incorrect result')
   assert.ok(totalTime < 1000, `Too slow, ${totalTime}ms`)
 
-  const identity = makeModuleSynchronized(module).default
+  const identity = makeSynchronized(module).default
   const {time: runTime} = runRepeatedly(
     (iteration) => identity(iteration),
     iterations,
