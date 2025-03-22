@@ -11,7 +11,7 @@ function toModuleId(module) {
   }
 
   // `import.meta`
-  if (typeof module?.url === 'string') {
+  if (typeof module.url === 'string') {
     return module.url
   }
 

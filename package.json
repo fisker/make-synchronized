@@ -26,8 +26,8 @@
   "main": "index.cjs",
   "files": [
     "index.mjs",
-    "index.cjs",
     "worker.mjs",
+    "index.cjs",
     "index.d.ts"
   ],
   "scripts": {
