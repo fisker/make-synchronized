@@ -17,7 +17,8 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./types.d.ts",
+      "types": "./index.d.ts",
+      "module-sync": "./index.mjs",
       "require": "./index.cjs",
       "default": "./index.mjs"
     }
@@ -27,13 +28,10 @@
     "index.mjs",
     "index.cjs",
     "worker.mjs",
-    "types.d.ts"
+    "index.d.ts"
   ],
   "scripts": {
-    "build": "run-s clean build:scripts",
-    "build:script": "node scripts/build.js",
-    "clean": "run-p \"clean:*\"",
-    "clean:dist": "del-cli types",
+    "build": "node scripts/build.js",
     "dist": "run-p \"dist:*\"",
     "dist:npm": "release-it",
     "lint": "run-p --continue-on-error \"lint:*\"",
@@ -42,10 +40,11 @@
     "lint:package-json": "yarn run fix:package-json --check",
     "lint:prettier": "prettier . --check",
     "lint:types": "tsc",
-    "test": "run-s test:development test:production-esm test:production-cjs",
+    "test": "run-s build test:development test:production-esm test:production-cjs test:types",
     "test:development": "node --test",
     "test:production-esm": "yarn build && cross-env DIST_TEST_TYPE=esm node --test",
     "test:production-cjs": "yarn build && cross-env DIST_TEST_TYPE=cjs node --test",
+    "test:types": "tsd --files=./source/index.test-d.ts",
     "test-coverage": "c8 yarn test",
     "release": "run-s build lint fix dist",
     "prepare": "husky install",

@@ -1,3 +1,4 @@
+import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import * as url from 'node:url'
 import * as esbuild from 'esbuild'
@@ -55,6 +56,10 @@ await Promise.all([
   build('../source/index.js'),
   build('../source/worker.js'),
   build('../source/index.js', {format: 'cjs'}),
+  fs.copyFile(
+    new URL('../source/index.d.ts', import.meta.url),
+    new URL('../index.d.ts', import.meta.url),
+  ),
 ])
 
 console.log('✅ Build success.')

@@ -105,3 +105,4 @@ dist/
 index.mjs
 index.cjs
 worker.mjs
+/index.d.ts
