@@ -56,6 +56,10 @@
   },
   "c8": {
     "all": true,
+    "exclude": [
+      "**/*.d.ts",
+      "**/*.test-d.ts"
+    ],
     "include": [
       "source"
     ],
