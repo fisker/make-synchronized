@@ -2,13 +2,6 @@ import * as util from 'node:util'
 import {MessageChannel, receiveMessageOnPort} from 'node:worker_threads'
 import Lock from './lock.js'
 
-/**
-@param {import('node:worker_threads').Worker} worker
-@param {string} action
-@param {Record<string, any>} payload
-@param {number} [timeout]
-@returns {import('./types.ts').WorkerResponseData}
-*/
 function request(worker, action, payload, timeout) {
   const lock = new Lock()
   const {port1: mainThreadPort, port2: workerPort} = new MessageChannel()

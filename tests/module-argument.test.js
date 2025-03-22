@@ -28,22 +28,16 @@ test('built-module', () => {
 })
 
 test('invalid', () => {
-  assert.throws(
-    () => {
-      makeModuleSynchronized(/* Invalid module */ true)
-    },
-    {name: 'Error'},
-  )
-  assert.throws(
-    () => {
-      makeModuleSynchronized(/* Missing module */)
-    },
-    {name: 'Error'},
-  )
-  assert.throws(
-    () => {
-      makeModuleSynchronized('/non-exits-module.js')
-    },
-    {name: 'Error'},
-  )
+  assert.throws(() => {
+    makeModuleSynchronized(/* Invalid module */ true)
+  })
+  assert.throws(() => {
+    makeModuleSynchronized(/* Invalid module */ 0)
+  })
+  assert.throws(() => {
+    makeModuleSynchronized(/* Missing module */)
+  })
+  assert.throws(() => {
+    makeModuleSynchronized('/non-exits-module.js')
+  })
 })

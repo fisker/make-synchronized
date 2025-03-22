@@ -1,16 +1,11 @@
 {
-  "include": [
-    "source/index.js"
-  ],
   "compilerOptions": {
-    "allowJs": true,
-    "checkJs": true,
-    "declaration": true,
-    "declarationMap": true,
-    "noEmit": true,
-    "target": "ESNext",
     "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "outDir": "esm"
-  }
+    "moduleResolution": "nodenext",
+    "target": "ESNext",
+    "strict": true
+  },
+  "files": [
+    "source/index.d.ts"
+  ]
 }
