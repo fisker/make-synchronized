@@ -26,13 +26,8 @@ class Channel {
       throw error
     }
 
-    try {
-      const {message} = receiveMessageOnPort(this.mainThreadPort)
-
-      return message
-    } catch {
-      console.log(this)
-    }
+    const {message} = receiveMessageOnPort(this.mainThreadPort)
+    return message
   }
 
   destroy() {
