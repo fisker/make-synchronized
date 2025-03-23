@@ -29,8 +29,22 @@ class Channel {
       throw error
     }
 
-    const {message} = receiveMessageOnPort(this.mainThreadPort)
-    return message
+    return this.#receiveMessage()
+  }
+
+  #receiveMessage() {
+    const port = this.mainThreadPort
+
+    let lastEntry
+    while (true) {
+      const entry = receiveMessageOnPort(port)
+
+      if (!entry) {
+        return lastEntry.message
+      }
+
+      lastEntry = entry
+    }
   }
 
   get semaphore() {

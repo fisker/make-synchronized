@@ -1,8 +1,5 @@
 import AtomicsWaitError from './atomics-wait-error.js'
-import {
-  ATOMICS_WAIT_RESULT_NOT_EQUAL,
-  ATOMICS_WAIT_RESULT_TIMED_OUT,
-} from './constants.js'
+import {ATOMICS_WAIT_RESULT_TIMED_OUT} from './constants.js'
 
 const SIGNAL_INDEX = 0
 
@@ -19,7 +16,7 @@ class Lock {
 
   #messageCount = 0
 
-  lock(port, timeout = Number.POSITIVE_INFINITY) {
+  lock(timeout = Number.POSITIVE_INFINITY) {
     const {semaphore} = this
 
     // Already unlocked
@@ -29,25 +26,17 @@ class Lock {
       return
     }
 
-    while (true) {
-      const before = this.#messageCount
-      const result = Atomics.wait(
-        semaphore,
-        SIGNAL_INDEX,
-        this.#messageCount,
-        timeout,
-      )
+    const result = Atomics.wait(
+      semaphore,
+      SIGNAL_INDEX,
+      this.#messageCount,
+      timeout,
+    )
 
-      this.#messageCount = Atomics.load(semaphore, SIGNAL_INDEX)
-      if (result === ATOMICS_WAIT_RESULT_TIMED_OUT) {
-        throw new AtomicsWaitError(result)
-      }
+    this.#messageCount = Atomics.load(semaphore, SIGNAL_INDEX)
 
-      if (result !== ATOMICS_WAIT_RESULT_NOT_EQUAL) {
-        return
-      }
-
-      console.log({semaphore, before, messageCount: this.#messageCount})
+    if (result === ATOMICS_WAIT_RESULT_TIMED_OUT) {
+      throw new AtomicsWaitError(result)
     }
   }
 }
