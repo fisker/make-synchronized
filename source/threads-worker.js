@@ -15,11 +15,6 @@ class ThreadsWorker {
     this.#workerData = workerData
   }
 
-  sendAction(action, payload) {
-    this.#worker ??= this.#createWorker()
-    return this.#sendActionToWorker(action, payload)
-  }
-
   #createWorker() {
     const lock = IS_PRODUCTION ? {} : new Lock()
 
@@ -72,7 +67,9 @@ class ThreadsWorker {
     return true
   }
 
-  #sendActionToWorker(action, payload) {
+  sendAction(action, payload) {
+    this.#worker ??= this.#createWorker()
+
     // TODO: Move this into `Channel`
     const lock = new Lock()
 
