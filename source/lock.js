@@ -30,6 +30,7 @@ class Lock {
     }
 
     while (true) {
+      const before = this.#messageCount
       const result = Atomics.wait(
         semaphore,
         SIGNAL_INDEX,
@@ -45,6 +46,8 @@ class Lock {
       if (result !== ATOMICS_WAIT_RESULT_NOT_EQUAL) {
         return
       }
+
+      console.log({semaphore, before, messageCount: this.#messageCount})
     }
   }
 }
