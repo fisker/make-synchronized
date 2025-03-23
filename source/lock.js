@@ -22,10 +22,12 @@ class Lock {
   lock(port, timeout = Number.POSITIVE_INFINITY) {
     const {semaphore} = this
 
-    console.log({
-      semaphore,
-      count: this.#messageCount,
-    })
+    // Already unlocked
+    const count = Atomics.load(semaphore, SIGNAL_INDEX)
+    if (count > this.#messageCount) {
+      this.#messageCount = count
+      return
+    }
 
     while (true) {
       const result = Atomics.wait(
@@ -36,11 +38,6 @@ class Lock {
       )
 
       this.#messageCount = Atomics.load(semaphore, SIGNAL_INDEX)
-      console.log({
-        result,
-        semaphore,
-        count: this.#messageCount,
-      })
       if (result === ATOMICS_WAIT_RESULT_TIMED_OUT) {
         throw new AtomicsWaitError(result)
       }
