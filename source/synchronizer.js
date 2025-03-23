@@ -55,6 +55,10 @@ class Synchronizer {
     )
   }
 
+  setKnownInformation(path, information) {
+    this.#informationStore.set(hashPath(path), information)
+  }
+
   get(path) {
     const information = this.getInformation(path)
     switch (information.type) {

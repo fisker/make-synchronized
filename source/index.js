@@ -1,5 +1,6 @@
 import {isMainThread} from 'node:worker_threads'
 import {VALUE_TYPE_FUNCTION} from './constants.js'
+import getValueInformation from './get-value-information.js'
 import Synchronizer from './synchronizer.js'
 
 function makeSynchronizedFunctions(module, implementation) {
@@ -8,6 +9,11 @@ function makeSynchronizedFunctions(module, implementation) {
   }
 
   const synchronizer = Synchronizer.create({module})
+
+  synchronizer.setKnownInformation(
+    undefined,
+    getValueInformation(implementation),
+  )
 
   return new Proxy(implementation, {
     get: (target, property /* , receiver */) =>
@@ -27,6 +33,11 @@ function makeSynchronizedFunction(
   }
 
   const synchronizer = Synchronizer.create({module})
+
+  synchronizer.setKnownInformation(
+    specifier,
+    getValueInformation(implementation),
+  )
 
   return synchronizer.get(specifier)
 }
