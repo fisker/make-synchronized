@@ -98,14 +98,14 @@ class ThreadsWorker {
       )
     }
 
-    const {stdio, result, error, errorData, terminated} =
+    const {stdio, result, error, errorData, terminated, exitCode} =
       channel.getResponse(lock)
 
     for (const {stream, chunk} of stdio) {
       process[stream].write(chunk)
     }
 
-    if (terminated) {
+    if (terminated || exitCode !== 0) {
       worker.terminate()
       if (this.#worker === worker) {
         this.#worker = undefined

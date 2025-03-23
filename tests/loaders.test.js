@@ -63,6 +63,7 @@ test('Yarn PNP', async () => {
       `Expected ${NODE_OPTIONS} to contain '.pnp.loader.mjs'`,
     )
   }
+
   {
     const {stdout, stderr} = await run({type: 'script'})
     assert.equal(stderr, '')
