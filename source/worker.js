@@ -48,8 +48,20 @@ const actionHandlers = new Map(
 )
 
 if (parentPort) {
-  const response = new Response(actionHandlers)
-  response.listen(parentPort)
+  let response
+
+  parentPort.addListener(
+    'message',
+    ({channel, responseSemaphore, action, payload}) => {
+      // Switch to a new channel
+      if (channel) {
+        response?.destroy()
+        response = new Response(actionHandlers, channel)
+      }
+
+      response.process({responseSemaphore, action, payload})
+    },
+  )
 }
 
 const workerRunningSemaphore = workerData?.workerRunningSemaphore

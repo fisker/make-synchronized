@@ -3,23 +3,21 @@ import util from 'node:util'
 import {STDIO_STREAMS} from './constants.js'
 import {unlock} from './lock.js'
 
-const processExit = process.exit
+const originalProcessExit = process.exit
 
 class Response {
+  #channel
+  #actionHandlers
+  #stdio = []
   #responseSemaphore
 
-  #responsePort
-
-  #actionHandlers
-
-  #stdio = []
-
-  constructor(actionHandlers) {
+  constructor(actionHandlers, channel) {
     this.#actionHandlers = actionHandlers
+    this.#channel = channel
 
     process.exit = () => {
       this.#terminate()
-      processExit()
+      originalProcessExit()
     }
 
     // https://github.com/nodejs/node/blob/66556f53a7b36384bce305865c30ca43eaa0874b/lib/internal/worker/io.js#L369
@@ -35,7 +33,7 @@ class Response {
   }
 
   #send(response) {
-    const responsePort = this.#responsePort
+    const {responsePort} = this.#channel
 
     try {
       responsePort.postMessage({...response, stdio: this.#stdio})
@@ -59,10 +57,6 @@ class Response {
 
   #finish() {
     unlock(this.#responseSemaphore)
-    process.exitCode = undefined
-    this.#responsePort.close()
-    this.#responseSemaphore = undefined
-    this.#responsePort = undefined
     this.#stdio.length = 0
   }
 
@@ -81,20 +75,19 @@ class Response {
     return actionHandlers.get(action)(payload)
   }
 
-  listen(receivePort) {
-    receivePort.addListener(
-      'message',
-      async ({responseSemaphore, responsePort, action, payload}) => {
-        this.#responseSemaphore = responseSemaphore
-        this.#responsePort = responsePort
+  async process({responseSemaphore, action, payload}) {
+    this.#responseSemaphore = responseSemaphore
 
-        try {
-          this.#sendResult(await this.#processAction(action, payload))
-        } catch (error) {
-          this.#throws(error)
-        }
-      },
-    )
+    try {
+      this.#sendResult(await this.#processAction(action, payload))
+    } catch (error) {
+      this.#throws(error)
+    }
+  }
+
+  destroy() {
+    this.#channel.responsePort.close()
+    process.exitCode = undefined
   }
 }
 
