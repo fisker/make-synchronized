@@ -21,6 +21,12 @@ class Lock {
 
   lock(port, timeout = Number.POSITIVE_INFINITY) {
     const {semaphore} = this
+
+    console.log({
+      semaphore,
+      count: this.#messageCount,
+    })
+
     while (true) {
       const result = Atomics.wait(
         semaphore,
