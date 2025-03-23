@@ -8,28 +8,10 @@ import {
 import getValueInformation from './get-value-information.js'
 import {unlock} from './lock.js'
 import {normalizePath} from './property-path.js'
-import Response from './response.js'
-
-let moduleImportPromise
-let module
-async function getValue(payload) {
-  moduleImportPromise ??= import(workerData.moduleId)
-  module ??= await moduleImportPromise
-
-  let value = module
-
-  let receiver
-  for (const property of normalizePath(payload.path)) {
-    receiver = value
-    value = Reflect.get(value, property, value)
-  }
-
-  return {value, receiver}
-}
+import Responsor from './responsor.js'
 
 const createHandler = (handler) => async (payload) =>
   handler(await getValue(payload), payload)
-
 const actionHandlers = new Map(
   [
     [WORKER_ACTION_GET, ({value}) => value],
@@ -47,21 +29,34 @@ const actionHandlers = new Map(
   ].map(([action, handler]) => [action, createHandler(handler)]),
 )
 
-if (parentPort) {
-  let response
+let responsor
+parentPort.addListener('message', ({channel, action, payload}) => {
+  // Switch to a new channel
+  if (channel) {
+    responsor?.destroy()
+    responsor = new Responsor(actionHandlers, channel)
+  }
 
-  parentPort.addListener('message', ({channel, action, payload}) => {
-    // Switch to a new channel
-    if (channel) {
-      response?.destroy()
-      response = new Response(actionHandlers, channel)
-    }
+  responsor.process(action, payload)
+})
 
-    response.process(action, payload)
-  })
-}
-
-const workerRunningSemaphore = workerData?.workerRunningSemaphore
+const {workerRunningSemaphore} = workerData
 if (workerRunningSemaphore) {
   unlock(workerRunningSemaphore)
+}
+
+const moduleImportPromise = import(workerData.moduleId)
+let module
+async function getValue(payload) {
+  module ??= await moduleImportPromise
+
+  let value = module
+
+  let receiver
+  for (const property of normalizePath(payload.path)) {
+    receiver = value
+    value = Reflect.get(value, property, value)
+  }
+
+  return {value, receiver}
 }

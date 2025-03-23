@@ -1,5 +1,5 @@
 import {
-  VALUE_TYPE_FUNCTION,
+  VALUE_INFORMATION_FUNCTION,
   VALUE_TYPE_PLAIN_OBJECT,
   VALUE_TYPE_PRIMITIVE,
   VALUE_TYPE_UNKNOWN,
@@ -32,7 +32,7 @@ function getPlainObjectPropertyInformation(object, key) {
 
 function getValueInformation(value) {
   if (typeof value === 'function') {
-    return {type: VALUE_TYPE_FUNCTION}
+    return VALUE_INFORMATION_FUNCTION
   }
 
   if (isPrimitive(value)) {
