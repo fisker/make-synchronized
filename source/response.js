@@ -57,6 +57,8 @@ class Response {
 
   #finish() {
     unlock(this.#responseSemaphore)
+    process.exitCode = undefined
+    this.#responseSemaphore = undefined
     this.#stdio.length = 0
   }
 
