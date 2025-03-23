@@ -11,4 +11,8 @@ export default [
       'unicorn/prevent-abbreviations': ['error', {replacements: {util: false}}],
     },
   },
+  {
+    files: ['tests/typescript-module.test.js'],
+    rules: {'sonarjs/no-empty-test-file': 'off'},
+  },
 ].flat()
