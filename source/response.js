@@ -9,7 +9,6 @@ class Response {
   #channel
   #actionHandlers
   #stdio = []
-  #responseSemaphore
 
   constructor(actionHandlers, channel) {
     this.#actionHandlers = actionHandlers
@@ -56,9 +55,8 @@ class Response {
   }
 
   #finish() {
-    unlock(this.#responseSemaphore)
+    unlock(this.#channel.responseSemaphore)
     process.exitCode = undefined
-    this.#responseSemaphore = undefined
     this.#stdio.length = 0
   }
 
@@ -77,9 +75,7 @@ class Response {
     return actionHandlers.get(action)(payload)
   }
 
-  async process({responseSemaphore, action, payload}) {
-    this.#responseSemaphore = responseSemaphore
-
+  async process(action, payload) {
     try {
       this.#sendResult(await this.#processAction(action, payload))
     } catch (error) {
@@ -89,6 +85,7 @@ class Response {
 
   destroy() {
     this.#channel.responsePort.close()
+    this.#channel = undefined
     process.exitCode = undefined
   }
 }

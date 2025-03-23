@@ -1,10 +1,12 @@
 import {MessageChannel, receiveMessageOnPort} from 'node:worker_threads'
 import AtomicsWaitError from './atomics-wait-error.js'
+import Lock from './lock.js'
 
 class Channel {
   mainThreadPort
   workerPort
   alive = true
+  #lock
 
   constructor() {
     const {port1: mainThreadPort, port2: workerPort} = new MessageChannel()
@@ -13,11 +15,12 @@ class Channel {
 
     this.mainThreadPort = mainThreadPort
     this.workerPort = workerPort
+    this.#lock = new Lock()
   }
 
-  getResponse(lock) {
+  getResponse() {
     try {
-      lock.lock()
+      this.#lock.lock()
     } catch (error) {
       if (error instanceof AtomicsWaitError) {
         this.destroy()
@@ -28,6 +31,10 @@ class Channel {
 
     const {message} = receiveMessageOnPort(this.mainThreadPort)
     return message
+  }
+
+  get semaphore() {
+    return this.#lock.semaphore
   }
 
   destroy() {

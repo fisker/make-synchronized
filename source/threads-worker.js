@@ -65,13 +65,9 @@ class ThreadsWorker {
   sendAction(action, payload) {
     this.#worker ??= this.#createWorker()
 
-    // TODO: Move this into `Channel`
-    const lock = new Lock()
-
     const message = {
       action,
       payload,
-      responseSemaphore: lock.semaphore,
     }
 
     const transferList = []
@@ -85,6 +81,7 @@ class ThreadsWorker {
 
       message.channel = {
         responsePort: channel.workerPort,
+        responseSemaphore: channel.semaphore,
       }
       transferList.push(channel.workerPort)
     }
@@ -98,8 +95,7 @@ class ThreadsWorker {
       )
     }
 
-    const {stdio, result, error, errorData, terminated} =
-      channel.getResponse(lock)
+    const {stdio, result, error, errorData, terminated} = channel.getResponse()
 
     for (const {stream, chunk} of stdio) {
       process[stream].write(chunk)
