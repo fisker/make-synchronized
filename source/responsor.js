@@ -14,9 +14,10 @@ class Responsor {
     this.#actionHandlers = actionHandlers
     this.#channel = channel
 
-    process.exit = () => {
+    process.exit = (exitCode) => {
+      process.exitCode = exitCode
       this.#terminate()
-      originalProcessExit()
+      originalProcessExit(exitCode)
     }
 
     // https://github.com/nodejs/node/blob/66556f53a7b36384bce305865c30ca43eaa0874b/lib/internal/worker/io.js#L369
@@ -33,14 +34,16 @@ class Responsor {
 
   #send(response) {
     const {responsePort} = this.#channel
+    const stdio = this.#stdio
+    const exitCode = process.exitCode ?? 0
 
     try {
-      responsePort.postMessage({...response, stdio: this.#stdio})
+      responsePort.postMessage({...response, stdio, exitCode})
     } catch {
       const error = new Error(
         `Cannot serialize worker response:\n${util.inspect(response.result)}`,
       )
-      responsePort.postMessage({error, stdio: this.#stdio})
+      responsePort.postMessage({error, stdio, exitCode})
     } finally {
       this.#finish()
     }
