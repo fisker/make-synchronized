@@ -5,7 +5,7 @@ import {unlock} from './lock.js'
 
 const originalProcessExit = process.exit
 
-class Response {
+class Responsor {
   #channel
   #actionHandlers
   #stdio = []
@@ -93,4 +93,4 @@ class Response {
   }
 }
 
-export default Response
+export default Responsor
