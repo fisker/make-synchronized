@@ -47,9 +47,15 @@ if (workerRunningSemaphore) {
   unlock(workerRunningSemaphore)
 }
 
-const moduleImportPromise = import(workerData.moduleId)
 let module
+let moduleLoadError
+// eslint-disable-next-line unicorn/prefer-top-level-await
+const moduleImportPromise = loadModule()
 async function getValue(payload) {
+  if (moduleLoadError) {
+    throw moduleLoadError
+  }
+
   module ??= await moduleImportPromise
 
   let value = module
@@ -61,4 +67,12 @@ async function getValue(payload) {
   }
 
   return {value, receiver}
+}
+
+async function loadModule() {
+  try {
+    return await import(workerData.moduleId)
+  } catch (error) {
+    moduleLoadError = error
+  }
 }
