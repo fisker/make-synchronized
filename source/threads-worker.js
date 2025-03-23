@@ -52,11 +52,6 @@ class ThreadsWorker {
     return worker
   }
 
-  #killWorker() {
-    this.#worker.terminate()
-    this.#worker = undefined
-  }
-
   #createChannel() {
     if (this.#channel?.alive) {
       return false
@@ -111,7 +106,10 @@ class ThreadsWorker {
     }
 
     if (terminated) {
-      this.#killWorker()
+      worker.terminate()
+      if (this.#worker === worker) {
+        this.#worker = undefined
+      }
       channel.destroy()
     }
 
