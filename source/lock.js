@@ -30,6 +30,11 @@ class Lock {
       )
 
       this.#messageCount = Atomics.load(semaphore, SIGNAL_INDEX)
+      console.log({
+        result,
+        semaphore,
+        count: this.#messageCount,
+      })
       if (result === ATOMICS_WAIT_RESULT_TIMED_OUT) {
         throw new AtomicsWaitError(result)
       }
