@@ -31,19 +31,17 @@ const actionHandlers = new Map(
     [WORKER_ACTION_GET_INFORMATION, ({value}) => getValueInformation(value)],
   ].map(([action, handler]) => [action, createHandler(handler)]),
 )
-let responsor
-parentPort.addListener(
-  'message',
-  ({channel, responseSemaphore, action, payload}) => {
-    // Switch to a new channel
-    if (channel) {
-      responsor?.destroy()
-      responsor = new Responsor(actionHandlers, channel)
-    }
 
-    responsor.process({responseSemaphore, action, payload})
-  },
-)
+let responsor
+parentPort.addListener('message', ({channel, action, payload}) => {
+  // Switch to a new channel
+  if (channel) {
+    responsor?.destroy()
+    responsor = new Responsor(actionHandlers, channel)
+  }
+
+  responsor.process(action, payload)
+})
 
 const {workerRunningSemaphore} = workerData
 if (workerRunningSemaphore) {
