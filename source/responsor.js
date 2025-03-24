@@ -9,6 +9,7 @@ class Responsor {
   #channel
   #actionHandlers
   #stdio = []
+  #responseSemaphore
 
   constructor(actionHandlers, channel) {
     this.#actionHandlers = actionHandlers
@@ -58,8 +59,9 @@ class Responsor {
   }
 
   #finish() {
-    unlock(this.#channel.responseSemaphore)
+    unlock(this.#responseSemaphore)
     process.exitCode = undefined
+    this.#responseSemaphore = undefined
     this.#stdio.length = 0
   }
 
@@ -78,7 +80,9 @@ class Responsor {
     return actionHandlers.get(action)(payload)
   }
 
-  async process(action, payload) {
+  async process({responseSemaphore, action, payload}) {
+    this.#responseSemaphore = responseSemaphore
+
     try {
       this.#sendResult(await this.#processAction(action, payload))
     } catch (error) {
@@ -88,7 +92,6 @@ class Responsor {
 
   destroy() {
     this.#channel.responsePort.close()
-    this.#channel = undefined
     process.exitCode = undefined
   }
 }
