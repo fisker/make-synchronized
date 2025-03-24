@@ -26,7 +26,7 @@ class Lock {
     // Already unlocked
     const count = Atomics.load(semaphore, SIGNAL_INDEX)
     if (count > this.#messageCount) {
-      console.log({semaphore, before, count})
+      console.log({unlocked: true, semaphore, before})
       this.#messageCount = count
       return
     }
@@ -45,7 +45,7 @@ class Lock {
     }
 
     if (result === ATOMICS_WAIT_RESULT_NOT_EQUAL) {
-      console.log({semaphore, before})
+      console.log({result, semaphore, before})
     }
   }
 }
