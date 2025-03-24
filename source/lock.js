@@ -1,43 +1,41 @@
 import AtomicsWaitError from './atomics-wait-error.js'
 import {ATOMICS_WAIT_RESULT_TIMED_OUT} from './constants.js'
 
+const STATE_UNLOCKED = 2
 const SIGNAL_INDEX = 0
 
 /** @param {Int32Array<SharedArrayBuffer>} semaphore */
 const unlock = (semaphore) => {
-  Atomics.add(semaphore, SIGNAL_INDEX, 1)
+  Atomics.store(semaphore, SIGNAL_INDEX, STATE_UNLOCKED)
   Atomics.notify(semaphore, SIGNAL_INDEX, 1)
 }
 
 class Lock {
-  semaphore = new Int32Array(
-    new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT),
-  )
+  semaphore
 
-  #messageCount = 0
+  constructor(semaphore = new Int32Array(new SharedArrayBuffer(4))) {
+    this.semaphore = semaphore
+  }
 
+  /** @param {number} [timeout] */
   lock(timeout = Number.POSITIVE_INFINITY) {
     const {semaphore} = this
 
-    // Already unlocked
-    const count = Atomics.load(semaphore, SIGNAL_INDEX)
-    if (count > this.#messageCount) {
-      this.#messageCount = count
+    // Not reuseable
+    this.semaphore = undefined
+
+    // May already unlocked
+    if (semaphore[SIGNAL_INDEX] === STATE_UNLOCKED) {
       return
     }
 
-    const result = Atomics.wait(
-      semaphore,
-      SIGNAL_INDEX,
-      this.#messageCount,
-      timeout,
-    )
+    const result = Atomics.wait(semaphore, SIGNAL_INDEX, 0, timeout)
 
-    this.#messageCount = Atomics.load(semaphore, SIGNAL_INDEX)
-
-    if (result === ATOMICS_WAIT_RESULT_TIMED_OUT) {
-      throw new AtomicsWaitError(result)
+    if (result !== ATOMICS_WAIT_RESULT_TIMED_OUT) {
+      return
     }
+
+    throw new AtomicsWaitError(result)
   }
 }
 
