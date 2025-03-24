@@ -1,3 +1,4 @@
+import module from 'node:module'
 import {parentPort, workerData} from 'node:worker_threads'
 import {
   WORKER_ACTION_APPLY,
@@ -9,6 +10,8 @@ import getValueInformation from './get-value-information.js'
 import {unlock} from './lock.js'
 import {normalizePath} from './property-path.js'
 import Responsor from './responsor.js'
+
+module?.enableCompileCache()
 
 const createHandler = (handler) => async (payload) =>
   handler(await getValue(payload), payload)
@@ -45,7 +48,7 @@ if (workerRunningSemaphore) {
   unlock(workerRunningSemaphore)
 }
 
-let module
+let moduleInstance
 let moduleLoadError
 // eslint-disable-next-line unicorn/prefer-top-level-await
 const moduleImportPromise = loadModule()
@@ -54,9 +57,9 @@ async function getValue(payload) {
     throw moduleLoadError
   }
 
-  module ??= await moduleImportPromise
+  moduleInstance ??= await moduleImportPromise
 
-  let value = module
+  let value = moduleInstance
 
   let receiver
   for (const property of normalizePath(payload.path)) {
