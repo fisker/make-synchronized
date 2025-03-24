@@ -11,21 +11,18 @@ const unlock = (semaphore) => {
 }
 
 class Lock {
-  semaphore
+  semaphore = new Int32Array(
+    new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT),
+  )
 
-  constructor(semaphore = new Int32Array(new SharedArrayBuffer(4))) {
-    this.semaphore = semaphore
-  }
-
-  /** @param {number} [timeout] */
-  lock(timeout = Number.POSITIVE_INFINITY) {
+  lock(timeout) {
     const {semaphore} = this
 
     // Not reuseable
     this.semaphore = undefined
 
-    // May already unlocked
-    if (semaphore[SIGNAL_INDEX] === STATE_UNLOCKED) {
+    // Already unlocked
+    if (Atomics.load(semaphore, SIGNAL_INDEX) > 0) {
       return
     }
 
