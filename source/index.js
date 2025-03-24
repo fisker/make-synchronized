@@ -4,7 +4,7 @@ import {VALUE_TYPE_FUNCTION} from './constants.js'
 import getValueInformation from './get-value-information.js'
 import Synchronizer from './synchronizer.js'
 
-module?.enableCompileCache()
+module.enableCompileCache?.()
 
 function makeSynchronizedFunctions(module, implementation) {
   if (!isMainThread) {

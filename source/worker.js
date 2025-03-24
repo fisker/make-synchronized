@@ -11,7 +11,7 @@ import {unlock} from './lock.js'
 import {normalizePath} from './property-path.js'
 import Responsor from './responsor.js'
 
-module?.enableCompileCache()
+module.enableCompileCache?.()
 
 const createHandler = (handler) => async (payload) =>
   handler(await getValue(payload), payload)
