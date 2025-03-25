@@ -23,5 +23,5 @@ export const ATOMICS_WAIT_RESULT_OK = 'ok'
 export const ATOMICS_WAIT_RESULT_NOT_EQUAL = 'not-equal'
 export const ATOMICS_WAIT_RESULT_TIMED_OUT = 'timed-out'
 
-export const RESPONSE_TYPE_ERROR = 2
-export const RESPONSE_TYPE_TERMINATE = 3
+export const RESPONSE_TYPE_REJECT = '[[RESPONSE_TYPE_REJECT]]'
+export const RESPONSE_TYPE_TERMINATE = '[[RESPONSE_TYPE_TERMINATE]]'

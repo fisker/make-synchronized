@@ -1,7 +1,7 @@
 import process from 'node:process'
 import util from 'node:util'
 import {
-  RESPONSE_TYPE_ERROR,
+  RESPONSE_TYPE_REJECT,
   RESPONSE_TYPE_TERMINATE,
   STDIO_STREAMS,
 } from './constants.js'
@@ -55,7 +55,7 @@ class Responsor {
         : postMessageError
 
       responsePort.postMessage(
-        responseMessage.pack(stdio, error, RESPONSE_TYPE_ERROR),
+        responseMessage.pack(stdio, error, RESPONSE_TYPE_REJECT),
       )
     } finally {
       this.#finish()
@@ -67,7 +67,7 @@ class Responsor {
   }
 
   #throws(error) {
-    this.#send(error, RESPONSE_TYPE_ERROR)
+    this.#send(error, RESPONSE_TYPE_REJECT)
   }
 
   #finish() {
