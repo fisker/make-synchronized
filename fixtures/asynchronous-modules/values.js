@@ -33,4 +33,4 @@ export const TIME_NOW = new Date()
 
 export const REGEXP_WITH_LAST_INDEX = Object.assign(/foo/, {lastIndex: 11})
 
-export const NON_TRANSFERABLE = Symbol('foo')
+export const NON_DATA_CLONEABLE = Symbol('foo')

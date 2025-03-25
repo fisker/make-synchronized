@@ -55,13 +55,10 @@ test('values', async () => {
     dynamic.REGEXP_WITH_LAST_INDEX.source,
   )
 
-  assert.throws(
-    () => {
-      // eslint-disable-next-line no-unused-expressions
-      synchronized.NON_TRANSFERABLE
-    },
-    {name: 'Error', message: /Cannot serialize worker response:/},
-  )
+  assert.throws(() => synchronized.NON_DATA_CLONEABLE, {
+    name: 'Error',
+    message: /Cannot serialize worker response:/,
+  })
 })
 
 test('data to worker', async () => {
