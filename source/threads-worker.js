@@ -68,7 +68,7 @@ class ThreadsWorker {
     // TODO: Move this into `Channel`
     const lock = new Lock()
 
-    const message = {
+    const requestMessage = {
       action,
       payload,
       responseSemaphore: lock.semaphore,
@@ -83,14 +83,14 @@ class ThreadsWorker {
     if (this.#createChannel()) {
       channel = this.#channel
 
-      message.channel = {
+      requestMessage.channel = {
         responsePort: channel.workerPort,
       }
       transferList.push(channel.workerPort)
     }
 
     try {
-      worker.postMessage(message, transferList)
+      worker.postMessage(requestMessage, transferList)
     } catch {
       throw Object.assign(
         new Error(`Cannot serialize request data:\n${util.inspect(payload)}`),
@@ -98,7 +98,7 @@ class ThreadsWorker {
       )
     }
 
-    const {stdio, result, error, errorData, terminated, exitCode} =
+    const {stdio, exitCode, terminated, rejected, error, result} =
       channel.getResponse(lock)
 
     for (const {stream, chunk} of stdio) {
@@ -113,8 +113,8 @@ class ThreadsWorker {
       channel.destroy()
     }
 
-    if (error) {
-      throw Object.assign(error, errorData)
+    if (rejected) {
+      throw error
     }
 
     return result

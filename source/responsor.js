@@ -1,7 +1,12 @@
 import process from 'node:process'
 import util from 'node:util'
-import {STDIO_STREAMS} from './constants.js'
+import {
+  RESPONSE_TYPE_ERROR,
+  RESPONSE_TYPE_TERMINATE,
+  STDIO_STREAMS,
+} from './constants.js'
 import {unlock} from './lock.js'
+import * as responseMessage from './response-message.js'
 
 const originalProcessExit = process.exit
 
@@ -33,29 +38,31 @@ class Responsor {
     }
   }
 
-  #send(response) {
+  #send(data, type) {
     const {responsePort} = this.#channel
     const stdio = this.#stdio
-    const exitCode = process.exitCode ?? 0
+    const message = responseMessage.pack(stdio, data, type)
 
     try {
-      responsePort.postMessage({...response, stdio, exitCode})
+      responsePort.postMessage(message)
     } catch {
       const error = new Error(
-        `Cannot serialize worker response:\n${util.inspect(response.result)}`,
+        `Cannot serialize worker response:\n${util.inspect(data)}`,
       )
-      responsePort.postMessage({error, stdio, exitCode})
+      responsePort.postMessage(
+        responseMessage.pack(stdio, error, RESPONSE_TYPE_ERROR),
+      )
     } finally {
       this.#finish()
     }
   }
 
   #sendResult(result) {
-    this.#send({result})
+    this.#send(result)
   }
 
   #throws(error) {
-    this.#send({error, errorData: {...error}})
+    this.#send(error, RESPONSE_TYPE_ERROR)
   }
 
   #finish() {
@@ -66,7 +73,7 @@ class Responsor {
   }
 
   #terminate() {
-    this.#send({terminated: true})
+    this.#send(undefined, RESPONSE_TYPE_TERMINATE)
   }
 
   #processAction(action, payload) {

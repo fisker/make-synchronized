@@ -1,5 +1,6 @@
 import {MessageChannel, receiveMessageOnPort} from 'node:worker_threads'
 import AtomicsWaitError from './atomics-wait-error.js'
+import * as responseMessage from './response-message.js'
 
 class Channel {
   mainThreadPort
@@ -26,7 +27,7 @@ class Channel {
       throw error
     }
 
-    return this.#receiveMessage()
+    return responseMessage.unpack(this.#receiveMessage())
   }
 
   #receiveMessage() {
