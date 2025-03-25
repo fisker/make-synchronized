@@ -62,11 +62,11 @@ class Responser {
     }
   }
 
-  #sendResult(result) {
+  #resolve(result) {
     this.#send(result)
   }
 
-  #throws(error) {
+  #reject(error) {
     this.#send(error, RESPONSE_TYPE__REJECT)
   }
 
@@ -96,9 +96,9 @@ class Responser {
     this.#responseSemaphore = responseSemaphore
 
     try {
-      this.#sendResult(await this.#processAction(action, payload))
+      this.#resolve(await this.#processAction(action, payload))
     } catch (error) {
-      this.#throws(error)
+      this.#reject(error)
     }
   }
 
