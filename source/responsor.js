@@ -48,7 +48,10 @@ class Responsor {
       responsePort.postMessage(message)
     } catch (postMessageError) {
       const error = isDataCloneError(postMessageError)
-        ? new Error(`Cannot serialize worker response:\n${util.inspect(data)}`)
+        ? new Error(
+            `Cannot serialize worker response:\n${util.inspect(data)}`,
+            {cause: postMessageError},
+          )
         : postMessageError
 
       responsePort.postMessage(
