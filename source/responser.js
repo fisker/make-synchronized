@@ -11,7 +11,7 @@ import {packResponseMessage} from './response-message.js'
 
 const originalProcessExit = process.exit
 
-class Responsor {
+class Responser {
   #channel
   #actionHandlers
   #stdio = []
@@ -108,4 +108,4 @@ class Responsor {
   }
 }
 
-export default Responsor
+export default Responser

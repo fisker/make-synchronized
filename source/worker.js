@@ -9,7 +9,7 @@ import {
 import getValueInformation from './get-value-information.js'
 import {unlock} from './lock.js'
 import {normalizePath} from './property-path.js'
-import Responsor from './responsor.js'
+import Responser from './responser.js'
 
 module.enableCompileCache?.()
 
@@ -31,17 +31,17 @@ const actionHandlers = new Map(
     [WORKER_ACTION__GET_INFORMATION, ({value}) => getValueInformation(value)],
   ].map(([action, handler]) => [action, createHandler(handler)]),
 )
-let responsor
+let responser
 parentPort.addListener(
   'message',
   ([action, payload, responseSemaphore, channel]) => {
     // Switch to a new channel
     if (channel) {
-      responsor?.destroy()
-      responsor = new Responsor(actionHandlers, channel)
+      responser?.destroy()
+      responser = new Responser(actionHandlers, channel)
     }
 
-    responsor.process({responseSemaphore, action, payload})
+    responser.process({responseSemaphore, action, payload})
   },
 )
 
