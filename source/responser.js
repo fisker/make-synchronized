@@ -7,18 +7,17 @@ import {
 } from './constants.js'
 import {isDataCloneError} from './data-clone-error.js'
 import {unlock} from './lock.js'
+import processAction from './process-action.js'
 import {packResponseMessage} from './response-message.js'
 
 const originalProcessExit = process.exit
 
 class Responser {
   #channel
-  #actionHandlers
   #stdio = []
   #responseSemaphore
 
-  constructor(actionHandlers, channel) {
-    this.#actionHandlers = actionHandlers
+  constructor(channel) {
     this.#channel = channel
 
     process.exit = (exitCode) => {
@@ -81,22 +80,11 @@ class Responser {
     this.#send(undefined, RESPONSE_TYPE__TERMINATE)
   }
 
-  #processAction(action, payload) {
-    const actionHandlers = this.#actionHandlers
-
-    /* c8 ignore next 3 */
-    if (!actionHandlers.has(action)) {
-      throw new Error(`Unknown action '${action}'.`)
-    }
-
-    return actionHandlers.get(action)(payload)
-  }
-
   async process({responseSemaphore, action, payload}) {
     this.#responseSemaphore = responseSemaphore
 
     try {
-      this.#resolve(await this.#processAction(action, payload))
+      this.#resolve(await processAction(action, payload))
     } catch (error) {
       this.#reject(error)
     }

@@ -1,8 +1,5 @@
-const WORKER_FILE_NAME = 'worker.js'
-
 export const IS_PRODUCTION = false
 export const STDIO_STREAMS = ['stdout', 'stderr']
-export const WORKER_FILE = new URL(WORKER_FILE_NAME, import.meta.url)
 
 export const WORKER_ACTION__APPLY = '[[WORKER_ACTION__APPLY]]'
 export const WORKER_ACTION__GET = '[[WORKER_ACTION__GET]]'

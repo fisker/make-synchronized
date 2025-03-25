@@ -3,9 +3,15 @@ import * as util from 'node:util'
 import {Worker} from 'node:worker_threads'
 import AtomicsWaitError from './atomics-wait-error.js'
 import Channel from './channel.js'
-import {IS_PRODUCTION, WORKER_FILE} from './constants.js'
+import {IS_PRODUCTION} from './constants.js'
 import {isDataCloneError} from './data-clone-error.js'
 import Lock from './lock.js'
+
+let workerFile
+
+const setWorkFile = (file) => {
+  workerFile = file
+}
 
 class ThreadsWorker {
   #worker
@@ -19,7 +25,7 @@ class ThreadsWorker {
   #createWorker() {
     const lock = IS_PRODUCTION ? {} : new Lock()
 
-    const worker = new Worker(WORKER_FILE, {
+    const worker = new Worker(workerFile, {
       workerData: {
         workerRunningSemaphore: lock.semaphore,
         ...this.#workerData,
@@ -42,7 +48,7 @@ class ThreadsWorker {
       if (error instanceof AtomicsWaitError) {
         // eslint-disable-next-line unicorn/prefer-type-error
         throw new Error(
-          `Unexpected error, most likely caused by syntax error in '${WORKER_FILE}'`,
+          `Unexpected error, most likely caused by syntax error in '${workerFile}'`,
           {cause: error},
         )
       }
@@ -129,3 +135,4 @@ class ThreadsWorker {
 }
 
 export default ThreadsWorker
+export {setWorkFile}

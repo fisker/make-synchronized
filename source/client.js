@@ -1,10 +1,7 @@
-import module from 'node:module'
 import {isMainThread} from 'node:worker_threads'
 import {VALUE_TYPE__FUNCTION} from './constants.js'
 import getValueInformation from './get-value-information.js'
 import Synchronizer from './synchronizer.js'
-
-module.enableCompileCache?.()
 
 function makeSynchronizedFunctions(module, implementation) {
   if (!isMainThread) {
@@ -72,7 +69,6 @@ function makeSynchronized(module, implementation) {
   return synchronizer.createModule()
 }
 
-export default makeSynchronized
 export {
   makeDefaultExportSynchronized,
   makeModuleSynchronized,

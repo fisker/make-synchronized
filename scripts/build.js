@@ -56,31 +56,21 @@ async function build(file, {format = 'esm'} = {}) {
             module: toPath('../source/constants.js'),
             process(text) {
               text = text.replace(
-                "const WORKER_FILE_NAME = 'worker.js'",
-                "const WORKER_FILE_NAME = 'worker.mjs'",
-              )
-              text = text.replace(
                 'export const IS_PRODUCTION = false',
                 'export const IS_PRODUCTION = true',
               )
-
-              if (format === 'cjs') {
-                text = /* Indent */ `
-                  import * as path from 'node:path'
-
-                  ${text.replace(
-                    'new URL(WORKER_FILE_NAME, import.meta.url)',
-                    'path.join(__dirname, WORKER_FILE_NAME)',
-                  )}
-                `
-              }
 
               text = replaceConstantsWithNumbers(text)
 
               return text
             },
           },
-        ],
+          format === 'cjs' && {
+            module: toPath('../source/index.js'),
+            process: (text) =>
+              text.replace('new URL(import.meta.url)', '__filename'),
+          },
+        ].filter(Boolean),
       }),
     ],
   })
@@ -88,7 +78,6 @@ async function build(file, {format = 'esm'} = {}) {
 
 await Promise.all([
   build('../source/index.js'),
-  build('../source/worker.js'),
   build('../source/index.js', {format: 'cjs'}),
   fs.copyFile(
     new URL('../source/index.d.ts', import.meta.url),
