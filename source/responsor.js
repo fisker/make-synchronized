@@ -7,7 +7,7 @@ import {
 } from './constants.js'
 import {isDataCloneError} from './data-clone-error.js'
 import {unlock} from './lock.js'
-import * as responseMessage from './response-message.js'
+import {packResponseMessage} from './response-message.js'
 
 const originalProcessExit = process.exit
 
@@ -42,7 +42,7 @@ class Responsor {
   #send(data, type) {
     const {responsePort} = this.#channel
     const stdio = this.#stdio
-    const message = responseMessage.pack(stdio, data, type)
+    const message = packResponseMessage(stdio, data, type)
 
     try {
       responsePort.postMessage(message)
@@ -55,7 +55,7 @@ class Responsor {
         : postMessageError
 
       responsePort.postMessage(
-        responseMessage.pack(stdio, error, RESPONSE_TYPE_REJECT),
+        packResponseMessage(stdio, error, RESPONSE_TYPE_REJECT),
       )
     } finally {
       this.#finish()

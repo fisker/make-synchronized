@@ -17,43 +17,51 @@ function unpackRejectedValue(error, errorData) {
   return error
 }
 
-function pack(stdio, data, type) {
-  const message = {}
-
+function packResponseMessage(stdio, data, type) {
+  let extraData
   if (stdio.length !== 0) {
-    message.stdio = stdio
+    extraData ??= {}
+    extraData.stdio = stdio
   }
 
   const {exitCode} = process
   if (typeof exitCode === 'number' && exitCode !== 0) {
-    message.exitCode = exitCode
+    extraData ??= {}
+    extraData.exitCode = exitCode
   }
 
   if (type === RESPONSE_TYPE_TERMINATE) {
-    message.terminated = true
+    extraData ??= {}
+    extraData.terminated = true
   }
 
   if (type === RESPONSE_TYPE_REJECT) {
-    message.rejected = true
-    return Object.assign(message, packRejectedValue(data))
+    extraData ??= {}
+    extraData.rejected = true
+    return [undefined, Object.assign(extraData, packRejectedValue(data))]
   }
 
-  if (data !== undefined) {
-    message.result = data
-  }
+  // This is the most common format
+  const message = [data]
 
-  return message
-}
-
-function unpack(message) {
-  message.stdio ??= []
-  message.exitCode ??= 0
-
-  if (message.rejected) {
-    message.error = unpackRejectedValue(message.error, message.errorData)
+  if (extraData !== undefined) {
+    message.push(extraData)
   }
 
   return message
 }
 
-export {pack, unpack}
+function unpackResponseMessage(message) {
+  if (message.length === 1) {
+    return {result: message[0]}
+  }
+
+  const [result, extraData] = message
+  if (extraData.rejected) {
+    extraData.error = unpackRejectedValue(extraData.error, extraData.errorData)
+  }
+
+  return {result, ...extraData}
+}
+
+export {packResponseMessage, unpackResponseMessage}
