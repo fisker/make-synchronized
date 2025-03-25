@@ -5,7 +5,7 @@ import loadModuleForTests from '../scripts/load-module-for-tests.js'
 
 const {makeSynchronized} = await loadModuleForTests()
 
-;(process.features.typescript ? test : test.skip)('main', () => {
+;(process.features.typescript ? test : test.skip)('typescript', () => {
   const identity = makeSynchronized(
     new URL(
       '../fixtures/typescript-modules/async-identity.ts',
