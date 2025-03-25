@@ -74,6 +74,6 @@ test('data to worker', async () => {
     () => {
       identity(Symbol('Symbol description'))
     },
-    {name: 'Error', message: /^Cannot serialize request data:/},
+    {name: 'DataCloneError', message: /^Cannot serialize request data:/},
   )
 })

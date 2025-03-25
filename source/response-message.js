@@ -1,6 +1,22 @@
 import process from 'node:process'
 import {RESPONSE_TYPE_ERROR, RESPONSE_TYPE_TERMINATE} from './constants.js'
 
+function packRejectedValue(value) {
+  if (value instanceof Error) {
+    return {error: value, errorData: {...value}}
+  }
+
+  return {error: value}
+}
+
+function unpackRejectedValue(error, errorData) {
+  if (error instanceof Error && errorData) {
+    return Object.assign(error, errorData)
+  }
+
+  return error
+}
+
 function pack(stdio, data, type) {
   const message = {}
 
@@ -19,9 +35,7 @@ function pack(stdio, data, type) {
 
   if (type === RESPONSE_TYPE_ERROR) {
     message.rejected = true
-    message.error = data
-    message.errorData = {...data}
-    return message
+    return Object.assign(message, packRejectedValue(data))
   }
 
   if (data !== undefined) {
@@ -36,7 +50,7 @@ function unpack(message) {
   message.exitCode ??= 0
 
   if (message.rejected) {
-    Object.assign(message.error, message.errorData)
+    message.error = unpackRejectedValue(message.error, message.errorData)
   }
 
   return message

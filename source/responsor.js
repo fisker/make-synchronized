@@ -5,6 +5,7 @@ import {
   RESPONSE_TYPE_TERMINATE,
   STDIO_STREAMS,
 } from './constants.js'
+import {isDataCloneError} from './data-clone-error.js'
 import {unlock} from './lock.js'
 import * as responseMessage from './response-message.js'
 
@@ -45,10 +46,11 @@ class Responsor {
 
     try {
       responsePort.postMessage(message)
-    } catch {
-      const error = new Error(
-        `Cannot serialize worker response:\n${util.inspect(data)}`,
-      )
+    } catch (postMessageError) {
+      const error = isDataCloneError(postMessageError)
+        ? new Error(`Cannot serialize worker response:\n${util.inspect(data)}`)
+        : postMessageError
+
       responsePort.postMessage(
         responseMessage.pack(stdio, error, RESPONSE_TYPE_ERROR),
       )

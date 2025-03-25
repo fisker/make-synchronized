@@ -4,6 +4,7 @@ import {Worker} from 'node:worker_threads'
 import AtomicsWaitError from './atomics-wait-error.js'
 import Channel from './channel.js'
 import {IS_PRODUCTION, WORKER_FILE} from './constants.js'
+import {isDataCloneError} from './data-clone-error.js'
 import Lock from './lock.js'
 
 class ThreadsWorker {
@@ -91,11 +92,21 @@ class ThreadsWorker {
 
     try {
       worker.postMessage(requestMessage, transferList)
-    } catch {
-      throw Object.assign(
-        new Error(`Cannot serialize request data:\n${util.inspect(payload)}`),
-        {requestData: payload},
-      )
+    } catch (postMessageError) {
+      if (isDataCloneError(postMessageError)) {
+        throw Object.assign(
+          new DOMException(
+            `Cannot serialize request data:\n${util.inspect(payload)}`,
+            'DataCloneError',
+          ),
+          {
+            requestData: payload,
+            cause: postMessageError,
+          },
+        )
+      }
+
+      throw postMessageError
     }
 
     const {stdio, exitCode, terminated, rejected, error, result} =
