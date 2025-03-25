@@ -28,6 +28,7 @@ class ThreadsWorker {
     const worker = new Worker(workerFile, {
       workerData: {
         workerRunningSemaphore: lock.semaphore,
+        isServer: true,
         ...this.#workerData,
       },
       // https://nodejs.org/api/worker_threads.html#new-workerfilename-options

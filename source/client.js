@@ -1,10 +1,9 @@
-import {isMainThread} from 'node:worker_threads'
-import {VALUE_TYPE__FUNCTION} from './constants.js'
+import {IS_SERVER, VALUE_TYPE__FUNCTION} from './constants.js'
 import getValueInformation from './get-value-information.js'
 import Synchronizer from './synchronizer.js'
 
 function makeSynchronizedFunctions(module, implementation) {
-  if (!isMainThread) {
+  if (IS_SERVER) {
     return implementation
   }
 
@@ -28,7 +27,7 @@ function makeSynchronizedFunction(
   implementation,
   specifier = 'default',
 ) {
-  if (!isMainThread) {
+  if (IS_SERVER) {
     return implementation
   }
 

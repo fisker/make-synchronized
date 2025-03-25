@@ -1,3 +1,7 @@
+import {isMainThread, workerData} from 'node:worker_threads'
+
+export const IS_SERVER = !isMainThread && Boolean(workerData?.isServer)
+
 export const IS_PRODUCTION = false
 export const STDIO_STREAMS = ['stdout', 'stderr']
 
