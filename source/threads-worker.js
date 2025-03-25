@@ -69,11 +69,7 @@ class ThreadsWorker {
     // TODO: Move this into `Channel`
     const lock = new Lock()
 
-    const requestMessage = {
-      action,
-      payload,
-      responseSemaphore: lock.semaphore,
-    }
+    const requestMessage = [action, payload, lock.semaphore]
 
     const transferList = []
 
@@ -84,9 +80,7 @@ class ThreadsWorker {
     if (this.#createChannel()) {
       channel = this.#channel
 
-      requestMessage.channel = {
-        responsePort: channel.workerPort,
-      }
+      requestMessage.push({responsePort: channel.workerPort})
       transferList.push(channel.workerPort)
     }
 

@@ -29,7 +29,7 @@ const replaceConstantsWithNumbers = (text) => {
     for (const {string, member} of strings) {
       const value = membersArray.indexOf(member)
       assert.ok(value !== -1)
-      text = text.replaceAll(string, value)
+      text = text.replaceAll(string, value + 1)
     }
   }
 

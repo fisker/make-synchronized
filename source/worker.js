@@ -34,7 +34,7 @@ const actionHandlers = new Map(
 let responsor
 parentPort.addListener(
   'message',
-  ({channel, responseSemaphore, action, payload}) => {
+  ([action, payload, responseSemaphore, channel]) => {
     // Switch to a new channel
     if (channel) {
       responsor?.destroy()
