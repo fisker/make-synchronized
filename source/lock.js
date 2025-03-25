@@ -1,5 +1,5 @@
 import AtomicsWaitError from './atomics-wait-error.js'
-import {ATOMICS_WAIT_RESULT_TIMED_OUT} from './constants.js'
+import {ATOMICS_WAIT_RESULT__TIMED_OUT} from './constants.js'
 
 const STATE_UNLOCKED = 2
 const SIGNAL_INDEX = 0
@@ -28,7 +28,7 @@ class Lock {
 
     const result = Atomics.wait(semaphore, SIGNAL_INDEX, 0, timeout)
 
-    if (result !== ATOMICS_WAIT_RESULT_TIMED_OUT) {
+    if (result !== ATOMICS_WAIT_RESULT__TIMED_OUT) {
       return
     }
 

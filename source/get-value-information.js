@@ -1,8 +1,8 @@
 import {
-  VALUE_INFORMATION_FUNCTION,
-  VALUE_TYPE_PLAIN_OBJECT,
-  VALUE_TYPE_PRIMITIVE,
-  VALUE_TYPE_UNKNOWN,
+  VALUE_INFORMATION__FUNCTION,
+  VALUE_TYPE__PLAIN_OBJECT,
+  VALUE_TYPE__PRIMITIVE,
+  VALUE_TYPE__UNKNOWN,
 } from './constants.js'
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#primitive_values
@@ -26,30 +26,30 @@ function getPlainObjectPropertyInformation(object, key) {
   const {value} = descriptor
 
   if (isPrimitive(value)) {
-    return {type: VALUE_TYPE_PRIMITIVE, value}
+    return {type: VALUE_TYPE__PRIMITIVE, value}
   }
 }
 
 function getValueInformation(value) {
   if (typeof value === 'function') {
-    return VALUE_INFORMATION_FUNCTION
+    return VALUE_INFORMATION__FUNCTION
   }
 
   if (isPrimitive(value)) {
-    return {type: VALUE_TYPE_PRIMITIVE, value}
+    return {type: VALUE_TYPE__PRIMITIVE, value}
   }
 
-  const information = {type: VALUE_TYPE_UNKNOWN}
+  const information = {type: VALUE_TYPE__UNKNOWN}
   if (Object.getPrototypeOf(value) === null) {
-    information.type = VALUE_TYPE_PLAIN_OBJECT
+    information.type = VALUE_TYPE__PLAIN_OBJECT
     information.isNullPrototypeObject = true
   }
 
   if (value.constructor === Object) {
-    information.type = VALUE_TYPE_PLAIN_OBJECT
+    information.type = VALUE_TYPE__PLAIN_OBJECT
   }
 
-  if (information.type === VALUE_TYPE_PLAIN_OBJECT) {
+  if (information.type === VALUE_TYPE__PLAIN_OBJECT) {
     information.properties = new Map(
       Object.keys(value).map((property) => [
         property,

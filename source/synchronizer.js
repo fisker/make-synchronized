@@ -1,11 +1,11 @@
 import {
-  VALUE_TYPE_FUNCTION,
-  VALUE_TYPE_PLAIN_OBJECT,
-  VALUE_TYPE_PRIMITIVE,
-  WORKER_ACTION_APPLY,
-  WORKER_ACTION_GET,
-  WORKER_ACTION_GET_INFORMATION,
-  WORKER_ACTION_OWN_KEYS,
+  VALUE_TYPE__FUNCTION,
+  VALUE_TYPE__PLAIN_OBJECT,
+  VALUE_TYPE__PRIMITIVE,
+  WORKER_ACTION__APPLY,
+  WORKER_ACTION__GET,
+  WORKER_ACTION__GET_INFORMATION,
+  WORKER_ACTION__OWN_KEYS,
 } from './constants.js'
 import {hashPath, normalizePath} from './property-path.js'
 import ThreadsWorker from './threads-worker.js'
@@ -51,7 +51,7 @@ class Synchronizer {
 
   getInformation(path) {
     return cachePathResult(this.#informationStore, path, () =>
-      this.#worker.sendAction(WORKER_ACTION_GET_INFORMATION, {path}),
+      this.#worker.sendAction(WORKER_ACTION__GET_INFORMATION, {path}),
     )
   }
 
@@ -62,25 +62,25 @@ class Synchronizer {
   get(path) {
     const information = this.getInformation(path)
     switch (information.type) {
-      case VALUE_TYPE_FUNCTION:
+      case VALUE_TYPE__FUNCTION:
         return this.#createSynchronizedFunction(path)
-      case VALUE_TYPE_PRIMITIVE:
+      case VALUE_TYPE__PRIMITIVE:
         return information.value
-      case VALUE_TYPE_PLAIN_OBJECT:
+      case VALUE_TYPE__PLAIN_OBJECT:
         return this.#createPlainObjectProxy(path, information)
       default:
-        return this.#worker.sendAction(WORKER_ACTION_GET, {path})
+        return this.#worker.sendAction(WORKER_ACTION__GET, {path})
     }
   }
 
   ownKeys(path) {
     return cachePathResult(this.#ownKeysStore, path, () =>
-      this.#worker.sendAction(WORKER_ACTION_OWN_KEYS, {path}),
+      this.#worker.sendAction(WORKER_ACTION__OWN_KEYS, {path}),
     )
   }
 
   apply(path, argumentsList) {
-    return this.#worker.sendAction(WORKER_ACTION_APPLY, {path, argumentsList})
+    return this.#worker.sendAction(WORKER_ACTION__APPLY, {path, argumentsList})
   }
 
   #createSynchronizedFunction(path) {
@@ -108,7 +108,7 @@ class Synchronizer {
       const object = isNullPrototypeObject ? Object.create(null) : {}
 
       for (const [property, propertyInformation] of properties) {
-        if (propertyInformation?.type === VALUE_TYPE_PRIMITIVE) {
+        if (propertyInformation?.type === VALUE_TYPE__PRIMITIVE) {
           object[property] = propertyInformation.value
         } else {
           Object.defineProperty(object, property, {

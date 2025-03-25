@@ -1,6 +1,6 @@
 import module from 'node:module'
 import {isMainThread} from 'node:worker_threads'
-import {VALUE_TYPE_FUNCTION} from './constants.js'
+import {VALUE_TYPE__FUNCTION} from './constants.js'
 import getValueInformation from './get-value-information.js'
 import Synchronizer from './synchronizer.js'
 
@@ -65,7 +65,7 @@ function makeSynchronized(module, implementation) {
   const synchronizer = Synchronizer.create({module})
   const defaultExportType = synchronizer.getInformation('default').type
 
-  if (defaultExportType === VALUE_TYPE_FUNCTION) {
+  if (defaultExportType === VALUE_TYPE__FUNCTION) {
     return synchronizer.createDefaultExportFunctionProxy()
   }
 

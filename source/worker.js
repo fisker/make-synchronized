@@ -1,10 +1,10 @@
 import module from 'node:module'
 import {parentPort, workerData} from 'node:worker_threads'
 import {
-  WORKER_ACTION_APPLY,
-  WORKER_ACTION_GET,
-  WORKER_ACTION_GET_INFORMATION,
-  WORKER_ACTION_OWN_KEYS,
+  WORKER_ACTION__APPLY,
+  WORKER_ACTION__GET,
+  WORKER_ACTION__GET_INFORMATION,
+  WORKER_ACTION__OWN_KEYS,
 } from './constants.js'
 import getValueInformation from './get-value-information.js'
 import {unlock} from './lock.js'
@@ -17,18 +17,18 @@ const createHandler = (handler) => async (payload) =>
   handler(await getValue(payload), payload)
 const actionHandlers = new Map(
   [
-    [WORKER_ACTION_GET, ({value}) => value],
+    [WORKER_ACTION__GET, ({value}) => value],
     [
-      WORKER_ACTION_APPLY,
+      WORKER_ACTION__APPLY,
       ({value: method, receiver}, {argumentsList}) =>
         Reflect.apply(method, receiver, argumentsList),
     ],
     [
-      WORKER_ACTION_OWN_KEYS,
+      WORKER_ACTION__OWN_KEYS,
       ({value}) =>
         Reflect.ownKeys(value).filter((key) => typeof key !== 'symbol'),
     ],
-    [WORKER_ACTION_GET_INFORMATION, ({value}) => getValueInformation(value)],
+    [WORKER_ACTION__GET_INFORMATION, ({value}) => getValueInformation(value)],
   ].map(([action, handler]) => [action, createHandler(handler)]),
 )
 let responsor

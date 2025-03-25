@@ -1,8 +1,8 @@
 import process from 'node:process'
 import util from 'node:util'
 import {
-  RESPONSE_TYPE_REJECT,
-  RESPONSE_TYPE_TERMINATE,
+  RESPONSE_TYPE__REJECT,
+  RESPONSE_TYPE__TERMINATE,
   STDIO_STREAMS,
 } from './constants.js'
 import {isDataCloneError} from './data-clone-error.js'
@@ -55,7 +55,7 @@ class Responsor {
         : postMessageError
 
       responsePort.postMessage(
-        packResponseMessage(stdio, error, RESPONSE_TYPE_REJECT),
+        packResponseMessage(stdio, error, RESPONSE_TYPE__REJECT),
       )
     } finally {
       this.#finish()
@@ -67,7 +67,7 @@ class Responsor {
   }
 
   #throws(error) {
-    this.#send(error, RESPONSE_TYPE_REJECT)
+    this.#send(error, RESPONSE_TYPE__REJECT)
   }
 
   #finish() {
@@ -78,7 +78,7 @@ class Responsor {
   }
 
   #terminate() {
-    this.#send(undefined, RESPONSE_TYPE_TERMINATE)
+    this.#send(undefined, RESPONSE_TYPE__TERMINATE)
   }
 
   #processAction(action, payload) {

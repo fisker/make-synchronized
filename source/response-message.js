@@ -1,5 +1,5 @@
 import process from 'node:process'
-import {RESPONSE_TYPE_REJECT, RESPONSE_TYPE_TERMINATE} from './constants.js'
+import {RESPONSE_TYPE__REJECT, RESPONSE_TYPE__TERMINATE} from './constants.js'
 
 function packRejectedValue(value) {
   if (value instanceof Error) {
@@ -30,12 +30,12 @@ function packResponseMessage(stdio, data, type) {
     extraData.exitCode = exitCode
   }
 
-  if (type === RESPONSE_TYPE_TERMINATE) {
+  if (type === RESPONSE_TYPE__TERMINATE) {
     extraData ??= {}
     extraData.terminated = true
   }
 
-  if (type === RESPONSE_TYPE_REJECT) {
+  if (type === RESPONSE_TYPE__REJECT) {
     extraData ??= {}
     extraData.rejected = true
     return [undefined, Object.assign(extraData, packRejectedValue(data))]
