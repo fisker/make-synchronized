@@ -25,14 +25,4 @@ async function loadModule() {
   return moduleImportPromise
 }
 
-// Unknown reason, can't throw on worker start
-const initModule = async () => {
-  try {
-    moduleInstance = await import(workerData.moduleId)
-  } catch (error) {
-    moduleLoadError = error
-  }
-}
-
 export default loadModule
-export {initModule}
