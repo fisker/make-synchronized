@@ -44,6 +44,8 @@ test('values', async () => {
   assert.equal(synchronized.OBJECT_NULL, null)
   assert.deepEqual(synchronized.OBJECT_EMPTY, {})
   assert.deepEqual(synchronized.OBJECT_FISKER_IS_JERK, {fisker: 'jerk'})
+  assert.deepEqual(synchronized.OBJECT_NULL_PROTOTYPE, Object.create(null))
+  assert.equal(Object.getPrototypeOf(synchronized.OBJECT_NULL_PROTOTYPE), null)
 
   assert.ok(synchronized.TIME_NOW instanceof Date)
 
