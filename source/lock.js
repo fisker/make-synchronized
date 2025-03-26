@@ -26,13 +26,14 @@ class Lock {
       return
     }
 
-    const result = Atomics.wait(semaphore, SIGNAL_INDEX, 0, timeout)
+    const expected = 0
+    const result = Atomics.wait(semaphore, SIGNAL_INDEX, expected, timeout)
 
     if (result !== ATOMICS_WAIT_RESULT__TIMED_OUT) {
       return
     }
 
-    throw new AtomicsWaitError(result)
+    throw new AtomicsWaitError(result, {semaphore, expected})
   }
 }
 
