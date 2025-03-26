@@ -1,4 +1,4 @@
-type Module = string | URL | {url: string}
+type Module = string | {href: string} | {filename: string} | {url: string}
 type NormalizedPropertyPath = string[]
 type PropertyPath = undefined | string | NormalizedPropertyPath
 
