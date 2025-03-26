@@ -2,7 +2,7 @@ import fiskerEslintConfig from '@fisker/eslint-config'
 
 export default [
   fiskerEslintConfig,
-  {ignores: ['index.mjs', 'index.cjs']},
+  {ignores: ['index.mjs', 'index.cjs', '.deleted']},
   {
     rules: {
       'sonarjs/public-static-readonly': 'off',
