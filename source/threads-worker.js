@@ -44,7 +44,7 @@ class ThreadsWorker {
 
     // Wait for worker to start
     try {
-      lock.lock(1000)
+      lock.lock(5000)
     } catch (error) {
       if (error instanceof AtomicsWaitError) {
         // eslint-disable-next-line unicorn/prefer-type-error
