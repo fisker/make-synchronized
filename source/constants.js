@@ -5,12 +5,14 @@ export const IS_SERVER = !isMainThread && Boolean(workerData?.isServer)
 export const IS_PRODUCTION = false
 export const STDIO_STREAMS = ['stdout', 'stderr']
 export const GLOBAL_SERVER_PROPERTY = '__make-synchronized-server__'
+export const PING_ACTION_RESPONSE = 'pong'
 
 export const WORKER_ACTION__APPLY = '[[WORKER_ACTION__APPLY]]'
 export const WORKER_ACTION__GET = '[[WORKER_ACTION__GET]]'
 export const WORKER_ACTION__OWN_KEYS = '[[WORKER_ACTION__OWN_KEYS]]'
 export const WORKER_ACTION__GET_INFORMATION =
   '[[WORKER_ACTION__GET_INFORMATION]]'
+export const WORKER_ACTION__PING = '[[WORKER_ACTION__PING]]'
 
 export const VALUE_TYPE__FUNCTION = '[[VALUE_TYPE__FUNCTION]]'
 export const VALUE_TYPE__PRIMITIVE = '[[VALUE_TYPE__PRIMITIVE]]'

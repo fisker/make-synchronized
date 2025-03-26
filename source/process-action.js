@@ -1,8 +1,10 @@
 import {
+  PING_ACTION_RESPONSE,
   WORKER_ACTION__APPLY,
   WORKER_ACTION__GET,
   WORKER_ACTION__GET_INFORMATION,
   WORKER_ACTION__OWN_KEYS,
+  WORKER_ACTION__PING,
 } from './constants.js'
 import getValueInformation from './get-value-information.js'
 import loadModule from './load-module.js'
@@ -19,6 +21,10 @@ function getValue(value, payload) {
 }
 
 async function processAction(action, payload) {
+  if (action === WORKER_ACTION__PING) {
+    return PING_ACTION_RESPONSE
+  }
+
   const module = await loadModule()
 
   const result = getValue(module, payload)

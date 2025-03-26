@@ -2,15 +2,16 @@ import process from 'node:process'
 import {pathToFileURL} from 'node:url'
 import * as util from 'node:util'
 import {Worker} from 'node:worker_threads'
-import AtomicsWaitError from './atomics-wait-error.js'
 import Channel from './channel.js'
 import {
   GLOBAL_SERVER_PROPERTY,
   IS_PRODUCTION,
   MODULE_TYPE__INLINE_FUNCTION,
+  WORKER_ACTION__PING,
 } from './constants.js'
 import {isDataCloneError} from './data-clone-error.js'
 import Lock from './lock.js'
+import waitForWorker from './wait-for-worker.js'
 
 // Node.js v18 and v19 eval worker code in script
 const isModuleEvalNotSupported =
@@ -26,6 +27,8 @@ class ThreadsWorker {
   #worker
   #module
   #channel
+  #workerIsAlive
+  #workerOnlineLock
 
   constructor(module) {
     this.#module = module
@@ -79,27 +82,20 @@ class ThreadsWorker {
     }
 
     worker.unref()
-
-    if (IS_PRODUCTION) {
-      return worker
-    }
-
-    // Wait for worker to start
-    try {
-      lock.lock(60_000)
-    } catch (error) {
-      if (error instanceof AtomicsWaitError) {
-        // eslint-disable-next-line unicorn/prefer-type-error
-        throw new Error(
-          `Unexpected error, most likely caused by syntax error in '${workerFile}'`,
-          {cause: error},
-        )
-      }
-
-      throw error
-    }
+    this.#workerIsAlive = false
+    this.#workerOnlineLock = lock
 
     return worker
+  }
+
+  #killWorker(worker) {
+    if (this.#worker !== worker) {
+      return
+    }
+
+    this.#worker = undefined
+    this.#workerIsAlive = false
+    this.#workerOnlineLock = undefined
   }
 
   #createChannel() {
@@ -112,8 +108,20 @@ class ThreadsWorker {
     return true
   }
 
-  sendAction(action, payload) {
+  sendAction(action, payload, timeout) {
     this.#worker ??= this.#createWorker()
+
+    if (
+      !IS_PRODUCTION &&
+      !this.#workerIsAlive &&
+      this.#workerOnlineLock &&
+      action !== WORKER_ACTION__PING
+    ) {
+      // Wait for worker to start
+      waitForWorker(this, this.#workerOnlineLock, workerFile)
+      this.#workerIsAlive = true
+      this.#workerOnlineLock = undefined
+    }
 
     // TODO: Move this into `Channel`
     const lock = new Lock()
@@ -153,7 +161,7 @@ class ThreadsWorker {
     }
 
     const {stdio, exitCode, terminated, rejected, error, result} =
-      channel.getResponse(lock)
+      channel.getResponse(lock, timeout)
 
     if (stdio) {
       for (const {stream, chunk} of stdio) {
@@ -163,10 +171,8 @@ class ThreadsWorker {
 
     if (terminated || exitCode) {
       worker.terminate()
-      if (this.#worker === worker) {
-        this.#worker = undefined
-      }
       channel.destroy()
+      this.#killWorker(worker)
     }
 
     if (rejected) {
