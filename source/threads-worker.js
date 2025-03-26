@@ -12,6 +12,7 @@ import {
 import {isDataCloneError} from './data-clone-error.js'
 import Lock from './lock.js'
 
+// Node.js v18 and v19 eval worker code in script
 const isModuleEvalNotSupported =
   (process.versions.node?.split('.')[0] ?? 20) < 20
 
