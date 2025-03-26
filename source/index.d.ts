@@ -42,7 +42,23 @@ type SynchronizedDefaultExportProxy<
 > = SynchronizedFunction<InputNodeModule['default']> &
   SynchronizedModule<InputNodeModule>
 
-// For imports
+// Main function
+
+/**
+Make an inline asynchronous function into synchronized.
+
+@param {function} implementation - function to be synchronized
+
+@example
+```js
+import makeSynchronized from 'make-synchronized'
+
+const synchronizedFoo = makeSynchronized(() => Promise.resolve(foo))
+```
+*/
+export function makeSynchronized<
+  InputFunction extends AnyFunction = AnyFunction,
+>(implementation: InputFunction): SynchronizedFunction<InputFunction>
 
 /**
 Make functions in a module synchronized.
@@ -62,6 +78,32 @@ export function makeSynchronized<InputNodeModule = Record<string, any>>(
 ): InputNodeModule extends NodeModuleWithFunctionDefaultExport
   ? SynchronizedDefaultExportProxy<InputNodeModule>
   : SynchronizedModule<InputNodeModule>
+
+/**
+Make a function synchronized for default export.
+
+@param {string | URL | ImportMeta} module - current module
+@param {function | Record<string, any>} implementation - current module implementation
+
+@example
+```js
+import makeSynchronized from 'make-synchronized'
+
+export default makeSynchronized(import.meta, myAsynchronousFunction)
+```
+*/
+export function makeSynchronized<
+  InputImplementation extends ModuleExportImplementation,
+>(
+  module: Module,
+  implementation: InputImplementation,
+): InputImplementation extends AnyFunction
+  ? SynchronizedFunction<InputImplementation>
+  : InputImplementation extends ObjectWithFunctions
+    ? SynchronizedObject<InputImplementation>
+    : never
+
+// For modules
 
 /**
 Make default export asynchronous function of module synchronized.
@@ -97,30 +139,6 @@ export function makeModuleSynchronized<
 >(module: Module): SynchronizedModule<InputNodeModule>
 
 // For exports
-
-/**
-Make a function synchronized for default export.
-
-@param {string | URL | ImportMeta} module - current module
-@param {function | Record<string, any>} implementation - current module implementation
-
-@example
-```js
-import makeSynchronized from 'make-synchronized'
-
-export default makeSynchronized(import.meta, myAsynchronousFunction)
-```
-*/
-export function makeSynchronized<
-  InputImplementation extends ModuleExportImplementation,
->(
-  module: Module,
-  implementation: InputImplementation,
-): InputImplementation extends AnyFunction
-  ? SynchronizedFunction<InputImplementation>
-  : InputImplementation extends ObjectWithFunctions
-    ? SynchronizedObject<InputImplementation>
-    : never
 
 /**
 Make an asynchronous function synchronized for default export.
@@ -191,3 +209,37 @@ export function makeSynchronizedFunctions<
 ): SynchronizedObject<InputObjectWithFunctions>
 
 export default makeSynchronized
+
+// For inline functions
+
+/**
+Make an inline asynchronous function into synchronized.
+
+@param {function} implementation - function to be synchronized
+
+@example
+```js
+import {makeInlineFunctionSynchronized} from 'make-synchronized'
+
+const synchronizedFoo = makeSynchronized(() => Promise.resolve(foo))
+```
+*/
+export function makeInlineFunctionSynchronized<
+  InputFunction extends AnyFunction = AnyFunction,
+>(implementation: InputFunction): SynchronizedFunction<InputFunction>
+
+/**
+Make an inline asynchronous function into synchronized.
+
+@param {string} implementation - function to be synchronized
+
+@example
+```js
+import {makeInlineFunctionSynchronized} from 'make-synchronized'
+
+const synchronizedFoo = makeSynchronized(() => Promise.resolve(foo))
+```
+*/
+export function makeInlineFunctionSynchronized<
+  T extends AnyFunction = AnyFunction,
+>(implementation: string): SynchronizedFunction<T>
