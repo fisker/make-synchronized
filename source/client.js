@@ -1,53 +1,9 @@
-import {IS_SERVER, VALUE_TYPE__FUNCTION} from './constants.js'
-import getValueInformation from './get-value-information.js'
+import {VALUE_TYPE__FUNCTION} from './constants.js'
+import {
+  makeSynchronizedFunction,
+  makeSynchronizedFunctions,
+} from './for-exports.js'
 import Synchronizer from './synchronizer.js'
-
-function makeSynchronizedFunctions(module, implementation) {
-  if (IS_SERVER) {
-    return implementation
-  }
-
-  const synchronizer = Synchronizer.create({module})
-
-  synchronizer.setKnownInformation(
-    undefined,
-    getValueInformation(implementation),
-  )
-
-  return new Proxy(implementation, {
-    get: (target, property /* , receiver */) =>
-      typeof implementation[property] === 'function'
-        ? synchronizer.get(property)
-        : target[property],
-  })
-}
-
-function makeSynchronizedFunction(
-  module,
-  implementation,
-  specifier = 'default',
-) {
-  if (IS_SERVER) {
-    return implementation
-  }
-
-  const synchronizer = Synchronizer.create({module})
-
-  synchronizer.setKnownInformation(
-    specifier,
-    getValueInformation(implementation),
-  )
-
-  return synchronizer.get(specifier)
-}
-
-function makeDefaultExportSynchronized(module) {
-  return Synchronizer.create({module}).get('default')
-}
-
-function makeModuleSynchronized(module) {
-  return Synchronizer.create({module}).createModule()
-}
 
 function makeSynchronized(module, implementation) {
   if (typeof implementation === 'function') {
@@ -68,10 +24,8 @@ function makeSynchronized(module, implementation) {
   return synchronizer.createModule()
 }
 
+export {makeSynchronized, makeSynchronizedFunction, makeSynchronizedFunctions}
 export {
   makeDefaultExportSynchronized,
   makeModuleSynchronized,
-  makeSynchronized,
-  makeSynchronizedFunction,
-  makeSynchronizedFunctions,
-}
+} from './for-modules.js'
