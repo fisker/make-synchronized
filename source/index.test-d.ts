@@ -137,8 +137,9 @@ import {expectError, expectType} from 'tsd'
 {
   expectType<1>(makeInlineFunctionSynchronized(async () => 1 as const)())
   expectType<'lie'>(
-    makeInlineFunctionSynchronized<(...argumentsList: any[]) => Promise<'lie'>>(
-      `async () => 1`,
-    )(),
+    makeInlineFunctionSynchronized<() => Promise<'lie'>>(`async () => 1`)(),
+  )
+  expectType<'lie'>(
+    makeInlineFunctionSynchronized<() => 'lie'>(`async () => 1`)(),
   )
 }
