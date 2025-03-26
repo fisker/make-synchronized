@@ -13,8 +13,6 @@ async function loadModule() {
     throw moduleLoadError
   }
 
-  moduleImportPromise ??= import(workerData.module.source)
-
   try {
     moduleInstance = await moduleImportPromise
   } catch (error) {
@@ -26,13 +24,15 @@ async function loadModule() {
 }
 
 // Unknown reason, can't throw on worker start
-const initModule = async () => {
+const initializeModule = async () => {
+  moduleImportPromise = import(workerData.module.source)
+
   try {
-    moduleInstance = await import(workerData.module.source)
+    moduleInstance = await moduleImportPromise
   } catch (error) {
     moduleLoadError = error
   }
 }
 
 export default loadModule
-export {initModule}
+export {initializeModule}
