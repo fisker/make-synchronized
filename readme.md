@@ -24,7 +24,7 @@ yarn add make-synchronized
 
 ## Usage
 
-This module mainly to support two kinds of different purpose of usage:
+This module mainly to support three kinds of different purpose of usage:
 
 1. Make asynchronous functions in an existing module into synchronized
 
