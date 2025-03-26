@@ -60,14 +60,15 @@ class ThreadsWorker {
         isModuleEvalNotSupported
           ? /* Indent */ `
             import(${JSON.stringify(workUrl)}).then(() => {
-               globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}]
-                 .setModuleInstance({default: ${module.code}})
-             })
+              globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}]
+                .setModuleInstance({default: ${module.code}})
+            })
           `
           : /* Indent */ `
             import ${JSON.stringify(workUrl)}
 
-            globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}].setModuleInstance({default: ${module.code}})
+            globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}]
+              .setModuleInstance({default: ${module.code}})
           `,
         workerOptions,
       )
