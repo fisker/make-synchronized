@@ -49,7 +49,7 @@ This module mainly to support two kinds of different purpose of usage:
    ```js
    import makeSynchronized from 'make-synchronized'
 
-   const foo = makeSynchronized(() => Promise.resolve('foo'))
+   const synchronized = makeSynchronized(() => Promise.resolve('foo'))
    ```
 
 ## Named exports
@@ -131,7 +131,9 @@ This module uses [`MessagePort#postMessage`](https://nodejs.org/api/worker_threa
 
 - If `implementation` is a `function`, returns a synchronized version of the passed function.
 
-  > [!IMPORTANT] > **It MUST be used as the default export**
+  > [!IMPORTANT]
+  >
+  > **It MUST be used as the default export**
 
   ```js
   // foo.js
@@ -151,7 +153,9 @@ This module uses [`MessagePort#postMessage`](https://nodejs.org/api/worker_threa
 
 - If `implementation` is a `object` with multiple functions, returns a `Proxy` object with synchronized functions attached.
 
-  > [!IMPORTANT] > **Functions MUST exported as the same name as the key in `implementation` object.**
+  > [!IMPORTANT]
+  >
+  > **Functions MUST exported as the same name as the key in `implementation` object.**
 
   ```js
   // foo-and-bar.js
@@ -191,6 +195,7 @@ foo()
 ```
 
 > [!IMPORTANT]
+>
 > The given function is executed in a separate environment, so you cannot use any variables/imports from outside the scope of the function. You can pass in arguments to the function. To import dependencies, use await `import(…)` in the function body.
 
 - [Example](./examples/use-inline-function.js)
@@ -277,6 +282,7 @@ bar()
 > Make an inline asynchronous function into synchronized.
 
 > [!IMPORTANT]
+>
 > The given function is executed in a separate environment, so you cannot use any variables/imports from outside the scope of the function. You can pass in arguments to the function. To import dependencies, use await `import(…)` in the function body.
 
 Explicit version of `makeSynchronized(function)`.
