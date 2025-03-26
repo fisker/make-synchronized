@@ -23,7 +23,11 @@ function startHost() {
     unlock(workerRunningSemaphore)
   }
 
-  initializeModule()
+  try {
+    initializeModule()
+  } catch {
+    // No op
+  }
 }
 
 export default startHost

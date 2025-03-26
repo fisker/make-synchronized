@@ -36,3 +36,11 @@ test('Inline function', () => {
     [100, 300],
   )
 })
+
+test('Dependencies', () => {
+  const result = makeSynchronized(async () => {
+    const {version} = await import('prettier')
+    return typeof version === 'string'
+  })()
+  assert.equal(result, true)
+})

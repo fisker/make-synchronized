@@ -23,11 +23,8 @@ class ThreadsWorker {
   }
 
   #createWorker() {
-    const lock = IS_PRODUCTION ? {} : new Lock()
-
-    const worker = new Worker(workerFile, {
+    const workerOptions = {
       workerData: {
-        workerRunningSemaphore: lock.semaphore,
         isServer: true,
         module: this.#module,
       },
@@ -35,7 +32,15 @@ class ThreadsWorker {
       // Do not pipe `stdio`s
       stdout: true,
       stderr: true,
-    })
+    }
+
+    let lock
+    if (!IS_PRODUCTION) {
+      lock = new Lock()
+      workerOptions.workerData.workerRunningSemaphore = lock.semaphore
+    }
+
+    const worker = new Worker(workerFile, workerOptions)
     worker.unref()
 
     if (IS_PRODUCTION) {

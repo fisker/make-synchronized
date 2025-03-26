@@ -1,4 +1,5 @@
 import {workerData} from 'node:worker_threads'
+import {MODULE_TYPE__INLINE_FUNCTION} from './constants.js'
 
 let moduleImportPromise
 let moduleInstance
@@ -25,6 +26,21 @@ async function loadModule() {
 
 // Unknown reason, can't throw on worker start
 const initializeModule = async () => {
+  const {module} = workerData
+
+  if (module.type === MODULE_TYPE__INLINE_FUNCTION) {
+    const {code} = module
+
+    try {
+      // eslint-disable-next-line sonarjs/code-eval, no-eval
+      moduleInstance = {default: eval(code)}
+    } catch (error) {
+      moduleLoadError = error
+    }
+
+    return
+  }
+
   moduleImportPromise = import(workerData.module.source)
 
   try {

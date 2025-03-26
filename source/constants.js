@@ -23,5 +23,9 @@ export const ATOMICS_WAIT_RESULT__OK = 'ok'
 export const ATOMICS_WAIT_RESULT__NOT_EQUAL = 'not-equal'
 export const ATOMICS_WAIT_RESULT__TIMED_OUT = 'timed-out'
 
+// Currently, this is not used
+export const RESPONSE_TYPE__RESOLVE = '[[RESPONSE_TYPE__RESOLVE]]'
 export const RESPONSE_TYPE__REJECT = '[[RESPONSE_TYPE__REJECT]]'
 export const RESPONSE_TYPE__TERMINATE = '[[RESPONSE_TYPE__TERMINATE]]'
+
+export const MODULE_TYPE__INLINE_FUNCTION = '[[MODULE_TYPE__INLINE_FUNCTION]]'

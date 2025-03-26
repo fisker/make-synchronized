@@ -1,15 +1,19 @@
-import {VALUE_INFORMATION__FUNCTION} from './constants.js'
+import {
+  MODULE_TYPE__INLINE_FUNCTION,
+  VALUE_INFORMATION__FUNCTION,
+} from './constants.js'
 import Synchronizer from './synchronizer.js'
 
 function makeInlineFunctionSynchronized(implementation) {
-  const code = `export default ${
+  const code =
     typeof implementation === 'function'
       ? implementation.toString()
       : implementation
-  }`
 
-  const module = `data:text/javascript,;${encodeURIComponent(code)}`
-  const synchronizer = Synchronizer.create(module)
+  const synchronizer = Synchronizer.create(
+    {type: MODULE_TYPE__INLINE_FUNCTION, code},
+    {isNormalizedModule: true},
+  )
 
   synchronizer.setKnownInformation(undefined, VALUE_INFORMATION__FUNCTION)
 

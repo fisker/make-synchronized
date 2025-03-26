@@ -25,8 +25,8 @@ const cachePathResult = (cache, path, getResult) =>
 class Synchronizer {
   static #instances = new Map()
 
-  static create(module) {
-    module = normalizeModule(module)
+  static create(module, {isNormalizedModule = false} = {}) {
+    module = isNormalizedModule ? module : normalizeModule(module)
 
     return cacheResult(
       this.#instances,

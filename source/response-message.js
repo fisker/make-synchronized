@@ -9,7 +9,7 @@ function packRejectedValue(value) {
   return {error: value}
 }
 
-function unpackRejectedValue(error, errorData) {
+function unpackRejectedValue({error, errorData}) {
   if (error instanceof Error && errorData) {
     return Object.assign(error, errorData)
   }
@@ -38,7 +38,7 @@ function packResponseMessage(stdio, data, type) {
   if (type === RESPONSE_TYPE__REJECT) {
     extraData ??= {}
     extraData.rejected = true
-    return [undefined, Object.assign(extraData, packRejectedValue(data))]
+    return [packRejectedValue(data), extraData]
   }
 
   // This is the most common format
@@ -56,12 +56,12 @@ function unpackResponseMessage(message) {
     return {result: message[0]}
   }
 
-  const [result, extraData] = message
+  const [data, extraData] = message
   if (extraData.rejected) {
-    extraData.error = unpackRejectedValue(extraData.error, extraData.errorData)
+    extraData.error = unpackRejectedValue(data)
   }
 
-  return {result, ...extraData}
+  return {result: data, ...extraData}
 }
 
 export {packResponseMessage, unpackResponseMessage}
