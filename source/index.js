@@ -5,10 +5,14 @@ import {setWorkFile} from './threads-worker.js'
 
 module.enableCompileCache?.()
 
-setWorkFile(new URL(import.meta.url))
-
 if (IS_SERVER) {
-  startServer()
+  try {
+    startServer()
+  } catch {
+    // No op
+  }
+} else {
+  setWorkFile(new URL(import.meta.url))
 }
 
 export {makeSynchronized as default} from './client.js'

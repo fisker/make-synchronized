@@ -21,10 +21,7 @@ async function run({type}) {
     await spawn('yarn', {cwd: directory})
 
     const file = path.join(directory, 'foo.mjs')
-    const module = new URL(
-      '../fixtures/loaders/yarn-pnp-test.js',
-      import.meta.url,
-    )
+    const module = new URL('../fixtures/loaders/yarn-pnp.js', import.meta.url)
     await fs.writeFile(
       file,
       /* Indent */ `

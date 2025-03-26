@@ -4,6 +4,7 @@ import defaultExport, {
   makeSynchronized,
   makeSynchronizedFunction,
   makeSynchronizedFunctions,
+  makeInlineFunctionSynchronized,
 } from './index.js'
 
 import {expectError, expectType} from 'tsd'
@@ -51,6 +52,9 @@ import {expectError, expectType} from 'tsd'
     makeSynchronized<{default: number; foo: Promise<number>}>('x').foo,
   )
   expectType<number>(makeSynchronized<{default: number; foo: number}>('x').foo)
+
+  // Inline functions
+  expectType<1>(makeSynchronized(async () => 1 as const)())
 }
 
 // Module argument
@@ -126,5 +130,16 @@ import {expectError, expectType} from 'tsd'
   )
   expectError(() =>
     makeModuleSynchronized<{default: () => Promise<number>}>('x')(),
+  )
+}
+
+// `makeInlineFunctionSynchronized`
+{
+  expectType<1>(makeInlineFunctionSynchronized(async () => 1 as const)())
+  expectType<'lie'>(
+    makeInlineFunctionSynchronized<() => Promise<'lie'>>(`async () => 1`)(),
+  )
+  expectType<'lie'>(
+    makeInlineFunctionSynchronized<() => 'lie'>(`async () => 1`)(),
   )
 }
