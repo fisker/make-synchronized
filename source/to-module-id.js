@@ -1,18 +1,38 @@
 import * as path from 'node:path'
 import * as url from 'node:url'
+import util from 'node:util'
+
+const isString = (value) => typeof value === 'string'
+const filenameToModuleId = (filename) => url.pathToFileURL(filename).href
 
 function toModuleId(module) {
-  if (module instanceof URL) {
-    return module.href
+  // `URL` and duck type
+  const href = module?.href
+  if (isString(href)) {
+    return href
   }
 
-  if (typeof module === 'string' && path.isAbsolute(module)) {
-    return url.pathToFileURL(module).href
+  // `import.meta` and duck type with `url`
+  const url = module?.url
+  if (isString(url)) {
+    return url
   }
 
-  // `import.meta`
-  if (typeof module.url === 'string') {
-    return module.url
+  // `import.meta` and duck type with `filename`
+  const filename = module?.filename
+  if (isString(filename)) {
+    return filenameToModuleId(filename)
+  }
+
+  if (!isString(module) || module.startsWith('.')) {
+    throw new TypeError(
+      `'module' should be an 'URL', 'import.meta' or an absolute path, got '${util.inspect(module)}'.`,
+    )
+  }
+
+  // Absolute file path
+  if (path.isAbsolute(module)) {
+    return filenameToModuleId(module)
   }
 
   return module

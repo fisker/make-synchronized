@@ -1,4 +1,12 @@
-type Module = string | URL | {url: string}
+type Module =
+  | string
+  // `URL` and duck type
+  | URL
+  | {href: string}
+  // `ImportMeta` and duck type with `url`
+  | ImportMeta
+  | {url: string}
+  | {filename: string}
 type NormalizedPropertyPath = string[]
 type PropertyPath = undefined | string | NormalizedPropertyPath
 
