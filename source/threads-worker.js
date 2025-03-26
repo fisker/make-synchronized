@@ -14,8 +14,33 @@ import Lock from './lock.js'
 import waitForWorker from './wait-for-worker.js'
 
 // Node.js v18 and v19 eval worker code in script
-const isModuleEvalNotSupported =
-  (process.versions.node?.split('.')[0] ?? 20) < 20
+// Node.js v20 seems also buggy on Windows
+let resultCache
+const shouldUseLegacyEvalMode = () => {
+  if (resultCache !== undefined) {
+    return resultCache
+  }
+
+  const version = process.versions.node
+  if (!version) {
+    resultCache = true
+    return resultCache
+  }
+
+  const majorVersion = Number(version.split('.')[0])
+  if (majorVersion < 20) {
+    resultCache = true
+    return resultCache
+  }
+
+  if (majorVersion < 22 && process.platform === 'win32') {
+    resultCache = true
+    return resultCache
+  }
+
+  resultCache = false
+  return false
+}
 
 let workerFile
 
@@ -61,7 +86,7 @@ class ThreadsWorker {
         workerFile instanceof URL ? workerFile : pathToFileURL(workerFile)
 
       worker = new Worker(
-        isModuleEvalNotSupported
+        shouldUseLegacyEvalMode()
           ? /* Indent */ `
             import(${JSON.stringify(workUrl)}).then(() => {
               globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}]
