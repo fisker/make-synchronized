@@ -1,5 +1,5 @@
 import {workerData} from 'node:worker_threads'
-import {MODULE_TYPE__INLINE_FUNCTION} from './constants.js'
+import {GLOBAL_SERVER_PROPERTY, IS_PRODUCTION} from './constants.js'
 
 let moduleImportPromise
 let moduleInstance
@@ -26,17 +26,30 @@ async function loadModule() {
 
 // Unknown reason, can't throw on worker start
 const initializeModule = async () => {
-  const {module} = workerData
+  if (workerData.exposeSetModuleInstance) {
+    // Expose for the main threat to call
+    Object.defineProperty(globalThis, GLOBAL_SERVER_PROPERTY, {
+      enumerable: false,
+      configurable: true,
+      writable: false,
+      value: {
+        setModuleInstance(module) {
+          delete globalThis[GLOBAL_SERVER_PROPERTY]
 
-  if (module.type === MODULE_TYPE__INLINE_FUNCTION) {
-    const {code} = module
+          if (
+            !IS_PRODUCTION &&
+            Object.getOwnPropertyDescriptor(
+              globalThis,
+              GLOBAL_SERVER_PROPERTY,
+            ) !== undefined
+          ) {
+            throw new Error('Unexpected error.')
+          }
 
-    try {
-      // eslint-disable-next-line sonarjs/code-eval, no-eval
-      moduleInstance = {default: eval(code)}
-    } catch (error) {
-      moduleLoadError = error
-    }
+          moduleInstance = module
+        },
+      },
+    })
 
     return
   }

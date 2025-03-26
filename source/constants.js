@@ -4,6 +4,7 @@ export const IS_SERVER = !isMainThread && Boolean(workerData?.isServer)
 
 export const IS_PRODUCTION = false
 export const STDIO_STREAMS = ['stdout', 'stderr']
+export const GLOBAL_SERVER_PROPERTY = '__make-synchronized-server__'
 
 export const WORKER_ACTION__APPLY = '[[WORKER_ACTION__APPLY]]'
 export const WORKER_ACTION__GET = '[[WORKER_ACTION__GET]]'

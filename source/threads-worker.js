@@ -3,7 +3,11 @@ import * as util from 'node:util'
 import {Worker} from 'node:worker_threads'
 import AtomicsWaitError from './atomics-wait-error.js'
 import Channel from './channel.js'
-import {IS_PRODUCTION} from './constants.js'
+import {
+  GLOBAL_SERVER_PROPERTY,
+  IS_PRODUCTION,
+  MODULE_TYPE__INLINE_FUNCTION,
+} from './constants.js'
 import {isDataCloneError} from './data-clone-error.js'
 import Lock from './lock.js'
 
@@ -23,11 +27,11 @@ class ThreadsWorker {
   }
 
   #createWorker() {
+    const module = this.#module
+
+    const workerData = {isServer: true}
     const workerOptions = {
-      workerData: {
-        isServer: true,
-        module: this.#module,
-      },
+      workerData,
       // https://nodejs.org/api/worker_threads.html#new-workerfilename-options
       // Do not pipe `stdio`s
       stdout: true,
@@ -40,7 +44,24 @@ class ThreadsWorker {
       workerOptions.workerData.workerRunningSemaphore = lock.semaphore
     }
 
-    const worker = new Worker(workerFile, workerOptions)
+    let worker
+    if (module.type === MODULE_TYPE__INLINE_FUNCTION) {
+      workerData.exposeSetModuleInstance = true
+      workerOptions.eval = true
+
+      worker = new Worker(
+        /* Indent */ `
+          import ${JSON.stringify(workerFile)}
+
+          globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}].setModuleInstance({default: ${module.code}})
+        `,
+        workerOptions,
+      )
+    } else {
+      workerData.module = module
+      worker = new Worker(workerFile, workerOptions)
+    }
+
     worker.unref()
 
     if (IS_PRODUCTION) {
