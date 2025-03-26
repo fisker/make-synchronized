@@ -196,7 +196,7 @@ foo()
 
 > [!IMPORTANT]
 >
-> The given function is executed in a separate environment, so you cannot use any variables/imports from outside the scope of the function. You can pass in arguments to the function. To import dependencies, use await `import(…)` in the function body.
+> The given function is executed in a separate environment, so you cannot use any variables/imports from outside the scope of the function. You can pass in arguments to the function. To import dependencies, use `await import(…)` in the function body.
 
 - [Example](./examples/use-inline-function.js)
 
@@ -283,7 +283,7 @@ bar()
 
 > [!IMPORTANT]
 >
-> The given function is executed in a separate environment, so you cannot use any variables/imports from outside the scope of the function. You can pass in arguments to the function. To import dependencies, use await `import(…)` in the function body.
+> The given function is executed in a separate environment, so you cannot use any variables/imports from outside the scope of the function. You can pass in arguments to the function. To import dependencies, use `await import(…)` in the function body.
 
 Explicit version of `makeSynchronized(function)`.
 
@@ -312,4 +312,13 @@ import makeSynchronized from 'make-synchronized'
 const sleep = makeSynchronized((delay) =>
   process.getBuiltinModule('node:timers/promises').setTimeout(delay),
 )
+```
+
+```js
+import makeSynchronized from 'make-synchronized'
+
+const sleep = makeSynchronized(async (delay) => {
+  const {setTimeout} = await import('node:timers/promises')
+  await setTimeout(delay)
+})
 ```
