@@ -19,7 +19,7 @@ function makeSynchronized(module, implementation) {
     return makeSynchronizedFunctions(module, implementation)
   }
 
-  const synchronizer = Synchronizer.create({module})
+  const synchronizer = Synchronizer.create(module)
   const defaultExportType = synchronizer.getInformation('default').type
 
   if (defaultExportType === VALUE_TYPE__FUNCTION) {

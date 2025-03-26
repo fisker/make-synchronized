@@ -7,9 +7,9 @@ import {
   WORKER_ACTION__GET_INFORMATION,
   WORKER_ACTION__OWN_KEYS,
 } from './constants.js'
+import normalizeModule from './normalize-module.js'
 import {hashPath, normalizePath} from './property-path.js'
 import ThreadsWorker from './threads-worker.js'
-import toModuleId from './to-module-id.js'
 
 const cacheResult = (cache, cacheKey, getResult) => {
   if (!cache.has(cacheKey)) {
@@ -25,13 +25,13 @@ const cachePathResult = (cache, path, getResult) =>
 class Synchronizer {
   static #instances = new Map()
 
-  static create({module}) {
-    const moduleId = toModuleId(module)
+  static create(module) {
+    module = normalizeModule(module)
 
     return cacheResult(
       this.#instances,
-      moduleId,
-      () => new Synchronizer(moduleId),
+      JSON.stringify(module),
+      () => new Synchronizer(module),
     )
   }
 
@@ -45,8 +45,8 @@ class Synchronizer {
 
   #plainObjectStore = new Map()
 
-  constructor(moduleId) {
-    this.#worker = new ThreadsWorker({moduleId})
+  constructor(module) {
+    this.#worker = new ThreadsWorker(module)
   }
 
   getInformation(path) {

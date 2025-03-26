@@ -7,7 +7,7 @@ function makeSynchronizedFunctions(module, implementation) {
     return implementation
   }
 
-  const synchronizer = Synchronizer.create({module})
+  const synchronizer = Synchronizer.create(module)
 
   synchronizer.setKnownInformation(
     undefined,
@@ -31,7 +31,7 @@ function makeSynchronizedFunction(
     return implementation
   }
 
-  const synchronizer = Synchronizer.create({module})
+  const synchronizer = Synchronizer.create(module)
 
   synchronizer.setKnownInformation(
     specifier,

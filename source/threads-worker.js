@@ -15,11 +15,11 @@ const setWorkFile = (file) => {
 
 class ThreadsWorker {
   #worker
-  #workerData
+  #module
   #channel
 
-  constructor(workerData) {
-    this.#workerData = workerData
+  constructor(module) {
+    this.#module = module
   }
 
   #createWorker() {
@@ -29,7 +29,7 @@ class ThreadsWorker {
       workerData: {
         workerRunningSemaphore: lock.semaphore,
         isServer: true,
-        ...this.#workerData,
+        module: this.#module,
       },
       // https://nodejs.org/api/worker_threads.html#new-workerfilename-options
       // Do not pipe `stdio`s

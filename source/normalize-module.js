@@ -5,7 +5,7 @@ import util from 'node:util'
 const isString = (value) => typeof value === 'string'
 const filenameToModuleId = (filename) => url.pathToFileURL(filename).href
 
-function toModuleId(module) {
+function toModuleSource(module) {
   // `URL` and duck type
   const href = module?.href
   if (isString(href)) {
@@ -38,4 +38,8 @@ function toModuleId(module) {
   return module
 }
 
-export default toModuleId
+function normalizeModule(module) {
+  return {source: toModuleSource(module)}
+}
+
+export default normalizeModule

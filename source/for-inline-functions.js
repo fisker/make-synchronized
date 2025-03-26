@@ -9,7 +9,7 @@ function makeInlineFunctionSynchronized(implementation) {
   }`
 
   const module = `data:text/javascript,;${encodeURIComponent(code)}`
-  const synchronizer = Synchronizer.create({module})
+  const synchronizer = Synchronizer.create(module)
 
   synchronizer.setKnownInformation(undefined, VALUE_INFORMATION__FUNCTION)
 
