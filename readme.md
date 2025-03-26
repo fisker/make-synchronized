@@ -46,11 +46,11 @@ This module mainly to support two kinds of different purpose of usage:
 
 1. Make an inline asynchronous function into synchronized
 
-```js
-import makeSynchronized from 'make-synchronized'
+   ```js
+   import makeSynchronized from 'make-synchronized'
 
-const foo = makeSynchronized(() => Promise.resolve('foo'))
-```
+   const foo = makeSynchronized(() => Promise.resolve('foo'))
+   ```
 
 ## Named exports
 
