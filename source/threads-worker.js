@@ -12,6 +12,9 @@ import {
 import {isDataCloneError} from './data-clone-error.js'
 import Lock from './lock.js'
 
+const isModuleEvalNotSupported =
+  (process.versions.node?.split('.')[0] ?? 20) < 20
+
 let workerFile
 
 const setWorkFile = (file) => {
@@ -50,12 +53,22 @@ class ThreadsWorker {
       workerData.exposeSetModuleInstance = true
       workerOptions.eval = true
 
-      worker = new Worker(
-        /* Indent */ `
-          import ${JSON.stringify(workerFile instanceof URL ? workerFile : pathToFileURL(workerFile))}
+      const workUrl =
+        workerFile instanceof URL ? workerFile : pathToFileURL(workerFile)
 
-          globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}].setModuleInstance({default: ${module.code}})
-        `,
+      worker = new Worker(
+        isModuleEvalNotSupported
+          ? /* Indent */ `
+            import(${JSON.stringify(workUrl)}).then(() => {
+               globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}]
+                 .setModuleInstance({default: ${module.code}})
+             })
+          `
+          : /* Indent */ `
+            import ${JSON.stringify(workUrl)}
+
+            globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}].setModuleInstance({default: ${module.code}})
+          `,
         workerOptions,
       )
     } else {
