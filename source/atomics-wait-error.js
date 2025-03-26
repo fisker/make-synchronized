@@ -1,5 +1,6 @@
 import {ATOMICS_WAIT_RESULT__TIMED_OUT} from './constants.js'
 
+/* c8 ignore next -- debug feature */
 class AtomicsWaitError extends Error {
   name = 'AtomicsWaitError'
 

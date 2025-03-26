@@ -12,5 +12,5 @@ const data = new Map([
   ['symbol', Symbol('symbol')],
 ])
 
-export default (value) => Promise.reject(data.get(value))
+export default (name) => Promise.reject(data.get(name))
 export {data}

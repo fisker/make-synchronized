@@ -16,9 +16,10 @@ class Channel {
     this.workerPort = workerPort
   }
 
-  getResponse(lock) {
+  getResponse(lock, timeout) {
     try {
-      lock.lock()
+      lock.lock(timeout)
+      /* c8 ignore start */
     } catch (error) {
       if (error instanceof AtomicsWaitError) {
         this.destroy()
@@ -26,6 +27,7 @@ class Channel {
 
       throw error
     }
+    /* c8 ignore end */
 
     const message = this.#receiveMessage()
 

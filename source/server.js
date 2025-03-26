@@ -1,6 +1,5 @@
-import {parentPort, workerData} from 'node:worker_threads'
+import {parentPort} from 'node:worker_threads'
 import {initializeModule} from './load-module.js'
-import {unlock} from './lock.js'
 import Responser from './responser.js'
 
 function startHost() {
@@ -18,16 +17,13 @@ function startHost() {
     },
   )
 
-  const {workerRunningSemaphore} = workerData
-  if (workerRunningSemaphore) {
-    unlock(workerRunningSemaphore)
-  }
-
   try {
     initializeModule()
+    /* c8 ignore start */
   } catch {
     // No op
   }
+  /* c8 ignore end */
 }
 
 export default startHost

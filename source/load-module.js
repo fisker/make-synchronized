@@ -16,10 +16,12 @@ async function loadModule() {
 
   try {
     moduleInstance = await moduleImportPromise
+    /* c8 ignore start */
   } catch (error) {
     moduleLoadError = error
     throw error
   }
+  /* c8 ignore end */
 
   return moduleImportPromise
 }

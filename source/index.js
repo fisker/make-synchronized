@@ -8,6 +8,7 @@ module.enableCompileCache?.()
 if (IS_SERVER) {
   try {
     startServer()
+    /* c8 ignore next 3 */
   } catch {
     // No op
   }

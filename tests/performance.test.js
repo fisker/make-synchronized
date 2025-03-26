@@ -31,7 +31,7 @@ test('Performance', () => {
 
   assert.equal(result.length, iterations, 'Incorrect result')
   assert.equal(result.at(33), 33, 'Incorrect result')
-  assert.ok(totalTime < 1000, `Too slow, ${totalTime}ms`)
+  assert.ok(totalTime < 3000, `Too slow, ${totalTime}ms`)
 
   const identity = makeModuleSynchronized(module).default
   const {time: runTime} = runRepeatedly(

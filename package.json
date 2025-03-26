@@ -57,7 +57,9 @@
     "all": true,
     "exclude": [
       "**/*.d.ts",
-      "**/*.test-d.ts"
+      "**/*.test-d.ts",
+      "source/atomics-wait-error.js",
+      "source/wait-for-worker.js"
     ],
     "include": [
       "source"

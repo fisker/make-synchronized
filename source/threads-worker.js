@@ -15,30 +15,21 @@ import waitForWorker from './wait-for-worker.js'
 
 // Node.js v18 and v19 eval worker code in script
 // Node.js v20 seems also buggy on Windows
-let resultCache
 const shouldUseLegacyEvalMode = () => {
-  if (resultCache !== undefined) {
-    return resultCache
-  }
-
   const version = process.versions.node
   if (!version) {
-    resultCache = true
-    return resultCache
+    return true
   }
 
   const majorVersion = Number(version.split('.')[0])
   if (majorVersion < 20) {
-    resultCache = true
-    return resultCache
+    return true
   }
 
   if (majorVersion < 22 && process.platform === 'win32') {
-    resultCache = true
-    return resultCache
+    return true
   }
 
-  resultCache = false
   return false
 }
 
