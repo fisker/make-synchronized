@@ -1,4 +1,5 @@
 import process from 'node:process'
+import {pathToFileURL} from 'node:url'
 import * as util from 'node:util'
 import {Worker} from 'node:worker_threads'
 import AtomicsWaitError from './atomics-wait-error.js'
@@ -51,7 +52,7 @@ class ThreadsWorker {
 
       worker = new Worker(
         /* Indent */ `
-          import ${JSON.stringify(workerFile)}
+          import ${JSON.stringify(workerFile instanceof URL ? workerFile : pathToFileURL(workerFile))}
 
           globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}].setModuleInstance({default: ${module.code}})
         `,
