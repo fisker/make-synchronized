@@ -2,7 +2,7 @@ import {parentPort} from 'node:worker_threads'
 import {initializeModule} from './load-module.js'
 import Responser from './responser.js'
 
-function startHost() {
+function startServer() {
   let responser
   parentPort.addListener(
     'message',
@@ -26,4 +26,4 @@ function startHost() {
   /* c8 ignore end */
 }
 
-export default startHost
+export default startServer
