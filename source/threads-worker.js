@@ -60,6 +60,7 @@ class ThreadsWorker {
       // Do not pipe `stdio`s
       stdout: true,
       stderr: true,
+      trackUnmanagedFds: false,
     }
 
     let lock
