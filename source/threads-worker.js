@@ -39,6 +39,20 @@ const setWorkFile = (file) => {
   workerFile = file
 }
 
+const WORKER_OPTIONS = {
+  // https://nodejs.org/api/worker_threads.html#new-workerfilename-options
+  // Do not pipe `stdio`s
+  stdout: true,
+  stderr: true,
+  trackUnmanagedFds: false,
+}
+
+// Bun doesn't support `stdout` and `stderr` options
+if (globalThis.Bun) {
+  delete WORKER_OPTIONS.stdout
+  delete WORKER_OPTIONS.stderr
+}
+
 class ThreadsWorker {
   #worker
   #module
@@ -56,11 +70,7 @@ class ThreadsWorker {
     const workerData = {isServer: true}
     const workerOptions = {
       workerData,
-      // https://nodejs.org/api/worker_threads.html#new-workerfilename-options
-      // Do not pipe `stdio`s
-      stdout: true,
-      stderr: true,
-      trackUnmanagedFds: false,
+      ...WORKER_OPTIONS,
     }
 
     let lock
