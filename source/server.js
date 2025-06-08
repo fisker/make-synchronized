@@ -4,14 +4,14 @@ import Responser from './responser.js'
 
 function startServer() {
   let responser
-  parentPort.on('message', ([action, payload, responseSemaphore, channel]) => {
+  parentPort.on('message', ([action, payload, channel]) => {
     // Switch to a new channel
     if (channel) {
       responser?.destroy()
       responser = new Responser(channel)
     }
 
-    responser.process({responseSemaphore, action, payload})
+    responser.process({action, payload})
   })
 
   try {

@@ -15,7 +15,6 @@ const originalProcessExit = process.exit
 class Responser {
   #channel
   #stdio = []
-  #responseSemaphore
 
   constructor(channel) {
     this.#channel = channel
@@ -70,9 +69,8 @@ class Responser {
   }
 
   #finish() {
-    unlock(this.#responseSemaphore)
+    unlock(this.#channel.responseSemaphore)
     process.exitCode = undefined
-    this.#responseSemaphore = undefined
     this.#stdio.length = 0
   }
 
@@ -80,9 +78,7 @@ class Responser {
     this.#send(undefined, RESPONSE_TYPE__TERMINATE)
   }
 
-  async process({responseSemaphore, action, payload}) {
-    this.#responseSemaphore = responseSemaphore
-
+  async process({action, payload}) {
     try {
       this.#resolve(await processAction(action, payload))
     } catch (error) {

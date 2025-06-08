@@ -150,10 +150,7 @@ class ThreadsWorker {
       this.#workerOnlineLock = undefined
     }
 
-    // TODO: Move this into `Channel`
-    const lock = new Lock()
-
-    const requestMessage = [action, payload, lock.semaphore]
+    const requestMessage = [action, payload]
 
     const transferList = []
 
@@ -164,7 +161,10 @@ class ThreadsWorker {
     if (this.#createChannel()) {
       channel = this.#channel
 
-      requestMessage.push({responsePort: channel.workerPort})
+      requestMessage.push({
+        responsePort: channel.workerPort,
+        responseSemaphore: channel.responseSemaphore,
+      })
       transferList.push(channel.workerPort)
     }
 
@@ -188,7 +188,7 @@ class ThreadsWorker {
     }
 
     const {stdio, exitCode, terminated, rejected, error, result} =
-      channel.getResponse(lock, timeout)
+      channel.getResponse(timeout)
 
     if (stdio) {
       for (const {stream, chunk} of stdio) {
