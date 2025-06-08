@@ -13,6 +13,11 @@ test(`reliability(${times} runs)`, async () => {
   )
 
   for (let index = 0; index < times; index++) {
-    assert.equal(identity(index), index)
+    try {
+      assert.equal(identity(index), index)
+    } catch (error) {
+      console.log(`Failed on ${index + 1}/${times} run.`)
+      throw error
+    }
   }
 })

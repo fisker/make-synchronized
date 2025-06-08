@@ -87,19 +87,23 @@ class ThreadsWorker {
       const workUrl =
         workerFile instanceof URL ? workerFile : pathToFileURL(workerFile)
 
+      const setModuleInstance = /* Indent */ `
+        globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}]
+          .setModuleInstance({default: ${module.code}})
+      `
+
       worker = new Worker(
         shouldUseLegacyEvalMode()
           ? /* Indent */ `
-            import(${JSON.stringify(workUrl)}).then(() => {
-              globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}]
-                .setModuleInstance({default: ${module.code}})
-            })
+            import(${JSON.stringify(workUrl)})
+              .then(() => {
+                ${setModuleInstance}
+              })
           `
           : /* Indent */ `
             import ${JSON.stringify(workUrl)}
 
-            globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}]
-              .setModuleInstance({default: ${module.code}})
+            ${setModuleInstance}
           `,
         workerOptions,
       )
@@ -150,10 +154,7 @@ class ThreadsWorker {
       this.#workerOnlineLock = undefined
     }
 
-    // TODO: Move this into `Channel`
-    const lock = new Lock()
-
-    const requestMessage = [action, payload, lock.semaphore]
+    const requestMessage = [action, payload]
 
     const transferList = []
 
@@ -164,8 +165,10 @@ class ThreadsWorker {
     if (this.#createChannel()) {
       channel = this.#channel
 
-      requestMessage.push({responsePort: channel.workerPort})
-      transferList.push(channel.workerPort)
+      const {workerPort: responsePort, semaphore: responseSemaphore} = channel
+
+      requestMessage.push({responsePort, responseSemaphore})
+      transferList.push(responsePort)
     }
 
     try {
@@ -188,7 +191,7 @@ class ThreadsWorker {
     }
 
     const {stdio, exitCode, terminated, rejected, error, result} =
-      channel.getResponse(lock, timeout)
+      channel.getResponse(timeout)
 
     if (stdio) {
       for (const {stream, chunk} of stdio) {
