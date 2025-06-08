@@ -18,24 +18,21 @@ class Lock {
 
   lock(timeout) {
     const {semaphore} = this
+    const previous = this.#messageCount
 
-    // Already unlocked
-    const count = Atomics.load(semaphore, SIGNAL_INDEX)
-    if (count > this.#messageCount) {
-      this.#messageCount = count
-      return
+    while (true) {
+      this.#messageCount = Atomics.load(semaphore, SIGNAL_INDEX)
+
+      if (this.#messageCount > previous) {
+        return
+      }
+
+      const result = Atomics.wait(semaphore, SIGNAL_INDEX, previous, timeout)
+
+      if (result === ATOMICS_WAIT_RESULT__TIMED_OUT) {
+        throw new AtomicsWaitError(result, {semaphore, expected: previous})
+      }
     }
-
-    const expected = this.#messageCount
-    const result = Atomics.wait(semaphore, SIGNAL_INDEX, expected, timeout)
-
-    this.#messageCount = Atomics.load(semaphore, SIGNAL_INDEX)
-
-    if (result !== ATOMICS_WAIT_RESULT__TIMED_OUT) {
-      return
-    }
-
-    throw new AtomicsWaitError(result, {semaphore, expected})
   }
 }
 
