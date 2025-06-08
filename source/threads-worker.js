@@ -95,9 +95,10 @@ class ThreadsWorker {
       worker = new Worker(
         shouldUseLegacyEvalMode()
           ? /* Indent */ `
-            import(${JSON.stringify(workUrl)}).then(() => {
-              ${setModuleInstance}
-            })
+            import(${JSON.stringify(workUrl)})
+              .then(() => {
+                ${setModuleInstance}
+              })
           `
           : /* Indent */ `
             import ${JSON.stringify(workUrl)}
