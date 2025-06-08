@@ -1,12 +1,23 @@
 import AtomicsWaitError from './atomics-wait-error.js'
 import {ATOMICS_WAIT_RESULT__TIMED_OUT} from './constants.js'
 
-const STATE_UNLOCKED = 2
+const STATE_LOCKED = 0
+const STATE_UNLOCKED = 1
 const SIGNAL_INDEX = 0
 
 /** @param {Int32Array<SharedArrayBuffer>} semaphore */
 const unlock = (semaphore) => {
-  Atomics.store(semaphore, SIGNAL_INDEX, STATE_UNLOCKED)
+  if (
+    Atomics.compareExchange(
+      semaphore,
+      SIGNAL_INDEX,
+      STATE_LOCKED,
+      STATE_UNLOCKED,
+    ) !== STATE_LOCKED
+  ) {
+    return
+  }
+
   Atomics.notify(semaphore, SIGNAL_INDEX, 1)
 }
 
@@ -22,11 +33,11 @@ class Lock {
     this.semaphore = undefined
 
     // Already unlocked
-    if (Atomics.load(semaphore, SIGNAL_INDEX) > 0) {
+    if (Atomics.load(semaphore, SIGNAL_INDEX) !== STATE_LOCKED) {
       return
     }
 
-    const expected = 0
+    const expected = STATE_LOCKED
     const result = Atomics.wait(semaphore, SIGNAL_INDEX, expected, timeout)
 
     if (result !== ATOMICS_WAIT_RESULT__TIMED_OUT) {
