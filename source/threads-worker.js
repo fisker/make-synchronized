@@ -87,19 +87,22 @@ class ThreadsWorker {
       const workUrl =
         workerFile instanceof URL ? workerFile : pathToFileURL(workerFile)
 
+      const setModuleInstance = /* Indent */ `
+        globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}]
+          .setModuleInstance({default: ${module.code}})
+      `
+
       worker = new Worker(
         shouldUseLegacyEvalMode()
           ? /* Indent */ `
             import(${JSON.stringify(workUrl)}).then(() => {
-              globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}]
-                .setModuleInstance({default: ${module.code}})
+              ${setModuleInstance}
             })
           `
           : /* Indent */ `
             import ${JSON.stringify(workUrl)}
 
-            globalThis[${JSON.stringify(GLOBAL_SERVER_PROPERTY)}]
-              .setModuleInstance({default: ${module.code}})
+            ${setModuleInstance}
           `,
         workerOptions,
       )
