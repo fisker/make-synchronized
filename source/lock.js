@@ -5,7 +5,7 @@ const SIGNAL_INDEX = 0
 
 /** @param {Int32Array<SharedArrayBuffer>} semaphore */
 const unlock = (semaphore) => {
-  Atomics.store(semaphore, SIGNAL_INDEX, 1)
+  Atomics.add(semaphore, SIGNAL_INDEX, 1)
   Atomics.notify(semaphore, SIGNAL_INDEX, 1)
 }
 
