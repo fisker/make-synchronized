@@ -161,11 +161,10 @@ class ThreadsWorker {
     if (this.#createChannel()) {
       channel = this.#channel
 
-      requestMessage.push({
-        responsePort: channel.workerPort,
-        responseSemaphore: channel.responseSemaphore,
-      })
-      transferList.push(channel.workerPort)
+      const {workerPort: responsePort, semaphore: responseSemaphore} = channel
+
+      requestMessage.push({responsePort, responseSemaphore})
+      transferList.push(responsePort)
     }
 
     try {

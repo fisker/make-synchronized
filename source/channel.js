@@ -51,7 +51,7 @@ class Channel {
     }
   }
 
-  get responseSemaphore() {
+  get semaphore() {
     return this.#lock.semaphore
   }
 
