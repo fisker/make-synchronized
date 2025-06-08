@@ -1,4 +1,4 @@
-import * as assert from 'node:assert/strict'
+import * as assert from 'node:assert'
 import test from 'node:test'
 import loadModuleForTests from '../scripts/load-module-for-tests.js'
 
