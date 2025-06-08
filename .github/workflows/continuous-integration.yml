@@ -8,6 +8,10 @@ on:
   # schedule:
   #   - cron: "0 23 * * 6"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     strategy:
@@ -18,7 +22,7 @@ jobs:
           - "macos-latest"
           - "windows-latest"
         node_version:
-          - "23"
+          - "24"
           - "22"
           - "20"
           - "18"
